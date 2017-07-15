@@ -1,133 +1,13 @@
-Connector
-=========
+NXOS
+====
 
-Introduction
-------------
+The following services are supported by the REST connector for NXOS.
 
-``Rest`` is a pyATS connection class implementation that allows scripts to
-connect to a device using REST via topology/YAML format.
 
-To specify ``Rest`` connection implementation, add the following to your YAML
-file:
-
-.. code-block:: yaml
-
-    # Example
-    # -------
-    #
-    #   pyATS testbed yaml example for defining a REST connection
-
-    testbed:
-        name: myTestbed
-
-    devices:
-        PE1:
-            connections:
-                # Console
-                a:
-                    # specify the rest connector class
-                    ip: 1.2.3.4
-                    port: 10001
-                    protocol: telnet
-                # Rest connector class
-                rest:
-                    class: rest.connector.Rest
-                    ip: 1.2.3.4
-
-With the above, the testbed loader can then load this YAML into object form.
-
-.. code-block:: python
-
-    # Example
-    # -------
-    #
-    #   loading & using REST testbed yaml file in pyATS
-
-    # import the topology module
-    from ats import topology
-
-    # load the above testbed file containing REST device
-    testbed = topology.loader.load('/path/to/rest/testbed.yaml')
-
-    # get device by name
-    device = testbed.devices['PE1']
-
-    # connect to it 
-    device.connect(via='rest')
-
-    # get information of a particular DN
-    url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
-    output = x.rest.get(url)
-
-    # etc..
-
-Connect
--------
-
-Api to connect to the device.
-
-.. csv-table:: connect arguments
-    :header: Argument, Description, Default
-    :widths: 30, 50, 20
-
-    ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
-
-.. code-block:: python
-
-    # Example
-    # -------
-    #
-    #   loading & using REST testbed yaml file in pyATS
-
-    # import the topology module
-    from ats import topology
-
-    # load the above testbed file containing REST device
-    testbed = topology.loader.load('/path/to/rest/testbed.yaml')
-
-    # get device by name
-    device = testbed.devices['PE1']
-
-    # connect to it 
-    device.connect(via='rest')
-
-Disconnect
-----------
-
-Api to disconnect to the device.
-
-.. csv-table:: disconnect arguments
-    :header: Argument, Description, Default
-    :widths: 30, 50, 20
-
-    ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
-
-.. code-block:: python
-
-    # Example
-    # -------
-    #
-    #   loading & using REST testbed yaml file in pyATS
-
-    # import the topology module
-    from ats import topology
-
-    # load the above testbed file containing REST device
-    testbed = topology.loader.load('/path/to/rest/testbed.yaml')
-
-    # get device by name
-    device = testbed.devices['PE1']
-
-    # connect to it 
-    device.connect(via='rest')
-
-    # disconnect to it 
-    device.disconnect()
-
-Get
+get
 ---
 
-Api to send GET command to the device.
+API to send GET command to the device.
 
 .. csv-table:: GET arguments
     :header: Argument, Description, Default
@@ -145,12 +25,12 @@ Api to send GET command to the device.
 
     # Assuming the device is already connected
     url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
-    output = x.get(url)
+    output = device.rest.get(url)
 
-Post
+post
 ----
 
-Api to send POST command to the device.
+API to send POST command to the device.
 
 .. csv-table:: POST arguments
     :header: Argument, Description, Default
@@ -223,12 +103,12 @@ Api to send POST command to the device.
     """
 
     url = 'api/mo/sys/bgp/inst.json'
-    device.post(url, payload)
+    device.rest.post(url, payload)
 
-Delete
+delete
 ------
 
-Api to send DELETE command to the device.
+API to send DELETE command to the device.
 
 .. csv-table:: DELETE arguments
     :header: Argument, Description, Default
@@ -242,6 +122,8 @@ Api to send DELETE command to the device.
 
     # Assuming the device is already connected
     url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
-    output = device.delete(url)
+    output = device.rest.delete(url)
+
 
 .. sectionauthor:: Jean-Benoit Aubin <jeaubin@cisco.com>
+
