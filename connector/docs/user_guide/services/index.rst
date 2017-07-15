@@ -1,0 +1,13 @@
+Services
+========
+
+This part of the document covers all the services supported by rest.connector.
+
+.. toctree::
+   :maxdepth: 2
+
+   generic
+   nxos
+   nso
+
+.. sectionauthor:: ATS Team
