@@ -1,0 +1,25 @@
+
+devices:
+  PE1:
+    os: nxos
+    type: router
+    custom:
+      abstraction:
+        order: [os]
+    connections:
+      rest:
+        class: rest.connector.Rest
+        ip: 1.2.3.4
+  ncs:
+      os: nso
+      type: nso
+      custom:
+        abstraction:
+          order: [os]
+      connections:
+        rest:
+          class: rest.connector.Rest
+          ip: 1.2.3.4
+          port: 8080
+          username: cisco
+          password: cisco

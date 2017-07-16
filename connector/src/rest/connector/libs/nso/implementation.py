@@ -94,7 +94,10 @@ class Implementation(RestImplementation):
 
         # Connect to the device via requests
         response = self.session.get(self.login_url, timeout=timeout)
-        log.info("Response:\n%s" % response.text)
+        output = response.text
+        log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
+            r=response.reason, h=response.headers))
+        log.info("Response:\n%s" % output)
 
         # Make sure it returned requests.codes.ok
         if response.status_code != requests.codes.ok:
@@ -106,6 +109,8 @@ class Implementation(RestImplementation):
                                                 ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
+
+        return output
 
 
     @BaseConnection.locked
@@ -214,6 +219,14 @@ class Implementation(RestImplementation):
 
         full_url = '{b}{a}'.format(b=self.base_url, a=api_url)
 
+        request_payload = payload
+        if isinstance(payload, dict):
+            assert content_type != None, 'content_type parameter required when passing dict'
+            if content_type == 'json':
+                request_payload = json.dumps(payload)
+            elif content_type == 'xml':
+                request_payload = dicttoxml(payload, attr_type=False)
+
         if content_type is None:
             if re.match("<", payload.lstrip()) is not None:
                 content_type = 'xml'
@@ -240,13 +253,6 @@ class Implementation(RestImplementation):
         self.session.headers.update({'Accept': accept_header})
         if headers is not None:
             self.session.headers.update(headers)
-
-        request_payload = payload
-        if isinstance(payload, dict):
-            if content_type == 'json':
-                request_payload = json.dumps(payload)
-            elif content_type == 'xml':
-                request_payload = dicttoxml(payload, attr_type=False)
 
         log.info("Sending POST command to '{d}': {u}"\
             .format(d=self.device.name, u=full_url))
@@ -298,6 +304,14 @@ class Implementation(RestImplementation):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
+        request_payload = payload
+        if isinstance(payload, dict):
+            assert content_type != None, 'content_type parameter required when passing dict'
+            if content_type == 'json':
+                request_payload = json.dumps(payload)
+            elif content_type == 'xml':
+                request_payload = dicttoxml(payload, attr_type=False)
+
         full_url = '{b}{a}'.format(b=self.base_url, a=api_url)
 
         if content_type is None:
@@ -325,19 +339,10 @@ class Implementation(RestImplementation):
         if headers is not None:
             self.session.headers.update(headers)
 
-        request_payload = payload
-        if isinstance(payload, dict):
-            if content_type == 'json':
-                request_payload = json.dumps(payload)
-            elif content_type == 'xml':
-                request_payload = dicttoxml(payload, attr_type=False)
-
-
         log.info("Sending PATCH command to '{d}': {u}".format(
                                                     d=self.device.name, u=full_url))
         log.debug("Headers: {h}\nPayload:{p}".format(h=self.session.headers,
                                                     p=request_payload))
-
 
         # Send to the device
         response = self.session.patch(full_url, request_payload, timeout=timeout)
@@ -386,6 +391,14 @@ class Implementation(RestImplementation):
 
         full_url = '{b}{a}'.format(b=self.base_url, a=api_url)
 
+        request_payload = payload
+        if isinstance(payload, dict):
+            assert content_type != None, 'content_type parameter required when passing dict'
+            if content_type == 'json':
+                request_payload = json.dumps(payload)
+            elif content_type == 'xml':
+                request_payload = dicttoxml(payload, attr_type=False)
+
         if content_type is None:
             if re.match("<", payload.lstrip()) is not None:
                 content_type = 'xml'
@@ -410,14 +423,6 @@ class Implementation(RestImplementation):
         self.session.headers.update({'Accept': accept_header})
         if headers is not None:
             self.session.headers.update(headers)
-
-        request_payload = payload
-        if isinstance(payload, dict):
-            if content_type == 'json':
-                request_payload = json.dumps(payload)
-            elif content_type == 'xml':
-                request_payload = dicttoxml(payload, attr_type=False)
-
 
         log.info("Sending PUT command to '{d}': {u}".format(
                                                     d=self.device.name, u=full_url))
