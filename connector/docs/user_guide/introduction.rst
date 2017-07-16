@@ -10,6 +10,15 @@ only specific platforms. Please note that the custom abstraction keyword is
 required in the testbed.yaml file.
 
 
+Support
+-------
+
+Please post any questions related to ``rest`` to `Piestack`_ within the category
+``Cisco Shared Packages/Other``
+
+.. _PieStack: http://piestack.cisco.com
+
+
 Supported platforms
 -------------------
 
@@ -48,12 +57,11 @@ to the connection for your devices in the testbed YAML file:
             connections:
                 # Console
                 a:
-                    # specify the rest connector class
                     ip: 1.2.3.4
                     port: 10001
                     protocol: telnet
-                # Rest connector class
                 rest:
+                    # specify the rest connector class
                     class: rest.connector.Rest
                     ip: 1.2.3.4
 

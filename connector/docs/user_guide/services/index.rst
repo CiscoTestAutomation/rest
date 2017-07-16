@@ -10,4 +10,3 @@ This part of the document covers all the services supported by rest.connector.
    nxos
    nso
 
-.. sectionauthor:: ATS Team

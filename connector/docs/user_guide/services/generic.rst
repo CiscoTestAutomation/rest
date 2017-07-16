@@ -43,7 +43,7 @@ API to disconnect from the device.
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
-    ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``timeout``, "Maximum time it can take to disconnect from the device.", "30 seconds"
 
 .. code-block:: python
 
