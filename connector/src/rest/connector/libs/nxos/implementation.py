@@ -176,6 +176,7 @@ class Implementation(Implementation):
                 log.propagate = False
                 self.disconnect()
                 self.connect()
+                log.propagate = True
                 ret = func(self, *args, **kwargs)
             finally:
                 log.propagate = True
