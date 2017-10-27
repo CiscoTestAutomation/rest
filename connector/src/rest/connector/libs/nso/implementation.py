@@ -46,7 +46,10 @@ class Implementation(RestImplementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30, default_content_type='json'):
+    def connect(self,
+                timeout=30,
+                default_content_type='json',
+                verbose=False):
         '''connect to the device via REST
 
         Arguments
@@ -97,7 +100,8 @@ class Implementation(RestImplementation):
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
-        log.info("Response:\n%s" % output)
+        if verbose:
+            log.info("Response text:\n%s" % output)
 
         # Make sure it returned requests.codes.ok
         if response.status_code != requests.codes.ok:
@@ -110,7 +114,7 @@ class Implementation(RestImplementation):
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
 
-        return output
+        return response
 
 
     @BaseConnection.locked
@@ -133,7 +137,8 @@ class Implementation(RestImplementation):
              requests.codes.no_content,
              requests.codes.ok
              ),
-            timeout=30):
+            timeout=30,
+            verbose=False):
         '''GET REST Command to retrieve information from the device
 
         Arguments
@@ -153,14 +158,14 @@ class Implementation(RestImplementation):
 
         full_url = '{b}{a}'.format(b=self.base_url, a=api_url)
 
+        header = 'application/vnd.yang.data+{fmt}' \
+                 ', application/vnd.yang.collection+{fmt}' \
+                 ', application/vnd.yang.datastore+{fmt}'
+
         if content_type.lower() == 'json':
-            accept_header = 'application/vnd.yang.data+json' \
-             ', application/vnd.yang.collection+json' \
-             ', application/vnd.yang.datastore+json'
+            accept_header = header.format(fmt='json')
         elif content_type.lower() == 'xml':
-            accept_header = 'application/vnd.yang.data+xml' \
-             ', application/vnd.yang.collection+xml' \
-             ', application/vnd.yang.datastore+xml'
+            accept_header = header.format(fmt='xml')
         else:
             accept_header = content_type
 
@@ -170,14 +175,15 @@ class Implementation(RestImplementation):
 
         log.info("Sending GET command to '{d}': "\
                  "{u}".format(d=self.device.name, u=full_url))
-        log.debug("Headers:{headers}".format(
+        log.debug("Request headers:{headers}".format(
                     headers= self.session.headers))
 
         response = self.session.get(full_url, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
-        log.debug("Output received:\n{output}".format(output=output))
+        if verbose:
+            log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
         if response.status_code not in expected_status_codes:
@@ -189,7 +195,7 @@ class Implementation(RestImplementation):
                                            c=response.status_code,
                                            e=expected_status_codes,
                                            t=response.text))
-        return output
+        return response
 
 
     @BaseConnection.locked
@@ -199,7 +205,8 @@ class Implementation(RestImplementation):
              requests.codes.no_content,
              requests.codes.ok
              ),
-             timeout=30):
+             timeout=30,
+             verbose=False):
         '''POST REST Command to configure information from the device
 
         Arguments
@@ -233,18 +240,34 @@ class Implementation(RestImplementation):
             else:
                 content_type = 'json'
 
+        # NSO Northbound APIs / Resources / Operations and Actions
+        #
+        # YANG-defined operations, defined with the YANG statements "rpc" or "tailf:action",
+        # and the built-in operations, are represented with the media type "application/vnd.yang.operation".
+        # Resources of this type accept only the method "POST".
+        # In XML, such resources are encoded as subelements to the XML element "y:operations".
+        # In JSON, they are encoded under "_operations".
+        #
+
+        if '/_operations' in api_url:
+            # Rest operations like /api/running/devices/_operations/connect
+            content_type_header = 'application/vnd.yang.operation+{fmt}'
+        elif '/api/' in api_url:
+            # for URIs accessing datastores (i.e. /api/running))
+            content_type_header = 'application/vnd.yang.datastore+{fmt}'
+        else:
+            content_type_header = 'application/vnd.yang.data+{fmt}'
+
+        accept_header = 'application/vnd.yang.data+{fmt}' \
+         ', application/vnd.yang.collection+{fmt}' \
+         ', application/vnd.yang.datastore+{fmt}'
+
         if content_type.lower() == 'json':
-            content_type_header = 'application/vnd.yang.operation+json'
-            #content_type_header = 'application/vnd.yang.data+json'
-            accept_header = 'application/vnd.yang.data+json' \
-             ', application/vnd.yang.collection+json' \
-             ', application/vnd.yang.datastore+json'
+            content_type_header = content_type_header.format(fmt='json')
+            accept_header = accept_header.format(fmt='json')
         elif content_type.lower() == 'xml':
-            content_type_header = 'application/vnd.yang.operation+xml'
-            #content_type_header = 'application/vnd.yang.data+xml"'
-            accept_header = 'application/vnd.yang.data+xml' \
-             ', application/vnd.yang.collection+xml' \
-             ', application/vnd.yang.datastore+xml'
+            content_type_header = content_type_header.format(fmt='xml')
+            accept_header = accept_header.format(fmt='xml')
         else:
             content_type_header = content_type
             accept_header = content_type
@@ -256,15 +279,18 @@ class Implementation(RestImplementation):
 
         log.info("Sending POST command to '{d}': {u}"\
             .format(d=self.device.name, u=full_url))
-        log.debug("Headers: {h}\nPayload: {p}"\
+        log.debug("Request headers: {h}\nPayload: {p}"\
             .format(h=self.session.headers, p=request_payload))
+        if verbose:
+            log.info('Request payload:\n{payload}'.format(payload=request_payload))
 
         # Send to the device
         response = self.session.post(full_url, request_payload, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
-        log.info("Output received:\n{output}".format(output=output))
+        if verbose:
+            log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
         if response.status_code not in expected_status_codes:
@@ -276,7 +302,7 @@ class Implementation(RestImplementation):
                                            c=response.status_code,
                                            e=expected_status_codes,
                                            t=response.text))
-        return output
+        return response
 
 
     @BaseConnection.locked
@@ -286,7 +312,8 @@ class Implementation(RestImplementation):
              requests.codes.no_content,
              requests.codes.ok
              ),
-             timeout=30):
+             timeout=30,
+             verbose=False):
         '''PATCH REST Command to configure information from the device
 
         Arguments
@@ -320,16 +347,17 @@ class Implementation(RestImplementation):
             else:
                 content_type = 'json'
 
+        content_type_header = 'application/vnd.yang.data+{fmt}'
+        accept_header = 'application/vnd.yang.data+{fmt}' \
+         ', application/vnd.yang.collection+{fmt}' \
+         ', application/vnd.yang.datastore+{fmt}'
+
         if content_type.lower() == 'json':
-            content_type_header = 'application/vnd.yang.data+json'
-            accept_header = 'application/vnd.yang.data+json' \
-             ', application/vnd.yang.collection+json' \
-             ', application/vnd.yang.datastore+json'
+            content_type_header = content_type_header.format(fmt='json')
+            accept_header = accept_header.format(fmt='json')
         elif content_type.lower() == 'xml':
-            content_type_header = 'application/vnd.yang.data+xml'
-            accept_header = 'application/vnd.yang.data+xml' \
-             ', application/vnd.yang.collection+xml' \
-             ', application/vnd.yang.datastore+xml'
+            content_type_header = content_type_header.format(fmt='xml')
+            accept_header = accept_header.format(fmt='xml')
         else:
             content_type_header = content_type
             accept_header = content_type
@@ -341,15 +369,18 @@ class Implementation(RestImplementation):
 
         log.info("Sending PATCH command to '{d}': {u}".format(
                                                     d=self.device.name, u=full_url))
-        log.debug("Headers: {h}\nPayload:{p}".format(h=self.session.headers,
+        log.debug("Request headers: {h}\nPayload:{p}".format(h=self.session.headers,
                                                     p=request_payload))
+        if verbose:
+            log.info('Request payload:\n{payload}'.format(payload=request_payload))
 
         # Send to the device
         response = self.session.patch(full_url, request_payload, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
-        log.debug("Output received:\n{output}".format(output=output))
+        if verbose:
+            log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
         if response.status_code not in expected_status_codes:
@@ -361,7 +392,7 @@ class Implementation(RestImplementation):
                                            c=response.status_code,
                                            e=expected_status_codes,
                                            t=response.text))
-        return output
+        return response
 
 
     @BaseConnection.locked
@@ -371,7 +402,8 @@ class Implementation(RestImplementation):
              requests.codes.no_content,
              requests.codes.ok
              ),
-             timeout=30):
+             timeout=30,
+             verbose=False):
         '''PUT REST Command to configure information from the device
 
         Arguments
@@ -405,16 +437,17 @@ class Implementation(RestImplementation):
             else:
                 content_type = 'json'
 
+        content_type_header = 'application/vnd.yang.data+{fmt}'
+        accept_header = 'application/vnd.yang.data+{fmt}' \
+         ', application/vnd.yang.collection+{fmt}' \
+         ', application/vnd.yang.datastore+{fmt}'
+
         if content_type.lower() == 'json':
-            content_type_header = 'application/vnd.yang.data+json'
-            accept_header = 'application/vnd.yang.data+json' \
-             ', application/vnd.yang.collection+json' \
-             ', application/vnd.yang.datastore+json'
+            content_type_header = content_type_header.format(fmt='json')
+            accept_header = accept_header.format(fmt='json')
         elif content_type.lower() == 'xml':
-            content_type_header = 'application/vnd.yang.data+xml'
-            accept_header = 'application/vnd.yang.data+xml' \
-             ', application/vnd.yang.collection+xml' \
-             ', application/vnd.yang.datastore+xml'
+            content_type_header = content_type_header.format(fmt='xml')
+            accept_header = accept_header.format(fmt='xml')
         else:
             content_type_header = content_type
             accept_header = content_type
@@ -426,15 +459,18 @@ class Implementation(RestImplementation):
 
         log.info("Sending PUT command to '{d}': {u}".format(
                                                     d=self.device.name, u=full_url))
-        log.debug("Headers: {h}\nPayload:{p}".format(h=self.session.headers,
+        log.debug("Request headers: {h}\nPayload:{p}".format(h=self.session.headers,
                                                     p=request_payload))
+        if verbose:
+            log.info('Request payload:\n{payload}'.format(payload=request_payload))
 
         # Send to the device
         response = self.session.put(full_url, request_payload, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
-        log.debug("Output received:\n{output}".format(output=output))
+        if verbose:
+            log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
         if response.status_code not in expected_status_codes:
@@ -446,7 +482,7 @@ class Implementation(RestImplementation):
                                            c=response.status_code,
                                            e=expected_status_codes,
                                            t=response.text))
-        return output
+        return response
 
 
     @BaseConnection.locked
@@ -456,7 +492,8 @@ class Implementation(RestImplementation):
              requests.codes.no_content,
              requests.codes.ok
              ),
-             timeout=30):
+             timeout=30,
+             verbose=False):
         '''DELETE REST Command to configure information from the device
 
         Arguments
@@ -491,14 +528,15 @@ class Implementation(RestImplementation):
 
         log.info("Sending DELETE command to '{d}': "\
                  "{u}".format(d=self.device.name, u=full_url))
-        log.debug("Headers:{headers}".format(
+        log.debug("Request headers:{headers}".format(
                     headers= self.session.headers))
 
         response = self.session.delete(full_url, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
-        log.debug("Output received:\n{output}".format(output=output))
+        if verbose:
+            log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
         if response.status_code not in expected_status_codes:
@@ -510,4 +548,4 @@ class Implementation(RestImplementation):
                                            c=response.status_code,
                                            e=expected_status_codes,
                                            t=response.text))
-        return output
+        return response
