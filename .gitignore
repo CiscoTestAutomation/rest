@@ -43,10 +43,6 @@ htmlcov/
 # unicon log file
 uni.log
 
-# Extra files placed by cisco_shared into examples
-*dyntopo/src/dyntopo/laas/examples/dyntopo_laas
-*dyntopo/src/dyntopo/xrut/examples/dyntopo_xrut
-
 # Files resulting from a git meld merge
 *.orig
 
