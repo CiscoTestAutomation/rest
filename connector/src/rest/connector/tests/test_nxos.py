@@ -15,21 +15,8 @@ from rest.connector import Rest
 class test_rest_connector(unittest.TestCase):
 
     def setUp(self):
-        self.yaml = \
-            'devices:\n' \
-            '    dummy:\n' \
-            '        os: nxos\n' \
-            '        type: dummy_device\n' \
-            '        custom:\n' \
-            '            abstraction:\n' \
-            '                order: [os]\n' \
-            '        connections:\n' \
-            '            rest:\n' \
-            '                class: rest.connector.Rest\n' \
-            '                ip : "1.2.3.4"\n' \
-
-        self.testbed = loader.load(self.yaml)
-        self.device = self.testbed.devices['dummy']
+        self.testbed = loader.load('testbed.yaml')
+        self.device = self.testbed.devices['PE1']
 
     def test_init(self):
         connection = Rest(device=self.device, alias='rest', via='rest')

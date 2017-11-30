@@ -45,7 +45,15 @@ help:
 	@echo "distribute_docs : Publish the Sphinx documentation to the official cisco-shared web server for all to see"
 
 docs:
-	@echo "Not implemented yet."
+	@echo ""
+	@echo "--------------------------------------------------------------------"
+	@echo "Building $(PKG_NAME) documentation for preview: $@"
+	@echo ""
+
+	@./setup.py docs
+
+	@echo "Completed building docs for preview."
+	@echo ""
 
 pubdocs:
 	@echo "Not implemented yet."

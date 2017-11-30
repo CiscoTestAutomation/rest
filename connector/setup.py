@@ -79,10 +79,11 @@ class BuildAndPreviewDocsCommand(Command):
 
     def run(self):
         user = os.environ['USER']
-        sphinx_build_cmd = "sphinx-build -b html -c ../../docs " \
+        home = os.environ['HOME']
+        sphinx_build_cmd = "sphinx-build -b html -c docs " \
             "-d ./__build__/documentation/doctrees docs/ ./__build__/documentation/html"
-        target_dir = "/users/{user}/WWW/cisco_shared/{pkg_name}".\
-            format(user = user, pkg_name = pkg_path)
+        target_dir = "{home}/WWW/cisco_shared/{pkg_name}".\
+            format(home = home, pkg_name = pkg_name)
         mkdir_cmd = "mkdir -p {target_dir}".format(target_dir=target_dir)
         rsync_cmd = "rsync -rvc ./__build__/documentation/ {target_dir}".\
             format(target_dir=target_dir)
@@ -92,12 +93,13 @@ class BuildAndPreviewDocsCommand(Command):
                 ret_code = subprocess.call(shlex.split(sphinx_build_cmd))
                 if not ret_code:
                     ret_code = subprocess.call(shlex.split(rsync_cmd))
-                    #print("\nYou may preview the documentation at the following URL:")
-                    #print("http://wwwin-home.cisco.com/~{user}/cisco_shared/{pkg_name}/html".\
-                    #    format(user=user, pkg_name=pkg_path))
+                    print("\nYou may preview the documentation at the following URL:")
+                    print("http://wwwin-home.cisco.com/~{user}/cisco_shared/{pkg_name}/html".\
+                        format(user=user, pkg_name=pkg_name))
                     sys.exit(0)
             sys.exit(1)
-        except Exception:
+        except Exception as e:
+            print("Failed to build documentation : {}".format(str(e)))
             sys.exit(1)
 
 

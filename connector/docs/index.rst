@@ -8,8 +8,7 @@ format.
 .. toctree::
    :maxdepth: 1
 
-   installation
-   connector  
+   user_guide/index
    apidoc/index
    changelog/index
 
