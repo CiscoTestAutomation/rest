@@ -11,32 +11,17 @@ log = logging.getLogger(__name__)
 
 
 class Implementation(Implementation):
-    '''Rest Implementation for NXOS
+    '''Rest Implementation for APIC
 
     Implementation of Rest connection to devices based on pyATS BaseConnection
-    for NXOS
+    for APIC
 
     YAML Example
     ------------
 
         devices:
-            PE1:
-                tacacs:
-                    login_prompt: "login:"
-                    password_prompt: "Password:"
-                    username: "admin"
-                passwords:
-                    tacacs: cisco123
-                    enable: cisco123
-                    line: cisco123
+            apic1:
                 connections:
-                    a:
-                        protocol: telnet
-                        ip: "1.2.3.4"
-                        port: 2004
-                    vty:
-                        protocol : telnet
-                        ip : "2.3.4.5"
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
@@ -47,8 +32,8 @@ class Implementation(Implementation):
     ------------
 
         >>> from ats.topology import loader
-        >>> testbed = loader.load('/users/xxx/xxx/asr22.yaml')
-        >>> device = testbed.devices['PE1']
+        >>> testbed = loader.load('/users/xxx/xxx/testbed.yaml')
+        >>> device = testbed.devices['apic1']
         >>> device.connect(alias='rest', via='rest')
         >>> device.rest.connected
         True
@@ -82,37 +67,22 @@ class Implementation(Implementation):
         ------------
 
             devices:
-                PE1:
-                    tacacs:
-                        login_prompt: "login:"
-                        password_prompt: "Password:"
-                        username: "admin"
-                    passwords:
-                        tacacs: admin
-                        enable: admin
-                        line: admin
+                apic1:
                     connections:
-                        a:
-                            protocol: telnet
-                            ip: "1.2.3.4"
-                            port: 2004
-                        vty:
-                            protocol : telnet
-                            ip : "2.3.4.5"
-                        netconf:
+                        rest:
                             class: rest.connector.Rest
                             ip : "2.3.4.5"
+                            username: "admin"
+                            password: "cisco123"
 
         Code Example
         ------------
 
             >>> from ats.topology import loader
-            >>> testbed = loader.load('/users/xxx/xxx/asr22.yaml')
-            >>> device = testbed.devices['asr22']
+            >>> testbed = loader.load('/users/xxx/xxx/testbed.yaml')
+            >>> device = testbed.devices['apic1']
             >>> device.connect(alias='rest', via='rest')
         '''
-
-        import pdb; pdb.set_trace()
 
         if self.connected:
             return
@@ -124,8 +94,8 @@ class Implementation(Implementation):
         payload = {
            "aaaUser": {
               "attributes": {
-                 "name": self.device.tacacs.username,
-                 "pwd": self.device.passwords.tacacs
+                 "name": self.device.connections.rest.username,
+                 "pwd": self.device.connections.rest.password,
                }
            }
         }
@@ -144,7 +114,8 @@ class Implementation(Implementation):
         _data = json.dumps(payload)
 
         # Connect to the device via requests
-        response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+        response = self.session.post(login_url, data=_data, timeout=timeout, \
+            verify=False)
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -175,7 +146,7 @@ class Implementation(Implementation):
         '''Decorator to make sure session to device is active
 
            There is limitation on the amount of time the session ca be active
-           for on the NXOS devices. However, there are no way to verify if
+           for on the APIC. However, there are no way to verify if
            session is still active unless sending a command. So, its just
            faster to reconnect every time.
          '''
@@ -263,7 +234,8 @@ class Implementation(Implementation):
                                                     p=payload))
 
         # Send to the device
-        response = self.session.post(full_url, payload, timeout=timeout)
+        response = self.session.post(full_url, payload, timeout=timeout, \
+            verify=False)
         output = response.json()
         log.info("Output received:\n{output}".format(output=output))
 
@@ -303,7 +275,7 @@ class Implementation(Implementation):
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         # Send to the device
-        response = self.session.delete(full_url, timeout=timeout)
+        response = self.session.delete(full_url, timeout=timeout, verify=False)
         output = response.json()
         log.info("Output received:\n{output}".format(output=output))
 
