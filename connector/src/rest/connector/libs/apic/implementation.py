@@ -165,7 +165,8 @@ class Implementation(Implementation):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, dn, expected_status_code=requests.codes.ok, timeout=30):
+    def get(self, dn, rsp_subtree='no', \
+            expected_status_code=requests.codes.ok, timeout=30):
         '''GET REST Command to retrieve information from the device
 
         Arguments
@@ -173,6 +174,14 @@ class Implementation(Implementation):
 
             dn (string): Unique distinguished name that describes the object
                          and its place in the tree.
+            rsp_subtree {no|children|full}: Specifies child object level 
+                                            included in the response
+                                            'no' : (default) the resonponse 
+                                                   does not include any children
+                                            'children': return only the child 
+                                                        objects
+                                            'full': includes the full tree 
+                                                    structure
             expected_status_code (int): Expected result
         '''
 
@@ -181,9 +190,10 @@ class Implementation(Implementation):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}"\
+        full_url = "{f}{dn}?rsp-subtree={rs}"\
                           .format(f=self.url,
-                                  dn=dn)
+                                  dn=dn,
+                                  rs=rsp_subtree)
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
