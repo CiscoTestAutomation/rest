@@ -165,7 +165,7 @@ class Implementation(Implementation):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, dn, rsp_subtree='no', \
+    def get(self, dn, rsp_subtree='no', rsp_prop_include='all', \
             expected_status_code=requests.codes.ok, timeout=30):
         '''GET REST Command to retrieve information from the device
 
@@ -176,12 +176,16 @@ class Implementation(Implementation):
                          and its place in the tree.
             rsp_subtree {no|children|full}: Specifies child object level 
                                             included in the response
-                                            'no' : (default) the resonponse 
+                                            'no': (default) the resonponse 
                                                    does not include any children
                                             'children': return only the child 
                                                         objects
                                             'full': includes the full tree 
                                                     structure
+            rsp_prop_include {all|naming-only|config-only}:
+                                'all' : all properties of the objects
+                                'naming-only': only the naming properties
+                                'config-only': only configurable properties
             expected_status_code (int): Expected result
         '''
 
@@ -190,10 +194,11 @@ class Implementation(Implementation):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}?rsp-subtree={rs}"\
+        full_url = "{f}{dn}?rsp-subtree={rs}&rsp-prop-include={rpi}"\
                           .format(f=self.url,
                                   dn=dn,
-                                  rs=rsp_subtree)
+                                  rs=rsp_subtree,
+                                  rpi=rsp_prop_include)
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
