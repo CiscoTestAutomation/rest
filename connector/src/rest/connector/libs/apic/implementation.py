@@ -165,7 +165,8 @@ class Implementation(Implementation):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, dn, rsp_subtree='no', rsp_prop_include='all', \
+    def get(self, dn, query_target='self', rsp_subtree='no', \
+            query_target_filter='', rsp_prop_include='all', \
             expected_status_code=requests.codes.ok, timeout=30):
         '''GET REST Command to retrieve information from the device
 
@@ -174,6 +175,10 @@ class Implementation(Implementation):
 
             dn (string): Unique distinguished name that describes the object
                          and its place in the tree.
+            query_target {self|children|subtree}: 
+                                'self': (default) MO itself
+                                'children': just the MO's child objects
+                                'subtree': MO and its child objects
             rsp_subtree {no|children|full}: Specifies child object level 
                                             included in the response
                                             'no': (default) the resonponse 
@@ -183,9 +188,10 @@ class Implementation(Implementation):
                                             'full': includes the full tree 
                                                     structure
             rsp_prop_include {all|naming-only|config-only}:
-                                'all' : all properties of the objects
+                                'all': all properties of the objects
                                 'naming-only': only the naming properties
                                 'config-only': only configurable properties
+            query_target_filter (string): filter expression
             expected_status_code (int): Expected result
         '''
 
@@ -194,11 +200,16 @@ class Implementation(Implementation):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}?rsp-subtree={rs}&rsp-prop-include={rpi}"\
+        full_url = "{f}{dn}?query-target={qt}&rsp-subtree={rs}"\
+                        "&rsp-prop-include={rpi}"\
                           .format(f=self.url,
                                   dn=dn,
+                                  qt=query_target,
                                   rs=rsp_subtree,
                                   rpi=rsp_prop_include)
+        if query_target_filter:
+            full_url += "&query-target-filter={qtf}"\
+                .format(qtf=query_target_filter)
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
