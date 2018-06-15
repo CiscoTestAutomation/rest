@@ -103,13 +103,7 @@ class Implementation(Implementation):
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
 
-        # proxies = {
-        #     'http': 'http://proxy.esl.cisco.com:80/',
-        #     'https': 'http://proxy.esl.cisco.com:80/',
-        # }
-
         self.session = requests.Session()
-        # self.session.proxies = proxies
 
         _data = json.dumps(payload)
 
