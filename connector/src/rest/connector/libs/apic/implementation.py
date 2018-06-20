@@ -105,10 +105,8 @@ class Implementation(Implementation):
 
         self.session = requests.Session()
 
-        _data = json.dumps(payload)
-
         # Connect to the device via requests
-        response = self.session.post(login_url, data=_data, timeout=timeout, \
+        response = self.session.post(login_url, json=payload, timeout=timeout, \
             verify=False)
         log.info(response)
 
