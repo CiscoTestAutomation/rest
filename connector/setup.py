@@ -183,6 +183,8 @@ setup(
     # package dependencies
     install_requires =  [
         'requests >= 1.15.1',
+        'genie.abstract',
+        'dicttoxml',
     ],
 
     # any additional groups of dependencies.
@@ -192,7 +194,8 @@ setup(
                 'restview',
                 'Sphinx',
                 'sphinxcontrib-napoleon',
-                'sphinx-rtd-theme'],
+                'sphinx-rtd-theme',
+                'requests-mock'],
     },
 
     # any data files placed outside this package.
