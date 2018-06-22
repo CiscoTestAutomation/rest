@@ -139,8 +139,8 @@ class Implementation(Implementation):
     def isconnected(func):
         '''Decorator to make sure session to device is active
 
-           There is limitation on the amount of time the session ca be active
-           for on the APIC. However, there are no way to verify if
+           There is limitation on the amount of time the session cab be active
+           on the APIC. However, there are no way to verify if
            session is still active unless sending a command. So, its just
            faster to reconnect every time.
          '''
@@ -158,6 +158,7 @@ class Implementation(Implementation):
     @isconnected
     def get(self, dn, query_target='self', rsp_subtree='no', \
             query_target_filter='', rsp_prop_include='all', \
+            rsp_subtree_include='', rsp_subtree_class='',\
             expected_status_code=requests.codes.ok, timeout=30):
         '''GET REST Command to retrieve information from the device
 
@@ -172,7 +173,7 @@ class Implementation(Implementation):
                                 'subtree': MO and its child objects
             rsp_subtree {no|children|full}: Specifies child object level 
                                             included in the response
-                                            'no': (default) the resonponse 
+                                            'no': (default) the response
                                                    does not include any children
                                             'children': return only the child 
                                                         objects
@@ -182,6 +183,9 @@ class Implementation(Implementation):
                                 'all': all properties of the objects
                                 'naming-only': only the naming properties
                                 'config-only': only configurable properties
+            rsp_subtree_include (string): specify additional contained objects 
+                                          or options to be included
+            rsp_subtree_class (string) : specify classes
             query_target_filter (string): filter expression
             expected_status_code (int): Expected result
         '''
@@ -201,6 +205,14 @@ class Implementation(Implementation):
         if query_target_filter:
             full_url += "&query-target-filter={qtf}"\
                 .format(qtf=query_target_filter)
+
+        if rsp_subtree_include:
+            full_url += "&rsp-subtree-include={rsi}"\
+                .format(rsi=rsp_subtree_include)
+
+        if rsp_subtree_class:
+            full_url += "&rsp-subtree-class={rsc}"\
+                .format(rsc=rsp_subtree_class)
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
