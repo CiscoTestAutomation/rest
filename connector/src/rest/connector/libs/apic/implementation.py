@@ -1,7 +1,9 @@
 import json
 import logging
 import requests
+
 from requests.exceptions import RequestException
+
 
 from ats.connections import BaseConnection
 from rest.connector.implementation import Implementation
@@ -204,7 +206,12 @@ class Implementation(Implementation):
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         response = self.session.get(full_url, timeout=timeout, verify=False)
-        output = response.json()
+        
+        try:
+            output = response.json()
+        except Exception:
+            output = response.text
+
         log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
@@ -259,10 +266,11 @@ class Implementation(Implementation):
             # Something bad happened
             raise RequestException("'{c}' result code has been returned "
                                    "instead of the expected status code "
-                                   "'{e}' for '{d}'"\
+                                   "'{e}' for '{d}', got:\n {msg}"\
                                    .format(d=self.device.name,
                                            c=response.status_code,
-                                           e=expected_status_code))
+                                           e=expected_status_code,
+                                           msg=response.text))
         return output
 
     @BaseConnection.locked
