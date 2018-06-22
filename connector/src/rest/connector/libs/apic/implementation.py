@@ -137,8 +137,8 @@ class Implementation(Implementation):
     def isconnected(func):
         '''Decorator to make sure session to device is active
 
-           There is limitation on the amount of time the session ca be active
-           for on the APIC. However, there are no way to verify if
+           There is limitation on the amount of time the session cab be active
+           on the APIC. However, there are no way to verify if
            session is still active unless sending a command. So, its just
            faster to reconnect every time.
          '''
@@ -171,7 +171,7 @@ class Implementation(Implementation):
                                 'subtree': MO and its child objects
             rsp_subtree {no|children|full}: Specifies child object level 
                                             included in the response
-                                            'no': (default) the resonponse 
+                                            'no': (default) the response
                                                    does not include any children
                                             'children': return only the child 
                                                         objects
