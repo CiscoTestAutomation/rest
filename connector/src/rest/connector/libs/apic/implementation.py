@@ -156,6 +156,7 @@ class Implementation(Implementation):
     @isconnected
     def get(self, dn, query_target='self', rsp_subtree='no', \
             query_target_filter='', rsp_prop_include='all', \
+            rsp_subtree_include='', rsp_subtree_class='',\
             expected_status_code=requests.codes.ok, timeout=30):
         '''GET REST Command to retrieve information from the device
 
@@ -180,6 +181,9 @@ class Implementation(Implementation):
                                 'all': all properties of the objects
                                 'naming-only': only the naming properties
                                 'config-only': only configurable properties
+            rsp_subtree_include (string): specify additional contained objects 
+                                          or options to be included
+            rsp_subtree_class (string) : specify classes
             query_target_filter (string): filter expression
             expected_status_code (int): Expected result
         '''
@@ -199,6 +203,14 @@ class Implementation(Implementation):
         if query_target_filter:
             full_url += "&query-target-filter={qtf}"\
                 .format(qtf=query_target_filter)
+
+        if rsp_subtree_include:
+            full_url += "&rsp-subtree-include={rsi}"\
+                .format(rsi=rsp_subtree_include)
+
+        if rsp_subtree_class:
+            full_url += "&rsp-subtree-class={rsc}"\
+                .format(rsc=rsp_subtree_class)
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
