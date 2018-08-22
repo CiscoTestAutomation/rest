@@ -23,3 +23,15 @@ devices:
           port: 8080
           username: cisco
           password: cisco
+  apic:
+      os: apic
+      type: apic
+      custom:
+        abstraction:
+          order: [os]
+      connections:
+        rest:
+          class: rest.connector.Rest
+          ip: 1.2.3.4
+          username: cisco
+          password: cisco

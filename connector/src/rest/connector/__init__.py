@@ -11,7 +11,7 @@ __copyright__ = 'Cisco Systems, Inc. Cisco Confidential'
 from ats.connections import BaseConnection
 
 # For abstract
-from abstract import Lookup
+from genie.abstract import Lookup
 import rest.connector.libs
 
 # create a logger for this module
