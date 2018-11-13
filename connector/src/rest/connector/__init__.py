@@ -2,7 +2,7 @@
 the device via REST api"""
 
 # metadata
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __author__ = 'Jean-Benoit Aubin <jeaubin@cisco.com>'
 __contact__ = 'pyats-support@cisco.com'
 __copyright__ = 'Cisco Systems, Inc. Cisco Confidential'
@@ -11,7 +11,7 @@ __copyright__ = 'Cisco Systems, Inc. Cisco Confidential'
 from ats.connections import BaseConnection
 
 # For abstract
-from abstract import Lookup
+from genie.abstract import Lookup
 import rest.connector.libs
 
 # try to record usage statistics
