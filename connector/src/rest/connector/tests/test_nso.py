@@ -4,7 +4,7 @@
 __copyright__ = "# Copyright (c) 2017 by cisco Systems, Inc. All rights reserved."
 __author__ = "Dave Wapstra <dwapstra@cisco.com>"
 
-
+import os
 import unittest
 import requests_mock
 
@@ -12,12 +12,13 @@ from ats.topology import loader
 
 from rest.connector import Rest
 
+HERE = os.path.dirname(__file__)
 
 @requests_mock.Mocker(kw='mock') 
 class test_nso_test_connector(unittest.TestCase):
 
     def setUp(self):
-        self.testbed = loader.load('testbed.yaml')
+        self.testbed = loader.load(os.path.join(HERE, 'testbed.yaml'))
         self.device = self.testbed.devices['ncs']
 
     def test_connect(self, **kwargs):

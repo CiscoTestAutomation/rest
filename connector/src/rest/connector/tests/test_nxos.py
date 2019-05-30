@@ -1,6 +1,6 @@
 #!/bin/env python
 """ Unit tests for the rest.connector cisco-shared package. """
-
+import os
 import unittest
 import requests
 from requests.models import Response
@@ -10,12 +10,13 @@ from requests.exceptions import RequestException
 from ats.topology import loader
 
 from rest.connector import Rest
+HERE = os.path.dirname(__file__)
 
 
 class test_rest_connector(unittest.TestCase):
 
     def setUp(self):
-        self.testbed = loader.load('testbed.yaml')
+        self.testbed = loader.load(os.path.join(HERE, 'testbed.yaml'))
         self.device = self.testbed.devices['PE1']
 
     def test_init(self):

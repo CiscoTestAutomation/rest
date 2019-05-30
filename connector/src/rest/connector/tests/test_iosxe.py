@@ -4,7 +4,7 @@
 __copyright__ = "# Copyright (c) 2019 by cisco Systems, Inc. All rights reserved."
 __author__ = "Maaz Mashood Mohiuddin <mmashood@cisco.com>"
 
-
+import os
 import unittest
 import requests_mock
 
@@ -12,6 +12,7 @@ from ats.topology import loader
 
 from rest.connector import Rest
 
+HERE = os.path.dirname(__file__)
 
 @requests_mock.Mocker(kw='mock')
 class test_iosxe_test_connector(unittest.TestCase):
@@ -19,7 +20,7 @@ class test_iosxe_test_connector(unittest.TestCase):
 # class test_iosxe_test_connector():
 
     def setUp(self):
-        self.testbed = loader.load('testbed.yaml')
+        self.testbed = loader.load(os.path.join(HERE, 'testbed.yaml'))
         self.device = self.testbed.devices['eWLC']
 
     def test_connect(self, **kwargs):
