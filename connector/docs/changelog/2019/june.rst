@@ -1,16 +1,14 @@
 June 2019
 =========
 
-June 25
--------
 
 .. csv-table:: Module Versions
     :header: "Modules", "Versions"
 
-        ``rest.connector``, v19.5.0
+        ``rest.connector``, v19.6.0
 
-DNAC
-^^^^
+Changes
+-------
 
-rest.connector now support connecting and sending get command to DNAC.
-
+- Added IOSXE REST Connector implementation, by Maaz Mashood Mohiuddin (mmashood) <mmashood@cisco.com>
+- Added DNAC REST Connector implementation

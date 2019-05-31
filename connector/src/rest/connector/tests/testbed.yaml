@@ -23,6 +23,19 @@ devices:
           port: 8080
           username: cisco
           password: cisco
+  eWLC:
+        os: iosxe
+        type: eWLC
+        custom:
+          abstraction:
+            order: [os]
+        connections:
+          rest:
+            class: rest.connector.Rest
+            ip: 1.2.3.4
+            port: 443
+            username: cisco
+            password: cisco
   apic:
       os: apic
       type: apic
