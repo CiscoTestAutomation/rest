@@ -29,6 +29,7 @@ At the moment `rest.connector` supports the following platforms:
     :header: "OS", "OWNER", "CONTACT"
 
     ``nxos``, Jean-Benoit Aubin, pyats-support@cisco.com
+    ``dnac``, Jean-Benoit Aubin, pyats-support@cisco.com
     ``nso``, Dave Wapstra, dwapstra@cisco.com
 
 
