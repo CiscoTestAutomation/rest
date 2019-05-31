@@ -93,7 +93,6 @@ class Implementation(Implementation):
 
         log.info("Disconnecting from '{d}' with "
                  "alias '{a}'".format(d=self.device.name, a=self.alias))
-        # TODO;  I think there is nothing to do ?
         self._is_connected = False
         log.info("Disconnected successfully from "
                  "'{d}'".format(d=self.device.name))
