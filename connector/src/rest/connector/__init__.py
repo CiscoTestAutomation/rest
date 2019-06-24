@@ -2,7 +2,7 @@
 the device via REST api"""
 
 # metadata
-__version__ = '19.6.0b1'
+__version__ = '19.6'
 __author__ = 'Jean-Benoit Aubin <jeaubin@cisco.com>'
 __contact__ = 'pyats-support@cisco.com'
 __copyright__ = 'Cisco Systems, Inc. Cisco Confidential'
