@@ -132,28 +132,37 @@ setup(
         format(pkg_path),
 
     # author details
-    author = 'Jean-Benoit Aubin',
+    author = 'Cisco Systems Inc.',
     author_email = 'jeaubin@cisco.com',
-    maintainer_email =  'pyats-support@cisco.com',
+    maintainer_email =  'pyats-support-ext@cisco.com',
 
     # project licensing
-    license = 'Cisco Systems, Inc. Cisco Confidential',
+    license = 'Apache 2.0',
 
-    platforms =  ['CEL',],
+    platforms =  ['Linux', 'macOS'],
 
     # see https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers = [
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Telecommunications Industry'
-        'License :: Other/Proprietary License',
-        'Operating System :: POSIX :: Linux',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3 :: Only',
-        'Topic :: Software Development :: Testing',
-    ],
+    'Development Status :: 6 - Mature',
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Telecommunications Industry',
+    'Intended Audience :: Information Technology',
+    'Intended Audience :: System Administrators',
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: MacOS',
+    'Operating System :: POSIX :: Linux',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Topic :: Software Development :: Testing',
+    'Topic :: Software Development :: Build Tools',
+    'Topic :: Software Development :: Libraries',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+],
 
     # uses namespace package
     namespace_packages = ['rest'],
@@ -193,7 +202,6 @@ setup(
         'dev': ['coverage',
                 'restview',
                 'Sphinx',
-                'sphinxcontrib-napoleon',
                 'sphinx-rtd-theme',
                 'requests-mock'],
     },
