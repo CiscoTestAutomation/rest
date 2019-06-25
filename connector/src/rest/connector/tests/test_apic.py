@@ -8,7 +8,7 @@ from requests.models import Response
 from unittest.mock import patch, Mock, MagicMock
 from requests.exceptions import RequestException
 
-from ats.topology import loader
+from pyats.topology import loader
 
 from rest.connector import Rest
 HERE = os.path.dirname(__file__)

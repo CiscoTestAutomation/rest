@@ -10,15 +10,6 @@ only specific platforms. Please note that the custom abstraction keyword is
 required in the testbed.yaml file.
 
 
-Support
--------
-
-Please post any questions related to ``rest`` to `Piestack`_ within the category
-``Cisco Shared Packages/Other``
-
-.. _PieStack: http://piestack.cisco.com
-
-
 Supported platforms
 -------------------
 
@@ -28,8 +19,8 @@ At the moment `rest.connector` supports the following platforms:
 .. csv-table:: Rest connector supported platforms
     :header: "OS", "OWNER", "CONTACT"
 
-    ``nxos``, Jean-Benoit Aubin, pyats-support@cisco.com
-    ``dnac``, Jean-Benoit Aubin, pyats-support@cisco.com
+    ``nxos``, Jean-Benoit Aubin, pyats-support-ext@cisco.com
+    ``dnac``, Jean-Benoit Aubin, pyats-support-ext@cisco.com
     ``nso``, Dave Wapstra, dwapstra@cisco.com
 
 
@@ -82,7 +73,7 @@ Please refer to the `services`_ section for details on supported services.
     #   loading & using REST testbed yaml file in pyATS
 
     # import the topology module
-    from ats import topology
+    from pyats import topology
 
     # load the above testbed file containing REST device
     testbed = topology.loader.load('/path/to/rest/testbed.yaml')

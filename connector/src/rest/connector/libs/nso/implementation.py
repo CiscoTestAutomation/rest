@@ -5,7 +5,7 @@ import requests
 from dicttoxml import dicttoxml
 from requests.exceptions import RequestException
 
-from ats.connections import BaseConnection
+from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
 
 # create a logger for this module
@@ -37,7 +37,7 @@ class Implementation(RestImplementation):
     Code Example
     ------------
 
-        >>> from ats.topology import loader
+        >>> from pyats.topology import loader
         >>> testbed = loader.load('ncs.yaml')
         >>> device = testbed.devices['ncs']
         >>> device.connect(alias='rest', via='rest')

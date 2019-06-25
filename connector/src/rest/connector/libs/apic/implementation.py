@@ -5,7 +5,7 @@ import requests
 from requests.exceptions import RequestException
 
 
-from ats.connections import BaseConnection
+from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation
 
 # create a logger for this module
@@ -33,7 +33,7 @@ class Implementation(Implementation):
     Code Example
     ------------
 
-        >>> from ats.topology import loader
+        >>> from pyats.topology import loader
         >>> testbed = loader.load('/users/xxx/xxx/testbed.yaml')
         >>> device = testbed.devices['apic1']
         >>> device.connect(alias='rest', via='rest')
@@ -80,7 +80,7 @@ class Implementation(Implementation):
         Code Example
         ------------
 
-            >>> from ats.topology import loader
+            >>> from pyats.topology import loader
             >>> testbed = loader.load('/users/xxx/xxx/testbed.yaml')
             >>> device = testbed.devices['apic1']
             >>> device.connect(alias='rest', via='rest')

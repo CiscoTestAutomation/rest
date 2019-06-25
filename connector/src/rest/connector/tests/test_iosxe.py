@@ -8,7 +8,7 @@ import os
 import unittest
 import requests_mock
 
-from ats.topology import loader
+from pyats.topology import loader
 
 from rest.connector import Rest
 
