@@ -208,14 +208,10 @@ class Implementation(Implementation):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}?rsp-subtree={rs}&rsp-foreign-subtree={rfs}"\
-                    "&batch-size={bs}&batch-id={bi}"\
+        full_url = "{f}{dn}"\
                           .format(f=self.url,
-                                  dn=dn,
-                                  rs=rsp_subtree,
-                                  rfs=rsp_foreign_subtree,
-                                  bs=batch_size,
-                                  bi=batch_id)
+                                  dn=dn)
+                                  
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
