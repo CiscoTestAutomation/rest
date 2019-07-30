@@ -56,6 +56,10 @@ to the connection for your devices in the testbed YAML file:
                     # specify the rest connector class
                     class: rest.connector.Rest
                     ip: 1.2.3.4
+                    credentials:
+                        rest:
+                            username: my_username
+                            password: my_password
 
 
 With the above, the testbed loader can then load this YAML into object form.

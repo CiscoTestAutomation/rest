@@ -142,7 +142,10 @@ setup(
     },
 
     # additional package data files that goes into the package itself
-    package_data = {'':['README.rst']},
+    package_data = {'':['README.rst',
+                        'tests/testbed.yaml',
+                       ]
+    },
 
     # Standalone scripts
     scripts = [

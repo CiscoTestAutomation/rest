@@ -7,6 +7,8 @@ from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
+from rest.connector.utils import get_username_password
+
 
 # create a logger for this module
 log = logging.getLogger(__name__)
@@ -28,8 +30,10 @@ class Implementation(RestImplementation):
                         class: rest.connector.Rest
                         ip: 127.0.0.1
                         port: 8080
-                        username: admin
-                        password: admin
+                        credentials:
+                            rest:
+                                username: admin
+                                password: admin
                 custom:
                     abstraction:
                         order: [os]
@@ -89,8 +93,7 @@ class Implementation(RestImplementation):
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
 
-        username = self.connection_info.get('username', 'admin')
-        password = self.connection_info.get('password', 'admin')
+        username, password = get_username_password(self)
 
         self.session = requests.Session()
         self.session.auth = (username, password)

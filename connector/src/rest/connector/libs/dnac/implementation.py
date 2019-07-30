@@ -6,6 +6,7 @@ from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation
+from rest.connector.utils import get_username_password
 
 # create a logger for this module
 log = logging.getLogger(__name__)
@@ -26,10 +27,12 @@ class Implementation(Implementation):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
-                        username: admin
-                        password: cisco123
                         port: 443
                         verify: False
+                        credentials:
+                            rest:
+                                username: admin
+                                password: cisco123
 
     Code Example
     ------------
@@ -74,8 +77,8 @@ class Implementation(Implementation):
         ip = self.connection_info['ip'].exploded
         port = self.connection_info.get('port', 443)
         self.verify = self.connection_info.get('verify', True)
-        username = self.connection_info['username']
-        password = self.connection_info['password']
+
+        username, password = get_username_password(self)
 
         self.base_url = 'https://{ip}:{port}'.format(ip=ip, port=port)
 
