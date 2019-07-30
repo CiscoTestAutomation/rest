@@ -22,6 +22,8 @@ At the moment `rest.connector` supports the following platforms:
     ``nxos``, Jean-Benoit Aubin, pyats-support-ext@cisco.com
     ``dnac``, Jean-Benoit Aubin, pyats-support-ext@cisco.com
     ``nso``, Dave Wapstra, dwapstra@cisco.com
+    ``iosxe``, Maaz Mashood Mohiuddin, mmashood@cisco.com
+    ``apic``, Takashi Higashimura, pyats-support-ext@cisco.com
 
 
 Example use
