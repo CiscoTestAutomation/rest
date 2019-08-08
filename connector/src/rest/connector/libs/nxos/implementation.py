@@ -3,8 +3,9 @@ import logging
 import requests
 from requests.exceptions import RequestException
 
-from ats.connections import BaseConnection
+from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation
+from rest.connector.utils import get_username_password
 
 # create a logger for this module
 log = logging.getLogger(__name__)
@@ -21,14 +22,6 @@ class Implementation(Implementation):
 
         devices:
             PE1:
-                tacacs:
-                    login_prompt: "login:"
-                    password_prompt: "Password:"
-                    username: "admin"
-                passwords:
-                    tacacs: cisco123
-                    enable: cisco123
-                    line: cisco123
                 connections:
                     a:
                         protocol: telnet
@@ -40,13 +33,15 @@ class Implementation(Implementation):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
-                        username: admin
-                        password: cisco123
+                        credentials:
+                            rest:
+                                username: admin
+                                password: cisco123
 
     Code Example
     ------------
 
-        >>> from ats.topology import loader
+        >>> from pyats.topology import loader
         >>> testbed = loader.load('/users/xxx/xxx/asr22.yaml')
         >>> device = testbed.devices['PE1']
         >>> device.connect(alias='rest', via='rest')
@@ -83,14 +78,6 @@ class Implementation(Implementation):
 
             devices:
                 PE1:
-                    tacacs:
-                        login_prompt: "login:"
-                        password_prompt: "Password:"
-                        username: "admin"
-                    passwords:
-                        tacacs: admin
-                        enable: admin
-                        line: admin
                     connections:
                         a:
                             protocol: telnet
@@ -102,11 +89,15 @@ class Implementation(Implementation):
                         netconf:
                             class: rest.connector.Rest
                             ip : "2.3.4.5"
+                            credentials:
+                                rest:
+                                    username: admin
+                                    password: admin
 
         Code Example
         ------------
 
-            >>> from ats.topology import loader
+            >>> from pyats.topology import loader
             >>> testbed = loader.load('/users/xxx/xxx/asr22.yaml')
             >>> device = testbed.devices['asr22']
             >>> device.connect(alias='rest', via='rest')
@@ -119,11 +110,13 @@ class Implementation(Implementation):
         self.url = 'http://{ip}/'.format(ip=ip)
         login_url = '{f}api/aaaLogin.json'.format(f=self.url)
 
+        username, password = get_username_password(self)
+
         payload = {
            "aaaUser": {
               "attributes": {
-                 "name": self.device.tacacs.username,
-                 "pwd": self.device.passwords.tacacs
+                 "name": username,
+                 "pwd": password,
                }
            }
         }
@@ -208,14 +201,10 @@ class Implementation(Implementation):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}?rsp-subtree={rs}&rsp-foreign-subtree={rfs}"\
-                    "&batch-size={bs}&batch-id={bi}"\
+        full_url = "{f}{dn}"\
                           .format(f=self.url,
-                                  dn=dn,
-                                  rs=rsp_subtree,
-                                  rfs=rsp_foreign_subtree,
-                                  bs=batch_size,
-                                  bi=batch_id)
+                                  dn=dn)
+
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))

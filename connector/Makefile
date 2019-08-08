@@ -47,10 +47,10 @@ help:
 docs:
 	@echo ""
 	@echo "--------------------------------------------------------------------"
-	@echo "Building $(PKG_NAME) documentation for preview: $@"
+	@echo "Building $(PKG_NAME) documentation"
 	@echo ""
 
-	@./setup.py docs
+	@cd docs; make html
 
 	@echo "Completed building docs for preview."
 	@echo ""

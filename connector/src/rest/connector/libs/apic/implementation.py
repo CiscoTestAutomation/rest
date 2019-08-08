@@ -5,8 +5,9 @@ import requests
 from requests.exceptions import RequestException
 
 
-from ats.connections import BaseConnection
+from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation
+from rest.connector.utils import get_username_password
 
 # create a logger for this module
 log = logging.getLogger(__name__)
@@ -27,13 +28,15 @@ class Implementation(Implementation):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
-                        username: admin
-                        password: cisco123
+                        credentials:
+                            rest:
+                                username: admin
+                                password: cisco123
 
     Code Example
     ------------
 
-        >>> from ats.topology import loader
+        >>> from pyats.topology import loader
         >>> testbed = loader.load('/users/xxx/xxx/testbed.yaml')
         >>> device = testbed.devices['apic1']
         >>> device.connect(alias='rest', via='rest')
@@ -74,13 +77,15 @@ class Implementation(Implementation):
                         rest:
                             class: rest.connector.Rest
                             ip : "2.3.4.5"
-                            username: "admin"
-                            password: "cisco123"
+                            credentials:
+                                rest:
+                                    username: admin
+                                    password: cisco123
 
         Code Example
         ------------
 
-            >>> from ats.topology import loader
+            >>> from pyats.topology import loader
             >>> testbed = loader.load('/users/xxx/xxx/testbed.yaml')
             >>> device = testbed.devices['apic1']
             >>> device.connect(alias='rest', via='rest')
@@ -93,11 +98,13 @@ class Implementation(Implementation):
         self.url = 'https://{ip}/'.format(ip=ip)
         login_url = '{f}api/aaaLogin.json'.format(f=self.url)
 
+        username, password = get_username_password(self)
+
         payload = {
            "aaaUser": {
               "attributes": {
-                 "name": self.device.connections.rest.username,
-                 "pwd": self.device.connections.rest.password,
+                 "name": username,
+                 "pwd": password,
                }
            }
         }

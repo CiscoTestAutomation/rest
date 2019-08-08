@@ -23,7 +23,7 @@ API to connect to the device.
     #   loading & using REST testbed yaml file in pyATS
 
     # import the topology module
-    from ats import topology
+    from pyats import topology
 
     # load the above testbed file containing REST device
     testbed = topology.loader.load('/path/to/rest/testbed.yaml')
@@ -53,7 +53,7 @@ API to disconnect from the device.
     #   loading & using REST testbed yaml file in pyATS
 
     # import the topology module
-    from ats import topology
+    from pyats import topology
 
     # load the above testbed file containing REST device
     testbed = topology.loader.load('/path/to/rest/testbed.yaml')

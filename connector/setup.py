@@ -66,43 +66,6 @@ class TestCommand(Command):
            argv = ['python -m unittest', 'discover', tests],
            failfast = True))
 
-class BuildAndPreviewDocsCommand(Command):
-    user_options = []
-    description = 'CISCO SHARED : Build and privately distribute ' \
-        'Sphinx documentation for this package'
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        user = os.environ['USER']
-        home = os.environ['HOME']
-        sphinx_build_cmd = "sphinx-build -b html -c docs " \
-            "-d ./__build__/documentation/doctrees docs/ ./__build__/documentation/html"
-        target_dir = "{home}/WWW/cisco_shared/{pkg_name}".\
-            format(home = home, pkg_name = pkg_name)
-        mkdir_cmd = "mkdir -p {target_dir}".format(target_dir=target_dir)
-        rsync_cmd = "rsync -rvc ./__build__/documentation/ {target_dir}".\
-            format(target_dir=target_dir)
-        try:
-            ret_code = subprocess.call(shlex.split(mkdir_cmd))
-            if not ret_code:
-                ret_code = subprocess.call(shlex.split(sphinx_build_cmd))
-                if not ret_code:
-                    ret_code = subprocess.call(shlex.split(rsync_cmd))
-                    print("\nYou may preview the documentation at the following URL:")
-                    print("http://wwwin-home.cisco.com/~{user}/cisco_shared/{pkg_name}/html".\
-                        format(user=user, pkg_name=pkg_name))
-                    sys.exit(0)
-            sys.exit(1)
-        except Exception as e:
-            print("Failed to build documentation : {}".format(str(e)))
-            sys.exit(1)
-
-
 def read(*paths):
     '''read and return txt content of file'''
     with open(os.path.join(os.path.dirname(__file__), *paths)) as fp:
@@ -132,28 +95,37 @@ setup(
         format(pkg_path),
 
     # author details
-    author = 'Jean-Benoit Aubin',
+    author = 'Cisco Systems Inc.',
     author_email = 'jeaubin@cisco.com',
-    maintainer_email =  'pyats-support@cisco.com',
+    maintainer_email =  'pyats-support-ext@cisco.com',
 
     # project licensing
-    license = 'Cisco Systems, Inc. Cisco Confidential',
+    license = 'Apache 2.0',
 
-    platforms =  ['CEL',],
+    platforms =  ['Linux', 'macOS'],
 
     # see https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers = [
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Telecommunications Industry'
-        'License :: Other/Proprietary License',
-        'Operating System :: POSIX :: Linux',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3 :: Only',
-        'Topic :: Software Development :: Testing',
-    ],
+    'Development Status :: 6 - Mature',
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Telecommunications Industry',
+    'Intended Audience :: Information Technology',
+    'Intended Audience :: System Administrators',
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: MacOS',
+    'Operating System :: POSIX :: Linux',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Topic :: Software Development :: Testing',
+    'Topic :: Software Development :: Build Tools',
+    'Topic :: Software Development :: Libraries',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+],
 
     # uses namespace package
     namespace_packages = ['rest'],
@@ -170,7 +142,10 @@ setup(
     },
 
     # additional package data files that goes into the package itself
-    package_data = {'':['README.rst']},
+    package_data = {'':['README.rst',
+                        'tests/testbed.yaml',
+                       ]
+    },
 
     # Standalone scripts
     scripts = [
@@ -194,7 +169,6 @@ setup(
         'dev': ['coverage',
                 'restview',
                 'Sphinx',
-                'sphinxcontrib-napoleon',
                 'sphinx-rtd-theme',
                 'requests-mock'],
     },
@@ -210,7 +184,6 @@ setup(
     cmdclass = {
         'clean': CleanCommand,
         'test': TestCommand,
-        'docs': BuildAndPreviewDocsCommand,
     },
 
     # non zip-safe (never tested it)

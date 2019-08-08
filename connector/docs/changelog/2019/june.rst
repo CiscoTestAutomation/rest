@@ -1,7 +1,6 @@
 June 2019
 =========
 
-
 .. csv-table:: Module Versions
     :header: "Modules", "Versions"
 

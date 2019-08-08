@@ -16,7 +16,6 @@ import sys
 import os
 from datetime import datetime
 import sphinx_rtd_theme
-import sphinx_bootstrap_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -34,27 +33,12 @@ sys.path.insert(0, os.path.abspath('../'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.viewcode',
-#    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
 ]
 
-#html_theme_options = {
-#    'header_inverse': False,
-#    'relbar_inverse': False,
-#    'inner_theme': True,
-#    'inner_theme_name': 'bootswatch-yeti',
-#    'sidebar_span': 3,
-#    'nav_fixed_top': True,
-#    'content_fixed': True,
-#    'noresponsive': True,
-#    'content_width': '100%',
-#    'googlewebfont': True,
-#    'googlewebfont_url': 'http://fonts.googleapis.com/css?family=Lily+Script+One',  # NOQA
-#
-#}
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = []
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -152,7 +136,7 @@ html_short_title = 'Rest User Guide'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static',]
+html_static_path = []
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

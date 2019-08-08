@@ -2,13 +2,13 @@
 the device via REST api"""
 
 # metadata
-__version__ = '19.6.0b1'
+__version__ = '19.7'
 __author__ = 'Jean-Benoit Aubin <jeaubin@cisco.com>'
 __contact__ = 'pyats-support@cisco.com'
 __copyright__ = 'Cisco Systems, Inc. Cisco Confidential'
 
 
-from ats.connections import BaseConnection
+from pyats.connections import BaseConnection
 
 # For abstract
 from genie.abstract import Lookup
@@ -20,11 +20,11 @@ import rest.connector.libs
 #    for PyPI/public/customer users
 try:
     # new internal cisco-only pkg since devnet release
-    from ats.cisco.stats import CesMonitor
+    from pyats.cisco.stats import CesMonitor
 except Exception:
     try:
         # legacy pyats version, stats was inside utils module
-        from ats.utils.stats import CesMonitor
+        from pyats.utils.stats import CesMonitor
     except Exception:
         CesMonitor = None
 
