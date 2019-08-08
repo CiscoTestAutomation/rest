@@ -184,7 +184,8 @@ setup(
     install_requires =  [
         'requests >= 1.15.1',
         'dicttoxml',
-        'requests_mock'
+        'requests_mock',
+        'genie.abstract'
     ],
 
     # any additional groups of dependencies.
