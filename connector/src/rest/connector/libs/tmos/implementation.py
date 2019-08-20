@@ -72,6 +72,13 @@ class Implementation(BaseConnection):
 
         True
 
+        >>> api_url = '/mgmt/tm/ltm/node'
+
+        >>> nodes = device.rest.get(api_url)
+
+        >>> nodes.status_code
+
+        >>> nodes.json()
     """
 
     def __init__(self, *args, **kwargs):
@@ -157,7 +164,8 @@ class Implementation(BaseConnection):
 
         response = icr_session.get(full_url, timeout=timeout)
 
-        output = response.json()
+        output = response
+        # output = response.json()
 
         log.debug(
             "Response: {c}, headers: {h}".format(
@@ -214,7 +222,8 @@ class Implementation(BaseConnection):
 
         response = icr_session.post(full_url, json=payload, timeout=timeout)
 
-        output = response.json()
+        # output = response.json()
+        output = response
 
         log.debug(
             "Response: {c}, headers: {h}".format(
@@ -272,7 +281,8 @@ class Implementation(BaseConnection):
 
         response = icr_session.put(full_url, json=payload, timeout=timeout)
 
-        output = response.json()
+        # output = response.json()
+        output = response
 
         log.debug(
             "Response: {c}, headers: {h}".format(
@@ -330,7 +340,8 @@ class Implementation(BaseConnection):
 
         response = icr_session.patch(full_url, json=payload, timeout=timeout)
 
-        output = response.json()
+        output = response
+        # output = response.json()
 
         log.debug(
             "Response: {c}, headers: {h}".format(
