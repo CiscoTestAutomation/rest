@@ -1,10 +1,10 @@
-from dicttoxml import dicttoxml
 import json
 import logging
 import re
-import requests
-from requests.exceptions import RequestException
 import urllib.request
+
+import requests
+from dicttoxml import dicttoxml
 
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
@@ -50,10 +50,7 @@ class Implementation(RestImplementation):
     '''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if 'proxies' in kwargs:
-            self.proxies = kwargs['proxies']
-        else:
+        if 'proxies' not in kwargs:
             self.proxies = urllib.request.getproxies()
 
     @BaseConnection.locked
