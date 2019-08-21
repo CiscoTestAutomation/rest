@@ -156,6 +156,7 @@ class Implementation(Implementation):
         return decorated
 
     @BaseConnection.locked
+    @isconnected
     def get(self, url, \
             expected_status_code=requests.codes.ok, timeout=30, **kwargs):
         '''GET REST Command to retrieve information from the device
@@ -258,6 +259,7 @@ class Implementation(Implementation):
         return output
 
     @BaseConnection.locked
+    @isconnected
     def delete(self, url, expected_status_code=requests.codes.ok, timeout=30, **kwargs):
         '''DELETE REST Command to delete information from the device
 
