@@ -107,7 +107,10 @@ class Implementation(Implementation):
         self.session = requests.Session()
 
         # Connect to the device via requests
-        response = self.session.get(self.url+'/roster/rest/test', auth=(self.username, self.password), timeout=timeout, headers=self.headers)
+        response = self.session.get(self.url+'/roster/rest/test',
+                                    auth=(self.username, self.password),
+                                    timeout=timeout,
+                                    headers=self.headers)
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -175,7 +178,11 @@ class Implementation(Implementation):
         log.info("Sending GET command to '{d}':"\
                  "\nurl: {url}".format(d=self.device.name, url=full_url))
 
-        response = self.session.get(full_url, auth=(self.username, self.password), timeout=timeout, headers=self.headers, **kwargs)
+        response = self.session.get(full_url,
+                                    auth=(self.username, self.password),
+                                    timeout=timeout,
+                                    headers=self.headers,
+                                    **kwargs)
         
         try:
             output = response.json()
@@ -225,7 +232,12 @@ class Implementation(Implementation):
                                                     p=payload))
 
         # Send to the device
-        response = self.session.post(full_url, payload, auth=(self.username, self.password), timeout=timeout, headers=self.headers, **kwargs)
+        response = self.session.post(full_url,
+                                     payload,
+                                     auth=(self.username, self.password),
+                                     timeout=timeout,
+                                     headers=self.headers,
+                                     **kwargs)
         try:
             output = response.json()
         except Exception:
@@ -267,7 +279,11 @@ class Implementation(Implementation):
                  "\nurl: {url}".format(d=self.device.name, url=full_url))
 
         # Send to the device
-        response = self.session.delete(full_url, auth=(self.username, self.password), headers=self.headers, timeout=timeout, **kwargs)
+        response = self.session.delete(full_url,
+                                       auth=(self.username, self.password),
+                                       headers=self.headers,
+                                       timeout=timeout,
+                                       **kwargs)
 
         try:
             output = response.json()
