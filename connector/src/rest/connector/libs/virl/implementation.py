@@ -29,7 +29,7 @@ class Implementation(Implementation):
                         class: rest.connector.Rest
                         ip : "192.168.1.1"
                         credentials:
-                            rest:
+                            default:
                                 username: admin
                                 password: cisco123
 
@@ -78,7 +78,7 @@ class Implementation(Implementation):
                             class: rest.connector.Rest
                             ip : "192.168.1.1"
                             credentials:
-                                rest:
+                                default:
                                     username: admin
                                     password: cisco123
 
