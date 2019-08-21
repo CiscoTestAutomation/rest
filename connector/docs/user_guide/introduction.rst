@@ -24,8 +24,6 @@ At the moment `rest.connector` supports the following platforms:
     ``nso``, Dave Wapstra, dwapstra@cisco.com
     ``iosxe``, Maaz Mashood Mohiuddin, mmashood@cisco.com
     ``apic``, Takashi Higashimura, pyats-support-ext@cisco.com
-    ``virl``, Takashi Higashimura, pyats-support-ext@cisco.com
-
 
 
 Example use
