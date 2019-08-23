@@ -1,9 +1,10 @@
-import re
 import json
 import logging
+import re
+import urllib.request
+
 import requests
 from dicttoxml import dicttoxml
-from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
@@ -47,6 +48,10 @@ class Implementation(RestImplementation):
         >>> device.rest.connected
         True
     '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'proxies' not in kwargs:
+            self.proxies = urllib.request.getproxies()
 
     @BaseConnection.locked
     def connect(self,
@@ -60,6 +65,11 @@ class Implementation(RestImplementation):
 
             timeout (int): Timeout value
             default_content_type: Default for content type, json or xml
+            proxies: Specify the proxy to use for connection as seen below.
+                    {'http': 'http://proxy.esl.cisco.com:80/',
+                    'ftp': 'http://proxy.esl.cisco.com:80/',
+                    'https': 'http://proxy.esl.cisco.com:80/',
+                    'no': '.cisco.com'}
 
         Raises
         ------
@@ -82,23 +92,18 @@ class Implementation(RestImplementation):
         log.debug("Content type: %s" % default_content_type)
         log.debug("Timeout: %s" % timeout)
         self.content_type = default_content_type
-
         ip = self.connection_info.ip.exploded
         port = self.connection_info.get('port', '443')
         self.base_url = 'https://{ip}:{port}'.format(ip=ip, port=port)
         self.login_url = '{f}/webui'.format(f=self.base_url)
-
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
-
         username, password = get_username_password(self)
-
         self.session = requests.Session()
         self.session.auth = (username, password)
-
         # Connect to the device via requests
         response = self.session.get(
-            self.login_url, timeout=timeout, verify=False)
+            self.login_url, proxies=self.proxies, timeout=timeout, verify=False)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
                                                            r=response.reason, h=response.headers))
@@ -171,7 +176,7 @@ class Implementation(RestImplementation):
         log.debug("Request headers:{headers}".format(
             headers=self.session.headers))
 
-        response = self.session.get(full_url, timeout=timeout)
+        response = self.session.get(full_url, proxies=self.proxies, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
                                                            r=response.reason, h=response.headers))
@@ -260,7 +265,7 @@ class Implementation(RestImplementation):
 
         # Send to the device
         response = self.session.post(
-            full_url, request_payload, timeout=timeout)
+            full_url, request_payload, proxies=self.proxies, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
                                                            r=response.reason, h=response.headers))
@@ -349,7 +354,7 @@ class Implementation(RestImplementation):
 
         # Send to the device
         response = self.session.patch(
-            full_url, request_payload, timeout=timeout)
+            full_url, request_payload, proxies=self.proxies, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
                                                            r=response.reason, h=response.headers))
@@ -437,7 +442,7 @@ class Implementation(RestImplementation):
                 payload=request_payload))
 
         # Send to the device
-        response = self.session.put(full_url, request_payload, timeout=timeout)
+        response = self.session.put(full_url, request_payload, proxies=self.proxies, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
                                                            r=response.reason, h=response.headers))
@@ -502,7 +507,7 @@ class Implementation(RestImplementation):
         log.debug("Request headers:{headers}".format(
             headers=self.session.headers))
 
-        response = self.session.delete(full_url, timeout=timeout)
+        response = self.session.delete(full_url, proxies=self.proxies, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
                                                            r=response.reason, h=response.headers))
