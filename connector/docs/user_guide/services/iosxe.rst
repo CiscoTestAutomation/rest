@@ -27,6 +27,8 @@ and allows to specify the username and password in the testbed YAML file.
             custom:
                 abstraction:
                     order: [os]
+            os: iosxe
+            type: router
             connections:
                 rest:
                     # Rest connector class
@@ -39,6 +41,41 @@ and allows to specify the username and password in the testbed YAML file.
 
 If no port is specified, he default of `443` is used.
 If no username or password is specified, the default of `admin` is used.
+
+When connecting to this device, an optional proxies argument may be specified.
+If not specified, proxies are loaded from the environment if they have been
+set.
+
+.. code-block:: python
+
+    # Example
+    # -------
+    #
+    #   loading & using REST testbed yaml file in pyATS
+
+    # import the topology module
+    from pyats import topology
+
+    # load the above testbed file containing REST device
+    testbed = topology.loader.load('/path/to/rest/testbed.yaml')
+
+    # get device by name
+    device = testbed.devices['PE1']
+
+    # connect to it
+    device.connect(via='rest', proxies={
+            'http': 'http://proxy.domain.com:80/',
+            'https': 'http://proxy.domain.com:80/',
+            'ftp': 'http://proxy.domain.com:80/',
+            'no': '.mydomain.com',
+        }
+    )
+
+    # Get information
+    device.rest.get(url)
+
+
+
 
 
 .. csv-table:: GET arguments

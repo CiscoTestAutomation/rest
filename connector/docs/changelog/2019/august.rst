@@ -1,6 +1,21 @@
 August 2019
 ===========
 
+Aug 27, 2019
+------------
+
+.. csv-table:: Module Versions
+    :header: "Modules", "Versions"
+
+        ``rest.connector``, v19.8
+
+Changes
+-------
+
+- Added proxies argument to iosxe plugin
+
+Aug 8, 2019
+-----------
 
 .. csv-table:: Module Versions
     :header: "Modules", "Versions"
@@ -10,4 +25,4 @@ August 2019
 Changes
 -------
 
-- Fix up for depencies to genie.abstract
+- Fix up for dependencies to genie.abstract
