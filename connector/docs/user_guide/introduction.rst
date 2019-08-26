@@ -51,6 +51,11 @@ to the connection for your devices in the testbed YAML file:
             custom:
                 abstraction:
                     order: [os]
+            os: # This must be set to select the rest connector plugin to use.
+                # The following values are supported :
+                # nso, nxos, dnac, apic, iosxe
+            type: router
+
             connections:
                 # Console
                 a:
