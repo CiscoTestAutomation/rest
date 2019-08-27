@@ -132,4 +132,3 @@ API to send DELETE command to the device.
 
 
 .. sectionauthor:: Takashi Higashimura <tahigash@cisco.com>
-
