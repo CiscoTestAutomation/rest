@@ -175,7 +175,7 @@ class Implementation(Implementation):
 
         full_url = "{f}{url}"\
             .format(f=self.url, url=url)
-        
+
         log.info("Sending GET command to '{d}':"\
                  "\nurl: {url}".format(d=self.device.name, url=full_url))
 
@@ -184,7 +184,7 @@ class Implementation(Implementation):
                                     timeout=timeout,
                                     headers=self.headers,
                                     **kwargs)
-        
+
         try:
             output = response.json()
         except Exception:
@@ -243,7 +243,7 @@ class Implementation(Implementation):
             output = response.json()
         except Exception:
             output = response.text
-            
+
         log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
