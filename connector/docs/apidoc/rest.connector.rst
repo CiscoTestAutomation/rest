@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     rest.connector.tests
+    rest.connector.libs
 
 Module contents
 ---------------
