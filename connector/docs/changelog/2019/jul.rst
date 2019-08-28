@@ -11,4 +11,3 @@ Changes
 
 - Added NXOS REST Connector fix, by Saravanakumar Mariyappan (smariyap) <smariyap@cisco.com>
 - Integrated with pyATS credentials feature.
-

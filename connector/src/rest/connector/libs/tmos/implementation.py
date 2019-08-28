@@ -2,8 +2,9 @@
 import logging
 
 # Genie, PyATS, ROBOT imports
-from pyats.connections import BaseConnection
+# from pyats.connections import BaseConnection
 from rest.connector.utils import get_username_password
+from rest.connector.implementation import Implementation
 
 # F5 imports
 from icontrol.session import iControlRESTSession
@@ -13,7 +14,7 @@ from icontrol.exceptions import iControlUnexpectedHTTPError
 log = logging.getLogger(__name__)
 
 
-class Implementation(BaseConnection):
+class Implementation(Implementation):
 
     """Rest BaseClass
 
@@ -58,40 +59,39 @@ class Implementation(BaseConnection):
 
     -------
 
-
-
         >>> from pyats.topology import loader
-
         >>> testbed = loader.load('/path/to/testbed.yaml')
-
         >>> device = testbed.devices['bigip1']
-
         >>> device.connect(alias='rest', via='rest')
-
         >>> device.rest.connected
 
         True
 
-        >>> api_url = '/mgmt/tm/ltm/node'
-
-        >>> nodes = device.rest.get(api_url)
-
-        >>> nodes.status_code
-
-        >>> nodes.json()
     """
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
 
-        """__init__ instantiates a single connection instance."""
+    #     """__init__ instantiates a single connection instance."""
 
-        # instanciate BaseConnection
+    #     # instanciate BaseConnection
 
-        # (could use super...)
+    #     # (could use super...)
 
-        BaseConnection.__init__(self, *args, **kwargs)
+    #     BaseConnection.__init__(self, *args, **kwargs)
 
-        self._is_connected = False
+    #     self._is_connected = False
+
+    # def icr_session(self, *args, **kwargs):
+    #     username, password = get_username_password(self)
+    #     self.session = iControlRESTSession(username, password)
+    #     ip = self.connection_info["ip"].exploded
+    #     port = self.connection_info.get("port", "443")
+    #     self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+    #     self.header = "Content-Type: application/json+{fmt}"
+
+    #     # full_url = "{b}{a}".format(b=self.base_url, a=api_url)
+
+    #     return self.session
 
     @property
     def connected(self):
@@ -105,12 +105,14 @@ class Implementation(BaseConnection):
         """connect to the device via REST"""
 
         username, password = get_username_password(self)
-        icr_session = iControlRESTSession(username, password)
-        payload = {"command": "run", "utilCmdArgs": '-c "runlevel"'}
+        self.icr_session = iControlRESTSession(username, password)
         ip = self.connection_info["ip"].exploded
         port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}/".format(ip=ip, port=port)
-        login_url = "{f}mgmt/tm/util/bash".format(f=self.base_url)
+        self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+        self.header = "Content-Type: application/json+{fmt}"
+
+        login_url = "{f}/mgmt/tm/util/bash".format(f=self.base_url)
+        payload = {"command": "run", "utilCmdArgs": '-c "runlevel"'}
 
         log.info(
             "Connecting to '{d}' with alias "
@@ -118,7 +120,7 @@ class Implementation(BaseConnection):
         )
 
         # Connect to the device
-        response = icr_session.post(login_url, json=payload)
+        response = self.icr_session.post(login_url, json=payload)
         log.info(response)
 
         # Make sure it returned ok
@@ -128,14 +130,14 @@ class Implementation(BaseConnection):
                 "Connection to '{ip}' has returned the "
                 "following code '{c}', instead of the "
                 "expected status code 'ok'".format(
-                    ip=ip, c=response.status_code
+                    ip=self.ip, c=response.status_code
                 )
             )
 
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
 
-        return self._is_connected
+        return self._is_connected, self.icr_session, self.base_url, self.header
 
     def disconnect(self):
 
@@ -147,29 +149,29 @@ class Implementation(BaseConnection):
 
         """GET REST Command to retrieve information from the device"""
 
-        username, password = get_username_password(self)
-        icr_session = iControlRESTSession(username, password)
-        ip = self.connection_info["ip"].exploded
-        port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+        # username, password = get_username_password(self)
+        # icr_session = iControlRESTSession(username, password)
+        # ip = self.connection_info["ip"].exploded
+        # port = self.connection_info.get("port", "443")
+        # self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
 
-        header = "Content-Type: application/json+{fmt}"
+        # header = "Content-Type: application/json+{fmt}"
 
         log.info(
             "Sending GET to '{d}': "
             "{u}".format(d=self.device.name, u=full_url)
         )
 
-        response = icr_session.get(full_url, timeout=timeout)
+        response = self.icr_session.get(full_url, timeout=timeout)
 
-        output = response
         # output = response.json()
+        output = response
 
         log.debug(
             "Response: {c}, headers: {h}".format(
-                c=response.status_code, h=header
+                c=response.status_code, h=self.header
             )
         )
         if verbose:
@@ -201,33 +203,33 @@ class Implementation(BaseConnection):
                 "alias '{a}'".format(d=self.device.name, a=self.alias)
             )
 
-        username, password = get_username_password(self)
-        icr_session = iControlRESTSession(username, password)
-        ip = self.connection_info["ip"].exploded
-        port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+        # username, password = get_username_password(self)
+        # icr_session = iControlRESTSession(username, password)
+        # ip = self.connection_info["ip"].exploded
+        # port = self.connection_info.get("port", "443")
+        # self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
 
-        header = "Content-Type: application/json+{fmt}"
+        # header = "Content-Type: application/json+{fmt}"
 
         log.info(
             "Sending Post to '{d}': "
             "{u}"
             " with the header '{h}'"
             " and payload '{p}'".format(
-                d=self.device.name, u=full_url, h=header, p=payload
+                d=self.device.name, u=full_url, h=self.header, p=payload
             )
         )
 
-        response = icr_session.post(full_url, json=payload, timeout=timeout)
+        response = self.icr_session.post(full_url, json=payload, timeout=timeout)
 
         # output = response.json()
         output = response
 
         log.debug(
             "Response: {c}, headers: {h}".format(
-                c=response.status_code, h=header
+                c=response.status_code, h=self.header
             )
         )
         if verbose:
@@ -260,33 +262,33 @@ class Implementation(BaseConnection):
                 "alias '{a}'".format(d=self.device.name, a=self.alias)
             )
 
-        username, password = get_username_password(self)
-        icr_session = iControlRESTSession(username, password)
-        ip = self.connection_info["ip"].exploded
-        port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+        # username, password = get_username_password(self)
+        # icr_session = iControlRESTSession(username, password)
+        # ip = self.connection_info["ip"].exploded
+        # port = self.connection_info.get("port", "443")
+        # self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
 
-        header = "Content-Type: application/json+{fmt}"
+        # header = "Content-Type: application/json+{fmt}"
 
         log.info(
             "Sending Post to '{d}': "
             "{u}"
             " with the header '{h}'"
             " and payload '{p}'".format(
-                d=self.device.name, u=full_url, h=header, p=payload
+                d=self.device.name, u=full_url, h=self.header, p=payload
             )
         )
 
-        response = icr_session.put(full_url, json=payload, timeout=timeout)
+        response = self.icr_session.put(full_url, json=payload, timeout=timeout)
 
         # output = response.json()
         output = response
 
         log.debug(
             "Response: {c}, headers: {h}".format(
-                c=response.status_code, h=header
+                c=response.status_code, h=self.header
             )
         )
         if verbose:
@@ -319,33 +321,33 @@ class Implementation(BaseConnection):
                 "alias '{a}'".format(d=self.device.name, a=self.alias)
             )
 
-        username, password = get_username_password(self)
-        icr_session = iControlRESTSession(username, password)
-        ip = self.connection_info["ip"].exploded
-        port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+        # username, password = get_username_password(self)
+        # icr_session = iControlRESTSession(username, password)
+        # ip = self.connection_info["ip"].exploded
+        # port = self.connection_info.get("port", "443")
+        # self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
 
-        header = "Content-Type: application/json+{fmt}"
+        # header = "Content-Type: application/json+{fmt}"
 
         log.info(
             "Sending Post to '{d}': "
             "{u}"
             " with the header '{h}'"
             " and payload '{p}'".format(
-                d=self.device.name, u=full_url, h=header, p=payload
+                d=self.device.name, u=full_url, h=self.header, p=payload
             )
         )
 
-        response = icr_session.patch(full_url, json=payload, timeout=timeout)
+        response = self.icr_session.patch(full_url, json=payload, timeout=timeout)
 
-        output = response
         # output = response.json()
+        output = response
 
         log.debug(
             "Response: {c}, headers: {h}".format(
-                c=response.status_code, h=header
+                c=response.status_code, h=self.header
             )
         )
         if verbose:
@@ -378,31 +380,31 @@ class Implementation(BaseConnection):
                 "alias '{a}'".format(d=self.device.name, a=self.alias)
             )
 
-        username, password = get_username_password(self)
-        icr_session = iControlRESTSession(username, password)
-        ip = self.connection_info["ip"].exploded
-        port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
+        # username, password = get_username_password(self)
+        # icr_session = iControlRESTSession(username, password)
+        # ip = self.connection_info["ip"].exploded
+        # port = self.connection_info.get("port", "443")
+        # self.base_url = "https://{ip}:{port}".format(ip=ip, port=port)
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
 
-        header = "Content-Type: application/json+{fmt}"
+        # header = "Content-Type: application/json+{fmt}"
 
         log.info(
             "Sending Post to '{d}': "
             "{u}"
             " with the header '{h}'".format(
-                d=self.device.name, u=full_url, h=header
+                d=self.device.name, u=full_url, h=self.header
             )
         )
 
-        response = icr_session.delete(full_url, timeout=timeout)
+        response = self.icr_session.delete(full_url, timeout=timeout)
 
         output = response.text
 
         log.debug(
             "Response: {c}, headers: {h}".format(
-                c=response.status_code, h=header
+                c=response.status_code, h=self.header
             )
         )
         if verbose:

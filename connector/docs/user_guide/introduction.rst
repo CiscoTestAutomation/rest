@@ -24,7 +24,7 @@ At the moment `rest.connector` supports the following platforms:
     ``nso``, Dave Wapstra, dwapstra@cisco.com
     ``iosxe``, Maaz Mashood Mohiuddin, mmashood@cisco.com
     ``apic``, Takashi Higashimura, pyats-support-ext@cisco.com
-
+    ``virl``, Takashi Higashimura, pyats-support-ext@cisco.com
 
 
 Example use
@@ -46,9 +46,17 @@ to the connection for your devices in the testbed YAML file:
 
     devices:
         PE1:
+            os: # This must be set to select the rest connector plugin to use.
+                # The following values are supported :
+                # nso, nxos, dnac, apic, iosxe
             custom:
                 abstraction:
                     order: [os]
+            os: # This must be set to select the rest connector plugin to use.
+                # The following values are supported :
+                # nso, nxos, dnac, apic, iosxe
+            type: router
+
             connections:
                 # Console
                 a:

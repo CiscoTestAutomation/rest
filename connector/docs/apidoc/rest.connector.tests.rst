@@ -1,13 +1,6 @@
 rest.connector.tests package
 ============================
 
-Submodules
-----------
-
-.. toctree::
-
-   rest.connector.tests.test_rest
-
 Module contents
 ---------------
 
