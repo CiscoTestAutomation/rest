@@ -153,3 +153,31 @@ class Implementation(Implementation):
         log.info("Output received:\n{response}".format(response=response))
 
         return response
+
+    @BaseConnection.locked
+    def post(self, api_url, timeout=30, **kwargs):
+        '''GET REST Command to POST information to the device
+
+        Arguments
+        ---------
+
+            api_url (string): API url string
+            timeout: timeout in seconds (default: 30)
+            **kwargs are the same keyword arguments for the requests lib
+        '''
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
+        full_url = '{url}{api_url}'.format(url=self.base_url,
+                                           api_url=api_url)
+
+        log.info("Sending POST command to '{d}':"\
+                 "\nDN: {furl}".format(d=self.device.name, furl=full_url))
+
+        hdr = {'x-auth-token': self.token, 'content-type' : 'application/json'}
+        response = requests.post(full_url, headers=hdr,
+                                verify=self.verify, timeout=timeout, **kwargs)
+        log.info("Output received:\n{response}".format(response=response))
+
+        return response
