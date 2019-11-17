@@ -101,7 +101,7 @@ class Implementation(Implementation):
                  "'{d}'".format(d=self.device.name))
 
     @BaseConnection.locked
-    def get(self, api_url, timeout=30):
+    def get(self, api_url, timeout=30, **kwargs):
         '''GET REST Command to retrieve information from the device
 
         Arguments
@@ -109,6 +109,7 @@ class Implementation(Implementation):
 
             api_url (string): API url string
             timeout: timeout in seconds (default: 30)
+            **kwargs: keyword arguments supported in requests.get method
         '''
         if not self.connected:
             raise Exception("'{d}' is not connected for "
@@ -122,7 +123,7 @@ class Implementation(Implementation):
 
         hdr = {'x-auth-token': self.token, 'content-type' : 'application/json'}
         response = requests.get(full_url, headers=hdr,
-                                verify=self.verify, timeout=timeout)
+                                verify=self.verify, timeout=timeout, **kwargs)
         log.info("Output received:\n{response}".format(response=response))
 
         return response
