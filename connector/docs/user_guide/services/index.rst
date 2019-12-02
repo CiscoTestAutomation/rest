@@ -13,3 +13,4 @@ This part of the document covers all the services supported by rest.connector.
    iosxe
    apic
    virl
+   bigip
