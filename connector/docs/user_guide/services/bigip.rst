@@ -61,7 +61,7 @@ disconnect
 Will delete the current API Token in use.
 
 
-get
+GET
 ---
 
 API to GET from the device.
