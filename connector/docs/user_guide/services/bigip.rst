@@ -79,7 +79,7 @@ API to GET from the device.
 
 
 POST
----
+----
 
 API to POST data to the device.
 
@@ -106,7 +106,7 @@ API to POST data to the device.
 
 
 PATCH
----
+-----
 
 API to PATCH data on the device.
 
@@ -144,7 +144,7 @@ API to PUT data on the device.
 
 
 DELETE
----
+------
 
 API to DELETE data on the device.
 
