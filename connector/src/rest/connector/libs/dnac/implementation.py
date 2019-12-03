@@ -11,6 +11,7 @@ from rest.connector.utils import get_username_password
 # create a logger for this module
 log = logging.getLogger(__name__)
 
+STD_HEADER = {'Content-type': 'application/json'}
 
 class Implementation(Implementation):
     '''Rest Implementation for DNAC
@@ -72,18 +73,24 @@ class Implementation(Implementation):
         if self.connected:
             return
 
-        # Building out Auth request. Using requests.post to make a call to the Auth
-        # Endpoint
-        ip = self.connection_info['ip'].exploded
+        # Building out Auth request. 
+        # prefer host instead of ip address directly
+        try:
+            host = self.connection_info['host']
+        except KeyError:
+            host = self.connection_info['ip'].exploded
+        
         port = self.connection_info.get('port', 443)
         self.verify = self.connection_info.get('verify', True)
 
         username, password = get_username_password(self)
 
-        self.base_url = 'https://{ip}:{port}'.format(ip=ip, port=port)
+        self.base_url = 'https://{host}:{port}'.format(host=host, port=port)
 
         auth_url  = '{url}/dna/system/api/v1/auth/token'.format(url=self.base_url)
-        resp = requests.post(auth_url, auth=HTTPBasicAuth(username, password), verify=self.verify)
+        resp = requests.post(auth_url, headers = STD_HEADER,
+                             auth=HTTPBasicAuth(username, password), 
+                             verify=self.verify)
 
         self.token = resp.json()['Token']    # Retrieve the Token from the returned JSONhahhah
 
@@ -117,13 +124,13 @@ class Implementation(Implementation):
         full_url = '{url}{api_url}'.format(url=self.base_url,
                                            api_url=api_url)
 
-        log.info("Sending GET command to '{d}':"\
+        log.debug("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         hdr = {'x-auth-token': self.token, 'content-type' : 'application/json'}
         response = requests.get(full_url, headers=hdr,
                                 verify=self.verify, timeout=timeout)
-        log.info("Output received:\n{response}".format(response=response))
+        log.debug("Output received:\n{response}".format(response=response.text))
 
         return response
 
@@ -144,12 +151,12 @@ class Implementation(Implementation):
         full_url = '{url}{api_url}'.format(url=self.base_url,
                                            api_url=api_url)
 
-        log.info("Sending PUT command to '{d}':"\
+        log.debug("Sending PUT command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         hdr = {'x-auth-token': self.token, 'content-type' : 'application/json'}
         response = requests.put(full_url, headers=hdr,
                                 verify=self.verify, timeout=timeout, **kwargs)
-        log.info("Output received:\n{response}".format(response=response))
+        log.info("Output received:\n{response}".format(response=response.text))
 
         return response

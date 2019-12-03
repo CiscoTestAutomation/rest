@@ -4,7 +4,7 @@ the device via REST api"""
 # metadata
 __version__ = '19.8.1'
 __author__ = ['Jean-Benoit Aubin <jeaubin@cisco.com>',
-             'Takashi Higashimura (tahigash) <tahigash@cisco.com>']
+              'Takashi Higashimura (tahigash) <tahigash@cisco.com>']
 
 __contact__ = 'pyats-support@cisco.com'
 __copyright__ = 'Cisco Systems, Inc. Cisco Confidential'
@@ -53,7 +53,7 @@ class Rest(BaseConnection):
         super().__init__(*args, **kwargs)
 
         # Set up abstraction for this device
-        lookup = Lookup.from_device(self.device)
+        lookup = Lookup.from_device(self.device, default_tokens = ['os'])
         _implementation = lookup.libs.implementation.Implementation
         self._implementation = _implementation(*args, **kwargs)
 

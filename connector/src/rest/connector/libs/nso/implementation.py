@@ -176,7 +176,7 @@ class Implementation(RestImplementation):
         if headers is not None:
             self.session.headers.update(headers)
 
-        log.info("Sending GET command to '{d}': "\
+        log.debug("Sending GET command to '{d}': "\
                  "{u}".format(d=self.device.name, u=full_url))
         log.debug("Request headers:{headers}".format(
                     headers= self.session.headers))
@@ -280,7 +280,7 @@ class Implementation(RestImplementation):
         if headers is not None:
             self.session.headers.update(headers)
 
-        log.info("Sending POST command to '{d}': {u}"\
+        log.debug("Sending POST command to '{d}': {u}"\
             .format(d=self.device.name, u=full_url))
         log.debug("Request headers: {h}\nPayload: {p}"\
             .format(h=self.session.headers, p=request_payload))
@@ -370,7 +370,7 @@ class Implementation(RestImplementation):
         if headers is not None:
             self.session.headers.update(headers)
 
-        log.info("Sending PATCH command to '{d}': {u}".format(
+        log.debug("Sending PATCH command to '{d}': {u}".format(
                                                     d=self.device.name, u=full_url))
         log.debug("Request headers: {h}\nPayload:{p}".format(h=self.session.headers,
                                                     p=request_payload))
@@ -460,7 +460,7 @@ class Implementation(RestImplementation):
         if headers is not None:
             self.session.headers.update(headers)
 
-        log.info("Sending PUT command to '{d}': {u}".format(
+        log.debug("Sending PUT command to '{d}': {u}".format(
                                                     d=self.device.name, u=full_url))
         log.debug("Request headers: {h}\nPayload:{p}".format(h=self.session.headers,
                                                     p=request_payload))
@@ -529,7 +529,7 @@ class Implementation(RestImplementation):
         if headers is not None:
             self.session.headers.update(headers)
 
-        log.info("Sending DELETE command to '{d}': "\
+        log.debug("Sending DELETE command to '{d}': "\
                  "{u}".format(d=self.device.name, u=full_url))
         log.debug("Request headers:{headers}".format(
                     headers= self.session.headers))
