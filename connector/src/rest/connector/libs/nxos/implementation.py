@@ -206,7 +206,7 @@ class Implementation(Implementation):
                                   dn=dn)
 
 
-        log.info("Sending GET command to '{d}':"\
+        log.debug("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         response = self.session.get(full_url, timeout=timeout)
@@ -249,7 +249,7 @@ class Implementation(Implementation):
         # Deal with the dn
         full_url = '{f}{dn}'.format(f=self.url, dn=dn)
 
-        log.info("Sending POST command to '{d}':"\
+        log.debug("Sending POST command to '{d}':"\
                  "\nDN: {furl}\nPayload:{p}".format(d=self.device.name,
                                                     furl=full_url,
                                                     p=payload))
@@ -291,7 +291,7 @@ class Implementation(Implementation):
         # Deal with the dn
         full_url = '{f}{dn}'.format(f=self.url, dn=dn)
 
-        log.info("Sending DELETE command to '{d}':"\
+        log.debug("Sending DELETE command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         # Send to the device
