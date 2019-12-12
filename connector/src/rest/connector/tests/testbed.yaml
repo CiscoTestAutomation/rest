@@ -48,3 +48,18 @@ devices:
           ip: 1.2.3.4
           username: cisco
           password: cisco
+  bigip01.lab.local:
+    alias: 'bigip01'
+    type: 'bigip'
+    os: 'bigip'
+    custom:
+      abstraction:
+        order: [os]
+    connections:
+      rest:
+        class: rest.connector.Rest
+        ip: 1.2.3.4
+        credentials:
+          rest:
+            username: admin
+            password: admin
