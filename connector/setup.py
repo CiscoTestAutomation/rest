@@ -160,7 +160,7 @@ setup(
         'requests >= 1.15.1',
         'dicttoxml',
         'requests_mock',
-        'genie.abstract'
+        'f5-icontrol-rest',
     ],
 
     # any additional groups of dependencies.

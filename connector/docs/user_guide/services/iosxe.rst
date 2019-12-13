@@ -29,7 +29,6 @@ and allows to specify the username and password in the testbed YAML file.
                     order: [os]
             os: iosxe
             type: router
-
             connections:
                 rest:
                     # Rest connector class

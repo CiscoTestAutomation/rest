@@ -1,5 +1,4 @@
 Dec 2019
-=========
 
 .. csv-table:: Module Versions
     :header: "Modules", "Versions"
@@ -10,3 +9,4 @@ Changes
 -------
 
 - Added F5 (BigIP) REST Connector implementation, by Mirza Waqas Ahmed (mirzawaqasahmed) <m.w.ahmed@gmail.com>
+
