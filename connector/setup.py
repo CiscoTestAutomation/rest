@@ -161,6 +161,7 @@ setup(
         'dicttoxml',
         'requests_mock',
         'f5-icontrol-rest',
+        'genie'
     ],
 
     # any additional groups of dependencies.
