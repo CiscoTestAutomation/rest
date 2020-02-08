@@ -95,7 +95,7 @@ class Implementation(RestImplementation):
         ip = self.connection_info.ip.exploded
         port = self.connection_info.get('port', '443')
         self.base_url = 'https://{ip}:{port}'.format(ip=ip, port=port)
-        self.login_url = '{f}/webui'.format(f=self.base_url)
+        self.login_url = '{f}/'.format(f=self.base_url)
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
         username, password = get_username_password(self)
