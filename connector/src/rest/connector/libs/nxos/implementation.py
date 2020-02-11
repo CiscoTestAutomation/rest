@@ -4,14 +4,14 @@ import requests
 from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
-from rest.connector.implementation import Implementation
+from rest.connector.implementation import Implementation as RestImplementation
 from rest.connector.utils import get_username_password
 
 # create a logger for this module
 log = logging.getLogger(__name__)
 
 
-class Implementation(Implementation):
+class Implementation(RestImplementation):
     '''Rest Implementation for NXOS
 
     Implementation of Rest connection to devices based on pyATS BaseConnection
@@ -107,8 +107,17 @@ class Implementation(Implementation):
             return
 
         ip = self.connection_info['ip'].exploded
-        self.url = 'http://{ip}/'.format(ip=ip)
-        login_url = '{f}api/aaaLogin.json'.format(f=self.url)
+        protocol = self.connection_info.get('protocol', 'https')
+        port = self.connection_info.get('port', '443')
+
+        if protocol in ['http', 'https']:
+            self.url = '{protocol}://{ip}:{port}/'.format(protocol=protocol, ip=ip, port=port)
+        elif protocol == 'restconf':
+            self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)
+        login_url = {}
+        login_url['http'] = '{f}api/aaaLogin.json'.format(f=self.url)
+        login_url['https'] = '{f}api/aaaLogin.json'.format(f=self.url)
+        login_url['restconf'] = '{f}Cisco-NX-OS-device:System/nxapi-items/'.format(f=self.url)
 
         username, password = get_username_password(self)
 
@@ -125,11 +134,25 @@ class Implementation(Implementation):
                  "'{a}'".format(d=self.device.name, a=self.alias))
 
         self.session = requests.Session()
-        _data = json.dumps(payload)
+        if protocol == 'https':
+            _data = json.dumps(payload)
+        elif protocol == 'http':
+            _data = json.dumps(payload)
+        elif protocol == 'restconf':
+            self.session.auth = (username, password)
 
         # Connect to the device via requests
-        response = self.session.post(login_url, data=_data, timeout=timeout)
-        log.info(response)
+        if protocol == 'https':
+            response = self.session.post(login_url[protocol], data=_data, timeout=timeout, verify=False)
+        elif protocol == 'http':
+            response = self.session.post(login_url[protocol], data=_data, timeout=timeout)
+        elif protocol == 'restconf':
+            headers = {'Accept': 'application/yang.data+json', 'Content-Type': 'application/yang.data+json'}
+            response = self.session.get(login_url[protocol], timeout=timeout, verify=False, headers=headers)
+        output = response.text
+        log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
+                                                           r=response.reason, h=response.headers))
+        log.info("Response text:\n%s" % output)
 
         # Make sure it returned requests.codes.ok
         if response.status_code != requests.codes.ok:
@@ -210,6 +233,7 @@ class Implementation(Implementation):
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         response = self.session.get(full_url, timeout=timeout)
+        log.info(response.text)
         output = response.json()
         log.info("Output received:\n{output}".format(output=output))
 
