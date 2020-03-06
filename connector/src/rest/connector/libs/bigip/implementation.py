@@ -2,7 +2,7 @@
 import logging
 import time
 
-# Genie, PyATS, ROBOT imports
+# Genie, pyATS, ROBOT imports
 # from pyats.connections import BaseConnection
 from rest.connector.utils import get_username_password
 from rest.connector.implementation import Implementation
