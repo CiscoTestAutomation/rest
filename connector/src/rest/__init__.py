@@ -1,4 +1,4 @@
-__version__   = '19.6'
+__version__   = '20.2.1b0'
 __author__    = 'Jean-Benoit Aubin <jeaubin@cisco.com>'
 __date__      = ''
 __contact__   = 'pyats-support@cisco.com'
