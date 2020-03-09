@@ -562,7 +562,7 @@ All rights reserved.
                 </body>
             </html>
 """
-        kwargs['mock'].get('https://1.2.3.4:443/webui', text=response_text)
+        kwargs['mock'].get('https://1.2.3.4:443/', text=response_text)
         output = connection.connect(verbose=True).text
         self.assertEqual(output, response_text)
         return connection
