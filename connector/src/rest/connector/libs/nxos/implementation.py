@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
@@ -107,8 +108,14 @@ class Implementation(Implementation):
             return
 
         ip = self.connection_info['ip'].exploded
-        self.url = 'http://{ip}/'.format(ip=ip)
-        login_url = '{f}api/aaaLogin.json'.format(f=self.url)
+
+        if 'port' in self.connection_info:
+            port = self.connection_info['port']
+            self.url = 'http://{ip}:{port}'.format(ip=ip, port=port)
+        else:
+            self.url = 'http://{ip}'.format(ip=ip)
+
+        login_url = '{f}/api/aaaLogin.json'.format(f=self.url)
 
         username, password = get_username_password(self)
 
@@ -139,6 +146,10 @@ class Implementation(Implementation):
                                    "expected status code '{ok}'"\
                                         .format(ip=ip, c=response.status_code,
                                                 ok=requests.codes.ok))
+
+        # Attach auth to session for future calls
+        self.session.auth = HTTPBasicAuth(username, password)
+
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
 
@@ -177,135 +188,180 @@ class Implementation(Implementation):
         return decorated
 
     @BaseConnection.locked
-    @isconnected
-    def get(self, dn, rsp_subtree='full', rsp_foreign_subtree='ephemeral',
-            batch_size='1000', batch_id='1',
-            expected_status_code=requests.codes.ok, timeout=30):
-        '''GET REST Command to retrieve information from the device
+    def _request(self, method, dn, **kwargs):
+        """ Wrapper to send REST command to device
 
-        Arguments
-        ---------
+        Args:
+            method (str): session request method
 
-            dn (string): Unique distinguished name that describes the object
-                         and its place in the tree.
-            rsp_subtree (string): Specifies child object level included in
-                                  the response
-            rsp_foreign_subtree (string):
-            batch_size (int): Size of output to receive per batch
-            batch_id (int): # in the sequence of the batch to receive
-            expected_status_code (int): Expected result
-        '''
+            dn (str): rest endpoint
 
+        Returns:
+            response.json() or response.text
+
+        Raises:
+            RequestException if response is not ok
+
+        """
         if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
+            raise Exception("'{d}' is not connected for alias '{a}'"
+                            .format(d=self.device.name,
+                                    a=self.alias))
 
-        full_url = "{f}{dn}"\
-                          .format(f=self.url,
-                                  dn=dn)
+        # Deal with the dn
+        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
 
+        if 'data' in kwargs:
+            p = kwargs['data']
+        elif 'json' in kwargs:
+            p = kwargs['json']
+        else:
+            p = ''
 
-        log.debug("Sending GET command to '{d}':"\
-                 "\nDN: {furl}".format(d=self.device.name, furl=full_url))
+        log.info("Sending {method} command to '{d}':"
+                 "\nDN: {furl}\nPayload:{p}"
+                 .format(method=method,
+                         d=self.device.name,
+                         furl=full_url,
+                         p=p))
 
-        response = self.session.get(full_url, timeout=timeout)
-        output = response.json()
-        log.info("Output received:\n{output}".format(output=output))
+        # Send to the device
+        response = self.session.request(method=method, url=full_url, **kwargs)
 
-        # Make sure it returned requests.codes.ok
-        if response.status_code != expected_status_code:
-            # Something bad happened
-            raise RequestException("Sending '{furl} to '{d} has returned the "
-                                   "following code '{c}', instead of the "
-                                   "expected status code '{e}'"
-                                   "'{e}'".format(furl=full_url,
-                                                  d=self.device.name,
-                                                  c=response.status_code,
-                                                  e=expected_status_code))
+        # Make sure it was successful
+        try:
+            response.raise_for_status()
+        except Exception:
+            raise RequestException(
+                "'{c}' result code has been returned "
+                "for '{d}'.\nResponse from server: "
+                "{r}".format(d=self.device.name,
+                             c=response.status_code,
+                             r=response.text))
+
+        # In case the response cannot be decoded into json
+        # warn and return the raw text
+        try:
+            output = response.json()
+        except Exception:
+            log.warning('Could not decode json. Returning text!')
+            output = response.text
+
         return output
 
     @BaseConnection.locked
     @isconnected
-    def post(self, dn, payload, expected_status_code=requests.codes.ok,
-             timeout=30):
-        '''POST REST Command to configure information from the device
+    def get(self, dn, headers=None, timeout=30):
+        """ GET REST Command to retrieve information from the device
 
-        Arguments
-        ---------
+        Args:
+            dn (str): Unique distinguished name that describes the object
+                      and its place in the tree.
 
+            headers (dict): Headers to send with the rest call
+
+            timeout (int): Maximum time to allow rest call to return
+
+        Returns:
+            response.json() or response.text
+
+        Raises:
+            RequestException if response is not ok
+        """
+        return self._request('GET', dn, headers=headers, timeout=timeout)
+
+    @BaseConnection.locked
+    @isconnected
+    def post(self, dn, payload, headers=None, timeout=30):
+        """POST REST Command to configure new information on the device
+
+        Args:
             dn (string): Unique distinguished name that describes the object
                          and its place in the tree.
+
             payload (dict): Dictionary containing the information to send via
                             the post
-            expected_status_code (int): Expected result
+
+            headers (dict): Headers to send with the rest call
+
             timeout (int): Maximum time
-        '''
 
-        if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
-        # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        Returns:
+            response.json() or response.text
 
-        log.debug("Sending POST command to '{d}':"\
-                 "\nDN: {furl}\nPayload:{p}".format(d=self.device.name,
-                                                    furl=full_url,
-                                                    p=payload))
-
-        # Send to the device
-        response = self.session.post(full_url, payload, timeout=timeout)
-        output = response.json()
-        log.info("Output received:\n{output}".format(output=output))
-
-        # Make sure it returned requests.codes.ok
-        if response.status_code != expected_status_code:
-            # Something bad happened
-            raise RequestException("'{c}' result code has been returned "
-                                   "instead of the expected status code "
-                                   "'{e}' for '{d}'"\
-                                   .format(d=self.device.name,
-                                           c=response.status_code,
-                                           e=expected_status_code))
-        return output
+        Raises:
+            RequestException if response is not ok
+        """
+        return self._request('POST', dn, data=payload, headers=headers,
+                             timeout=timeout)
 
     @BaseConnection.locked
     @isconnected
-    def delete(self, dn, expected_status_code=requests.codes.ok, timeout=30):
-        '''DELETE REST Command to delete information from the device
+    def delete(self, dn, headers=None, timeout=30):
+        """DELETE REST Command to delete information from the device
 
-        Arguments
-        ---------
-
+        Args
             dn (string): Unique distinguished name that describes the object
                          and its place in the tree.
-            expected_status_code (int): Expected result
+
+            headers (dict): Headers to send with the rest call
+
             timeout (int): Maximum time
-        '''
-        if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
 
-        # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        Returns:
+            response.json() or response.text
 
-        log.debug("Sending DELETE command to '{d}':"\
-                 "\nDN: {furl}".format(d=self.device.name, furl=full_url))
+        Raises:
+            RequestException if response is not ok
+        """
+        return self._request('DELETE', dn, headers=headers, timeout=timeout)
 
-        # Send to the device
-        response = self.session.delete(full_url, timeout=timeout)
-        output = response.json()
-        log.info("Output received:\n{output}".format(output=output))
+    @BaseConnection.locked
+    @isconnected
+    def patch(self, dn, payload, headers=None, timeout=30):
+        """PATCH REST Command to partially update existing information on the device
 
-        # Make sure it returned requests.codes.ok
-        if response.status_code != expected_status_code:
-            # Something bad happened
-            raise RequestException("'{c}' result code has been returned "
-                                   "instead of the expected status code "
-                                   "'{e}' for '{d}'"\
-                                   .format(d=self.device.name,
-                                           c=response.status_code,
-                                           e=expected_status_code))
-        return output
+        Args
+            dn (string): Unique distinguished name that describes the object
+                         and its place in the tree.
+
+            payload (dict): Dictionary containing the information to send via
+                            the post
+
+            headers (dict): Headers to send with the rest call
+
+            timeout (int): Maximum time
+
+        Returns:
+            response.json() or response.text
+
+        Raises:
+            RequestException if response is not ok
+        """
+        return self._request('PATCH', dn, data=payload, headers=headers,
+                             timeout=timeout)
+
+    @BaseConnection.locked
+    @isconnected
+    def put(self, dn, payload, headers=None, timeout=30):
+        """PUT REST Command to update existing information on the device
+
+        Args
+            dn (string): Unique distinguished name that describes the object
+                         and its place in the tree.
+
+            payload (dict): Dictionary containing the information to send via
+                            the post
+
+            headers (dict): Headers to send with the rest call
+
+            timeout (int): Maximum time
+
+        Returns:
+            response.json() or response.text
+
+        Raises:
+            RequestException if response is not ok
+        """
+        return self._request('DELETE', dn, data=payload, headers=headers,
+                             timeout=timeout)

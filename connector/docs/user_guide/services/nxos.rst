@@ -9,16 +9,12 @@ get
 
 API to send GET command to the device.
 
-.. csv-table:: GET arguments
+.. csv-table::
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
     ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
-    ``rsp_subtree``, "Specifies child object level included in the response", "full"
-    ``rsp_foreign_subtree``, "", "ephemeral"
-    ``batch_size``, "Size of output to receive per batch", "1000"
-    ``batch_id``, "# in the sequence of the batch to receive", "1"
-    ``expected_status_code``, "Expected result", "200"
+    ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
 
 .. code-block:: python
@@ -32,13 +28,13 @@ post
 
 API to send POST command to the device.
 
-.. csv-table:: POST arguments
+.. csv-table::
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
     ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``payload``, "Payload to send to the device", "Mandatory"
-    ``expected_status_code``, "Expected result", "200"
+    ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
 
 .. code-block:: python
@@ -110,12 +106,12 @@ delete
 
 API to send DELETE command to the device.
 
-.. csv-table:: DELETE arguments
+.. csv-table::
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
     ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
-    ``expected_status_code``, "Expected result", "200"
+    ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
 
 .. code-block:: python
@@ -124,6 +120,73 @@ API to send DELETE command to the device.
     url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
     output = device.rest.delete(url)
 
+patch
+-----
+
+API to send PATCH command to the device.
+
+.. csv-table::
+    :header: Argument, Description, Default
+    :widths: 30, 50, 20
+
+    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``payload``, "Payload to send to the device", "Mandatory"
+    ``headers``, "Headers to send with the GET command", "None"
+    ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+
+.. code-block:: python
+
+    # Assuming the device is already connected
+    payload = """{
+        "intf-items": {
+          "phys-items": {
+            "PhysIf-list": [
+              {
+                "adminSt": "down",
+                "id": "eth1/2",
+                "userCfgdFlags": "admin_layer,admin_state"
+              }
+            ]
+          }
+        }
+      }
+    """
+    url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
+    output = device.rest.patch(url)
+
+put
+---
+
+API to send PUT command to the device.
+
+.. csv-table::
+    :header: Argument, Description, Default
+    :widths: 30, 50, 20
+
+    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``payload``, "Payload to send to the device", "Mandatory"
+    ``headers``, "Headers to send with the GET command", "None"
+    ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+
+.. code-block:: python
+
+    # Assuming the device is already connected
+    payload = """{
+        "intf-items": {
+          "phys-items": {
+            "PhysIf-list": [
+              {
+                "adminSt": "down",
+                "id": "eth1/2",
+                "userCfgdFlags": "admin_layer,admin_state"
+              }
+            ]
+          }
+        }
+      }
+    """
+    url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
+    output = device.rest.put(url)
 
 .. sectionauthor:: Jean-Benoit Aubin <jeaubin@cisco.com>
 
