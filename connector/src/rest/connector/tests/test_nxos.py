@@ -97,19 +97,20 @@ class test_rest_connector(unittest.TestCase):
             resp = Response()
             resp.status_code = 200
             resp2 = Response()
-            resp2.status_code = 300
-            req().get.return_value = resp2
-            req().post.side_effect = [resp, resp, resp2, resp2]
+            resp2.status_code = 400
+            req().request.return_value = resp2
+            req().post.side_effect = [resp, resp]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
             with self.assertRaises(RequestException):
                 connection.post(dn='temp', payload={'payload':'something'})
+
             self.assertEqual(connection.connected, True)
             connection.disconnect()
+
         self.assertEqual(connection.connected, False)
 
     def test_post_connected_change_expected(self):
@@ -131,8 +132,7 @@ class test_rest_connector(unittest.TestCase):
 
 
 
-            connection.post(dn='temp', payload={'payload':'something'},
-                            expected_status_code=300)
+            connection.post(dn='temp', payload={'payload':'something'})
             self.assertEqual(connection.connected, True)
             connection.disconnect()
         self.assertEqual(connection.connected, False)
@@ -145,20 +145,20 @@ class test_rest_connector(unittest.TestCase):
             resp = Response()
             resp.status_code = 200
             resp2 = Response()
-            resp2.status_code = 300
-            req().get.return_value = resp2
-            req().post.side_effect = [resp, resp, resp2, resp2]
+            resp2.status_code = 400
+            req().request.return_value = resp2
+            req().post.side_effect = [resp, resp]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
             with self.assertRaises(RequestException):
-                connection.post(dn='temp', payload={'payload':'something'},
-                                expected_status_code=400)
+                connection.post(dn='temp', payload={'payload':'something'})
+
             self.assertEqual(connection.connected, True)
             connection.disconnect()
+
         self.assertEqual(connection.connected, False)
 
     def test_get_not_connected(self):
@@ -189,20 +189,20 @@ class test_rest_connector(unittest.TestCase):
             resp = Response()
             resp.status_code = 200
             resp2 = Response()
-            resp2.status_code = 300
-            req().get.return_value = resp2
-            req().post.side_effect = [resp, resp, resp2]
+            resp2.status_code = 400
+            req().request.return_value = resp2
+            req().post.side_effect = [resp, resp]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
-
             with self.assertRaises(RequestException):
                 connection.get(dn='temp')
+
             self.assertEqual(connection.connected, True)
             connection.disconnect()
+
         self.assertEqual(connection.connected, False)
 
     def test_get_connected_change_expected(self):
@@ -223,7 +223,7 @@ class test_rest_connector(unittest.TestCase):
 
 
 
-            connection.get(dn='temp', expected_status_code=300)
+            connection.get(dn='temp')
             self.assertEqual(connection.connected, True)
             connection.disconnect()
         self.assertEqual(connection.connected, False)
@@ -236,20 +236,20 @@ class test_rest_connector(unittest.TestCase):
             resp = Response()
             resp.status_code = 200
             resp2 = Response()
-            resp2.status_code = 300
-            req().get.return_value = resp2
-            req().post.side_effect = [resp, resp, resp2]
+            resp2.status_code = 500
+            req().request.return_value = resp2
+            req().post.side_effect = [resp, resp]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
-
             with self.assertRaises(RequestException):
-                connection.get(dn='temp', expected_status_code=400)
+                connection.get(dn='temp')
+
             self.assertEqual(connection.connected, True)
             connection.disconnect()
+
         self.assertEqual(connection.connected, False)
 
     def test_delete_not_connected(self):
@@ -277,21 +277,23 @@ class test_rest_connector(unittest.TestCase):
         self.assertEqual(connection.connected, False)
 
         with patch('requests.Session') as req:
-
             resp = Response()
             resp.status_code = 200
             resp2 = Response()
-            resp2.status_code = 300
-            req().delete.return_value = resp2
-            req().post.side_effect = [resp, resp, resp2]
+            resp2.status_code = 400
+            req().request.return_value = resp2
+            req().post.side_effect = [resp, resp]
+
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
             with self.assertRaises(RequestException):
                 connection.delete(dn='temp')
+
             self.assertEqual(connection.connected, True)
             connection.disconnect()
+
         self.assertEqual(connection.connected, False)
 
     def test_delete_connected_change_expected(self):
@@ -309,7 +311,7 @@ class test_rest_connector(unittest.TestCase):
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
-            connection.delete(dn='temp', expected_status_code=300)
+            connection.delete(dn='temp')
             self.assertEqual(connection.connected, True)
             connection.disconnect()
 
@@ -324,19 +326,17 @@ class test_rest_connector(unittest.TestCase):
             resp = Response()
             resp.status_code = 200
             resp2 = Response()
-            resp2.status_code = 300
-            req().delete.return_value = resp2
-            req().post.side_effect = [resp, resp, resp2]
+            resp2.status_code = 400
+            req().post.side_effect = [resp, resp]
+            req().request.return_value = resp2
 
             connection.connect()
-            resp.json = MagicMock(return_value={'imdata': []})
-            resp2.json = MagicMock(return_value={'imdata': []})
-
-
 
             with self.assertRaises(RequestException):
-                connection.delete(dn='temp', expected_status_code=400)
+                connection.delete(dn='/temp')
+
             self.assertEqual(connection.connected, True)
             connection.disconnect()
+
         self.assertEqual(connection.connected, False)
 
