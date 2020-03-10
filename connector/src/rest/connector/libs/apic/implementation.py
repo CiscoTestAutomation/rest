@@ -95,7 +95,11 @@ class Implementation(Implementation):
             return
 
         ip = self.connection_info['ip'].exploded
-        self.url = 'https://{ip}/'.format(ip=ip)
+        if 'port' in self.connection_info:
+            port = self.connection_info['port']
+            self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)
+        else:
+            self.url = 'https://{ip}/'.format(ip=ip)
         login_url = '{f}api/aaaLogin.json'.format(f=self.url)
 
         username, password = get_username_password(self)
@@ -108,15 +112,19 @@ class Implementation(Implementation):
                }
            }
         }
+        headers = {
+            'Content-Type': 'text/plain'
+        }
 
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
 
         self.session = requests.Session()
+        _data = json.dumps(payload)
 
         # Connect to the device via requests
-        response = self.session.post(login_url, json=payload, timeout=timeout, \
-            verify=False)
+        response = self.session.post(login_url, data=_data, timeout=timeout, \
+            verify=False, headers=headers)
         log.info(response)
 
         # Make sure it returned requests.codes.ok
