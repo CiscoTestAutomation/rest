@@ -239,7 +239,8 @@ class Implementation(Implementation):
         except Exception:
             output = response.text
 
-        log.info("Output received:\n{output}".format(output=output))
+        log.info("Output received:\n{output}".format(output=
+            json.dumps(output, indent=2, sort_keys=True)))
 
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
