@@ -6,14 +6,14 @@ from requests.exceptions import RequestException
 
 
 from pyats.connections import BaseConnection
-from rest.connector.implementation import Implementation
+from rest.connector.implementation import Implementation as Imp
 from rest.connector.utils import get_username_password
 
 # create a logger for this module
 log = logging.getLogger(__name__)
 
 
-class Implementation(Implementation):
+class Implementation(Imp):
     '''Rest Implementation for APIC
 
     Implementation of Rest connection to devices based on pyATS BaseConnection
