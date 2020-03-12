@@ -6,14 +6,14 @@ from requests.exceptions import RequestException
 
 
 from pyats.connections import BaseConnection
-from rest.connector.implementation import Implementation
+from rest.connector.implementation import Implementation as Imp
 from rest.connector.utils import get_username_password
 
 # create a logger for this module
 log = logging.getLogger(__name__)
 
 
-class Implementation(Implementation):
+class Implementation(Imp):
     '''Rest Implementation for APIC
 
     Implementation of Rest connection to devices based on pyATS BaseConnection
@@ -229,7 +229,7 @@ class Implementation(Implementation):
             full_url += "&rsp-subtree-class={rsc}"\
                 .format(rsc=rsp_subtree_class)
 
-        log.debug("Sending GET command to '{d}':"\
+        log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         response = self.session.get(full_url, timeout=timeout, verify=False)
@@ -278,7 +278,7 @@ class Implementation(Implementation):
         # Deal with the dn
         full_url = '{f}{dn}'.format(f=self.url, dn=dn)
 
-        log.debug("Sending POST command to '{d}':"\
+        log.info("Sending POST command to '{d}':"\
                  "\nDN: {furl}\nPayload:{p}".format(d=self.device.name,
                                                     furl=full_url,
                                                     p=payload))
@@ -322,7 +322,7 @@ class Implementation(Implementation):
         # Deal with the dn
         full_url = '{f}{dn}'.format(f=self.url, dn=dn)
 
-        log.debug("Sending DELETE command to '{d}':"\
+        log.info("Sending DELETE command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         # Send to the device
