@@ -94,7 +94,10 @@ class Implementation(Imp):
         if self.connected:
             return
 
-        ip = self.connection_info['ip'].exploded
+        if 'host' in self.connection_info:
+            ip = self.connection_info['host']
+        else:
+            ip = self.connection_info['ip'].exploded
         if 'port' in self.connection_info:
             port = self.connection_info['port']
             self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)
