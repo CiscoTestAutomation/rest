@@ -26,6 +26,12 @@ class Implementation(Implementation):
 
         devices:
             vmanage:
+                os: sdwan
+                series: viptela
+                type: vmanage
+                custom:
+                    abstraction:
+                        order: [type]
                 connections:
                     rest:
                         class: rest.connector.Rest
