@@ -6,6 +6,7 @@ from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation
 from rest.connector.utils import get_username_password
 
+from requests.exceptions import RequestException
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -97,19 +98,23 @@ class Implementation(Implementation):
         resp = self.session.post(login_url,
                                  data=login_data,
                                  headers=headers,
-                                 verify=self.verify)
+                                 verify=self.verify,
+                                 timeout=timeout)
 
         if resp.status_code == 200:
             log.info("Login successfully to '{d}'".format(d=self.device.name))
         else:
-            raise Exception("Failed to login '{d}'".format(d=self.device.name))
+            raise RequestException(
+                "Failed to login '{d}'".format(d=self.device.name))
 
-        login_token = self.session.get(url=token_url, verify=self.verify)
+        login_token = self.session.get(url=token_url,
+                                       verify=self.verify,
+                                       timeout=timeout)
 
         if login_token.status_code == 200:
             self.token = login_token.content
         else:
-            raise Exception(
+            raise RequestException(
                 "Failed to get token for '{d}'".format(d=self.device.name))
 
         self._is_connected = True
@@ -123,7 +128,10 @@ class Implementation(Implementation):
 
         log.info("Disconnecting from '{d}' with "
                  "alias '{a}'".format(d=self.device.name, a=self.alias))
-        self._is_connected = False
+        try:
+            self.session.close()
+        finally:
+            self._is_connected = False
         log.info("Disconnected successfully from "
                  "'{d}'".format(d=self.device.name))
 
@@ -254,7 +262,6 @@ class Implementation(Implementation):
     @BaseConnection.locked
     def delete(self,
                mount_point,
-               payload,
                headers=None,
                timeout=30):
         '''GET REST Command to retrieve information from the device
@@ -280,15 +287,12 @@ class Implementation(Implementation):
         log.info("Sending DELETE command to '{d}':"
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
-        if isinstance(payload, dict):
-            payload = json.dumps(payload)
-
         hdr = self.default_headers
 
         if headers is not None:
             hdr.update(headers)
 
-        response = self.session.delete(full_url, data=payload, headers=hdr,
+        response = self.session.delete(full_url, headers=hdr,
                                        verify=self.verify, timeout=timeout)
         log.info("Output received:\n{response}".format(response=response))
 

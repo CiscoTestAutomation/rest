@@ -63,3 +63,17 @@ devices:
           rest:
             username: admin
             password: admin
+  vmanage:
+      os:        sdwan
+      series:    viptela
+      type:      vmanage
+      custom:
+        abstraction:
+          order: [type]
+      connections:
+        rest:
+          class: rest.connector.Rest
+          ip: 1.2.3.4
+          username: admin
+          password: admin
+
