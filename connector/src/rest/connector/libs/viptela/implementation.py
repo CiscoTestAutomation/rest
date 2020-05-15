@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class Implementation(Implementation):
-    '''Rest Implementation for vManage
+    '''Rest Implementation for viptela/vManage
 
     Implementation of Rest connection to devices based on pyATS BaseConnection
     for vManage
@@ -26,12 +26,11 @@ class Implementation(Implementation):
 
         devices:
             vmanage:
-                os: sdwan
-                series: viptela
+                os: viptela
                 type: vmanage
                 custom:
                     abstraction:
-                        order: [type]
+                        order: [os]
                 connections:
                     rest:
                         class: rest.connector.Rest

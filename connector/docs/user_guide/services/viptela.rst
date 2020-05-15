@@ -1,7 +1,7 @@
-vManage
-=======
+viptela/vManage
+===============
 
-The following services are supported by the REST connector for vManage.
+The following services are supported by the REST connector for viptela/vManage.
 
 
 connect
@@ -24,12 +24,11 @@ and allows to specify the username and password in the testbed YAML file.
 
     devices:
         vmanage:
-            os: sdwan
-            series: viptela
+            os: viptela
             type: vmanage
             custom:
                 abstraction:
-                    order: [type]
+                    order: [os]
             connections:
                 rest:
                     class: rest.connector.Rest

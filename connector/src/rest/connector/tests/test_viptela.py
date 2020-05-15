@@ -1,5 +1,5 @@
 #!/bin/env python
-""" Unit tests for APIC rest.connector """
+""" Unit tests for viptela/vManage rest.connector """
 
 import os
 import unittest
