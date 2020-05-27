@@ -63,3 +63,17 @@ devices:
           rest:
             username: admin
             password: admin
+  vmanage:
+      os:        viptela
+      type:      vmanage
+      custom:
+        abstraction:
+          order: [os]
+      connections:
+        rest:
+          class: rest.connector.Rest
+          ip: 1.2.3.4
+          credentials:
+            rest:
+              username: admin
+              password: admin
