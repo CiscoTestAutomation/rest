@@ -51,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Rest'
-copyright = '%s, ASG-ATS, Cisco Internal Confidential' % datetime.now().year
+copyright = '%s, Cisco Systems Inc' % datetime.now().year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
