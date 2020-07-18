@@ -218,6 +218,8 @@ class Implementation(Implementation):
         else:
             p = ''
 
+        expected_return_code = kwargs.pop('expected_return_code', None)
+
         log.info("Sending {method} command to '{d}':"
                  "\nDN: {furl}\nPayload:{p}"
                  .format(method=method,
@@ -228,16 +230,30 @@ class Implementation(Implementation):
         # Send to the device
         response = self.session.request(method=method, url=full_url, **kwargs)
 
-        # Make sure it was successful
-        try:
-            response.raise_for_status()
-        except Exception:
-            raise RequestException(
-                "'{c}' result code has been returned "
-                "for '{d}'.\nResponse from server: "
-                "{r}".format(d=self.device.name,
-                             c=response.status_code,
-                             r=response.text))
+        # An expected return code was provided. Ensure the response has this code.
+        if expected_return_code:
+            if response.status_code != expected_return_code:
+                raise RequestException(
+                    "'{c}' result code has been returned for '{d}'.\n"
+                    "Expected '{expected_c]' result code.\n"
+                    "Response from server: {r}".format(
+                        c=response.status_code,
+                        d=self.device.name,
+                        expected_c=expected_return_code,
+                        r=response.text
+                    )
+                )
+        else:
+            # No expected return code provided. Make sure it was successful.
+            try:
+                response.raise_for_status()
+            except Exception:
+                raise RequestException(
+                    "'{c}' result code has been returned "
+                    "for '{d}'.\nResponse from server: "
+                    "{r}".format(d=self.device.name,
+                                 c=response.status_code,
+                                 r=response.text))
 
         # In case the response cannot be decoded into json
         # warn and return the raw text
@@ -251,7 +267,7 @@ class Implementation(Implementation):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, dn, headers=None, timeout=30):
+    def get(self, dn, headers=None, timeout=30, **kwargs):
         """ GET REST Command to retrieve information from the device
 
         Args:
@@ -268,11 +284,12 @@ class Implementation(Implementation):
         Raises:
             RequestException if response is not ok
         """
-        return self._request('GET', dn, headers=headers, timeout=timeout)
+        return self._request('GET', dn, headers=headers, timeout=timeout,
+                             **kwargs)
 
     @BaseConnection.locked
     @isconnected
-    def post(self, dn, payload, headers=None, timeout=30):
+    def post(self, dn, payload, headers=None, timeout=30, **kwargs):
         """POST REST Command to configure new information on the device
 
         Args:
@@ -293,11 +310,11 @@ class Implementation(Implementation):
             RequestException if response is not ok
         """
         return self._request('POST', dn, data=payload, headers=headers,
-                             timeout=timeout)
+                             timeout=timeout, **kwargs)
 
     @BaseConnection.locked
     @isconnected
-    def delete(self, dn, headers=None, timeout=30):
+    def delete(self, dn, headers=None, timeout=30, **kwargs):
         """DELETE REST Command to delete information from the device
 
         Args
@@ -314,11 +331,12 @@ class Implementation(Implementation):
         Raises:
             RequestException if response is not ok
         """
-        return self._request('DELETE', dn, headers=headers, timeout=timeout)
+        return self._request('DELETE', dn, headers=headers, timeout=timeout,
+                             **kwargs)
 
     @BaseConnection.locked
     @isconnected
-    def patch(self, dn, payload, headers=None, timeout=30):
+    def patch(self, dn, payload, headers=None, timeout=30, **kwargs):
         """PATCH REST Command to partially update existing information on the device
 
         Args
@@ -339,11 +357,11 @@ class Implementation(Implementation):
             RequestException if response is not ok
         """
         return self._request('PATCH', dn, data=payload, headers=headers,
-                             timeout=timeout)
+                             timeout=timeout, **kwargs)
 
     @BaseConnection.locked
     @isconnected
-    def put(self, dn, payload, headers=None, timeout=30):
+    def put(self, dn, payload, headers=None, timeout=30, **kwargs):
         """PUT REST Command to update existing information on the device
 
         Args
@@ -364,4 +382,4 @@ class Implementation(Implementation):
             RequestException if response is not ok
         """
         return self._request('DELETE', dn, data=payload, headers=headers,
-                             timeout=timeout)
+                             timeout=timeout, **kwargs)
