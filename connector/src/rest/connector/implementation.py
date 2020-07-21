@@ -43,6 +43,7 @@ class Implementation(BaseConnection):
         >>> device.rest.connected
         True
     '''
+    CUSTOM_APIS = []
 
     def __init__(self, *args, **kwargs):
         '''__init__ instantiates a single connection instance.'''

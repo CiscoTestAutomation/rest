@@ -46,6 +46,8 @@ class Rest(BaseConnection):
     It also overwrittes __getattribute__ to go look in the right abstracted
     class
     '''
+    _APIS = ['get', 'post', 'put', 'patch', 'delete',
+             'connect', 'disconnect', 'connected']
 
     def __init__(self, *args, **kwargs):
         '''__init__ instantiates a single connection instance.'''
@@ -56,6 +58,7 @@ class Rest(BaseConnection):
         lookup = Lookup.from_device(self.device, default_tokens = ['os'])
         _implementation = lookup.libs.implementation.Implementation
         self._implementation = _implementation(*args, **kwargs)
+        self._APIS = self._APIS + self._implementation.CUSTOM_APIS
 
     def __getattribute__(self, name):
         '''Redirect specific name of function to the specific implementation'''
@@ -63,8 +66,7 @@ class Rest(BaseConnection):
         # Selector of methods/attributes to pick from abstracted
         # Can't use __getattr__ as BaseConnection is abstract and some already
         # exists
-        if name in ['get', 'post', 'put', 'patch', 'delete',
-                    'connect', 'disconnect', 'connected']:
+        if name != '_APIS' and name in self._APIS:
             return getattr(self._implementation, name)
 
         # Send the rest to normal __getattribute__
