@@ -16,6 +16,7 @@ API to send GET command to the device.
     ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
 
 .. code-block:: python
 
@@ -36,6 +37,7 @@ API to send POST command to the device.
     ``payload``, "Payload to send to the device", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
 
 .. code-block:: python
 
@@ -113,6 +115,7 @@ API to send DELETE command to the device.
     ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
 
 .. code-block:: python
 
@@ -133,6 +136,7 @@ API to send PATCH command to the device.
     ``payload``, "Payload to send to the device", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
 
 .. code-block:: python
 
@@ -167,6 +171,7 @@ API to send PUT command to the device.
     ``payload``, "Payload to send to the device", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
 
 .. code-block:: python
 
