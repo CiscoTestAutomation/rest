@@ -21,10 +21,10 @@
 ###############################################################################
 
 # Variables
-PKG_NAME      = rest
+PKG_NAME      = rest.connector
 BUILDDIR      = $(shell pwd)/__build__
 PROD_USER     = pyadm@pyats-ci
-PROD_PKGS     = /auto/pyats/packages/cisco-shared
+PROD_PKGS     = /auto/pyats/packages
 PYTHON        = python
 TESTCMD       = python -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
