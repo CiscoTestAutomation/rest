@@ -133,7 +133,7 @@ class Implementation(Implementation):
 
                 self.disconnect()
 
-                self.connect()
+                self.connect(timeout)
 
                 log.propagate = True
 

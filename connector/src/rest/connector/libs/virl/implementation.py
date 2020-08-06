@@ -149,7 +149,7 @@ class Implementation(Implementation):
             # Check if connected
             try:
                 self.disconnect()
-                self.connect()
+                self.connect(timeout)
             finally:
                 ret = func(self, *args, **kwargs)
             return ret

@@ -179,7 +179,7 @@ class Implementation(Implementation):
             try:
                 log.propagate = False
                 self.disconnect()
-                self.connect()
+                self.connect(timeout)
                 log.propagate = True
                 ret = func(self, *args, **kwargs)
             finally:
