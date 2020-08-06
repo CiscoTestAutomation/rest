@@ -133,7 +133,10 @@ class Implementation(Implementation):
 
                 self.disconnect()
 
-                self.connect(timeout)
+                if 'timeout' in kwargs:
+                    self.connect(timeout=kwargs['timeout'])
+                else:
+                    self.connect()
 
                 log.propagate = True
 
