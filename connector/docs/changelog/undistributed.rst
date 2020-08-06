@@ -7,3 +7,4 @@
 
 Features:
 ^^^^^^^^^
+    * Fixed timeout issue in `connect()`
