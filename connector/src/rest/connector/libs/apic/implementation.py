@@ -166,7 +166,11 @@ class Implementation(Imp):
             # Check if connected
             try:
                 self.disconnect()
-                self.connect()
+
+                if 'timeout' in kwargs:
+                    self.connect(timeout=kwargs['timeout'])
+                else:
+                    self.connect()
             finally:
                 ret = func(self, *args, **kwargs)
             return ret

@@ -179,7 +179,12 @@ class Implementation(Implementation):
             try:
                 log.propagate = False
                 self.disconnect()
-                self.connect()
+                
+                if 'timeout' in kwargs:
+                    self.connect(timeout=kwargs['timeout'])
+                else:
+                    self.connect()
+                    
                 log.propagate = True
                 ret = func(self, *args, **kwargs)
             finally:
