@@ -240,7 +240,7 @@ class Implementation(Implementation):
             if response.status_code != expected_return_code:
                 raise RequestException(
                     "'{c}' result code has been returned for '{d}'.\n"
-                    "Expected '{expected_c]' result code.\n"
+                    "Expected '{expected_c}' result code.\n"
                     "Response from server: {r}".format(
                         c=response.status_code,
                         d=self.device.name,
