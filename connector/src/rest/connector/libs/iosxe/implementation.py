@@ -2,9 +2,9 @@ import json
 import logging
 import re
 import urllib.request
-
 import requests
 from dicttoxml import dicttoxml
+from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
