@@ -260,6 +260,13 @@ class Implementation(Implementation):
                                  c=response.status_code,
                                  r=response.text))
 
+        log.info("Response from '{dev}':\n"
+                 "Result Code: {c}\n"
+                 "Response: {r}"
+                 .format(dev=self.device.name,
+                         c=response.status_code,
+                         r=response.text))
+
         # In case the response cannot be decoded into json
         # warn and return the raw text
         try:
