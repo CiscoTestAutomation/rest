@@ -78,6 +78,7 @@ class Implementation(Implementation):
 
             devices:
                 dcnm:
+                    os: dcnm
                     connections:
                         vty:
                             protocol : ssh
@@ -99,7 +100,6 @@ class Implementation(Implementation):
             >>> device.connect(alias='rest', via='rest')
         '''
 
-        self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
 
         # Building out Auth request.
@@ -143,6 +143,8 @@ class Implementation(Implementation):
         self.token = response.json()['Dcnm-Token']  # Retrieve the Token from the returned JSONhahhah
 
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
+
+        self._is_connected = True
         return self.token
 
 
@@ -206,18 +208,18 @@ class Implementation(Implementation):
         full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
 
         if 'data' in kwargs:
-            p = kwargs['data']
+            payload = kwargs['data']
         elif 'json' in kwargs:
-            p = kwargs['json']
+            payload = kwargs['json']
         else:
-            p = ''
+            payload = ''
 
         log.info("Sending {method} command to '{d}':"
-                 "\napi_url: {furl}\nPayload:{p}"
+                 "\napi_url: {furl}\nPayload:{payload}"
                  .format(method=method,
                          d=self.device.name,
                          furl=full_url,
-                         p=p))
+                         payload=payload))
 
         headers = {
             'Dcnm-Token': self.token,
@@ -231,7 +233,6 @@ class Implementation(Implementation):
         # Make sure it was successful
         try:
             response.raise_for_status()
-            flag = True
         except Exception:
             raise RequestException(
                 "'{c}' result code has been returned "
