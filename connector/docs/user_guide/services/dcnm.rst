@@ -13,7 +13,7 @@ API to send GET command to the device.
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
-    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``api_url``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
     ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
@@ -33,7 +33,7 @@ API to send POST command to the device.
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
-    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``api_url``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``payload``, "Payload to send to the device", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
@@ -68,7 +68,7 @@ API to send DELETE command to the device.
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
-    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``api_url``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
     ``expected_return_code``, "Return code that is expected.", "None (Any good result)"
@@ -88,7 +88,7 @@ API to send PATCH command to the device.
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
-    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``api_url``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``payload``, "Payload to send to the device", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
@@ -122,7 +122,7 @@ API to send PUT command to the device.
     :header: Argument, Description, Default
     :widths: 30, 50, 20
 
-    ``dn``, "Unique distinguished name describes the place in the tree", "Mandatory"
+    ``api_url``, "Unique distinguished name describes the place in the tree", "Mandatory"
     ``payload``, "Payload to send to the device", "Mandatory"
     ``headers``, "Headers to send with the GET command", "None"
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
