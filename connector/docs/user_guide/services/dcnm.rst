@@ -20,7 +20,7 @@ API to send GET command to the device.
 
 .. code-block:: python
 
-    # Assuming the device is already connected
+    # Assuming the device is already connected, and the fabric name is single_leaf_demo
     url = '/rest/top-down/fabrics/single_leaf_demo/vrfs'
     output = device.rest.get(url)
 
@@ -55,7 +55,7 @@ API to send POST command to the device.
        "deployment": False
     }
     """
-
+    # Assuming single_leaf_demo fabric is already created
     url = '/rest/top-down/fabrics/single_leaf_demo/networks/MyNetwork_10000/attachments/'
     device.rest.post(url, payload)
 
@@ -110,6 +110,7 @@ API to send PATCH command to the device.
        "deployment": False
     }
     """
+    # Assuming single_leaf_demo fabric is already created
     url = '/rest/top-down/fabrics/single_leaf_demo/networks/MyNetwork_10000'
     output = device.rest.patch(url)
 
@@ -144,6 +145,7 @@ API to send PUT command to the device.
        "deployment": False
     }
     """
+    # Assuming single_leaf_demo fabric is already created
     url = '/rest/top-down/fabrics/single_leaf_demo/networks/MyNetwork_10000'
     output = device.rest.put(url)
 
