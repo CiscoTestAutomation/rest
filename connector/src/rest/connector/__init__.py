@@ -2,7 +2,7 @@
 the device via REST api"""
 
 # metadata
-__version__ = '20.10'
+__version__ = '20.10.1b0'
 __author__ = ['Jean-Benoit Aubin <jeaubin@cisco.com>',
               'Takashi Higashimura (tahigash) <tahigash@cisco.com>']
 
@@ -52,8 +52,16 @@ class Rest(BaseConnection):
 
         super().__init__(*args, **kwargs)
 
+        # Get the device platform, must be grabbed from the device dict as
+        # platform can be populated from type if platform is not defined.
+        device_platform = self.device._to_dict().get('platform')
+        if device_platform:
+            abstraction_tokens = ['os', device_platform]
+        else:
+            abstraction_tokens = ['os']
+
         # Set up abstraction for this device
-        lookup = Lookup.from_device(self.device, default_tokens = ['os'])
+        lookup = Lookup.from_device(self.device, default_tokens=abstraction_tokens)
         _implementation = lookup.libs.implementation.Implementation
         self._implementation = _implementation(*args, **kwargs)
 
