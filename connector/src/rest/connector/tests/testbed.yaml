@@ -37,11 +37,12 @@ devices:
             username: cisco
             password: cisco
   apic:
-      os: apic
+      os: nxos
       type: apic
+      platform: aci
       custom:
         abstraction:
-          order: [os]
+          order: [os, platform]
       connections:
         rest:
           class: rest.connector.Rest

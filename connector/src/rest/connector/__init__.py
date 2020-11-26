@@ -54,9 +54,9 @@ class Rest(BaseConnection):
 
         # Get the device platform, must be grabbed from the device dict as
         # platform can be populated from type if platform is not defined.
-        device_platform = self.device._to_dict().get('platform')
-        if device_platform:
-            abstraction_tokens = ['os', device_platform]
+        # device_platform = self.device._to_dict().get('platform')
+        if hasattr(self.device, 'platform') and self.device.platform:
+            abstraction_tokens = ['os', 'platform']
         else:
             abstraction_tokens = ['os']
 
