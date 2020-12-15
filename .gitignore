@@ -4,6 +4,10 @@
 __pycache__/
 *.log
 
+# Cython files
+*.c
+*.so
+
 # Developer files
 .project
 .pydevproject
