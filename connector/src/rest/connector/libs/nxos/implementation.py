@@ -87,7 +87,7 @@ class Implementation(Implementation):
                         vty:
                             protocol : telnet
                             ip : "2.3.4.5"
-                        netconf:
+                        rest:
                             class: rest.connector.Rest
                             ip : "2.3.4.5"
                             credentials:
@@ -103,17 +103,33 @@ class Implementation(Implementation):
             >>> device = testbed.devices['asr22']
             >>> device.connect(alias='rest', via='rest')
         '''
+        protocol = 'https'
 
         if self.connected:
             return
 
-        ip = self.connection_info['ip'].exploded
-
-        if 'port' in self.connection_info:
-            port = self.connection_info['port']
-            self.url = 'http://{ip}:{port}'.format(ip=ip, port=port)
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            from unicon.sshutils import sshtunnel
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
         else:
-            self.url = 'http://{ip}'.format(ip=ip)
+            ip = self.connection_info['ip'].exploded
+            port = self.connection_info.get('port', '443')
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+                                                     ip=ip,
+                                                     port=port)
+
 
         login_url = '{f}/api/aaaLogin.json'.format(f=self.url)
 
@@ -135,7 +151,10 @@ class Implementation(Implementation):
         _data = json.dumps(payload)
 
         # Connect to the device via requests
-        response = self.session.post(login_url, data=_data, timeout=timeout)
+        if protocol == 'https':
+            response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+        else:
+            response = self.session.post(login_url, data=_data, timeout=timeout)
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -179,12 +198,12 @@ class Implementation(Implementation):
             try:
                 log.propagate = False
                 self.disconnect()
-                
+
                 if 'timeout' in kwargs:
                     self.connect(timeout=kwargs['timeout'])
                 else:
                     self.connect()
-                    
+
                 log.propagate = True
                 ret = func(self, *args, **kwargs)
             finally:

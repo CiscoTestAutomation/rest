@@ -86,15 +86,37 @@ class Implementation(RestImplementation):
         This does nothing
 
         '''
+        protocol = 'https'
+
         if self.connected:
             return
 
         log.debug("Content type: %s" % default_content_type)
         log.debug("Timeout: %s" % timeout)
         self.content_type = default_content_type
-        ip = self.connection_info.ip.exploded
-        port = self.connection_info.get('port', '443')
-        self.base_url = 'https://{ip}:{port}'.format(ip=ip, port=port)
+
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            from unicon.sshutils import sshtunnel
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
+        else:
+            ip = self.connection_info.ip.exploded
+            port = self.connection_info.get('port', '443')
+
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+                                                          ip=ip,
+                                                          port=port)
         self.login_url = '{f}/'.format(f=self.base_url)
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
@@ -222,7 +244,7 @@ class Implementation(RestImplementation):
                                                  a=self.alias))
 
         full_url = '{b}{a}'.format(b=self.base_url, a=api_url)
-        
+
         request_payload = payload
         if isinstance(payload, dict):
             assert content_type is not None, 'content_type parameter required when passing dict'
