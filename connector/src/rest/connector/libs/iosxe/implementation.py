@@ -57,7 +57,8 @@ class Implementation(RestImplementation):
     def connect(self,
                 timeout=30,
                 default_content_type='json',
-                verbose=False):
+                verbose=False,
+                protocol='https'):
         '''connect to the device via REST
 
         Arguments
@@ -86,8 +87,6 @@ class Implementation(RestImplementation):
         This does nothing
 
         '''
-        protocol = 'https'
-
         if self.connected:
             return
 
@@ -97,7 +96,12 @@ class Implementation(RestImplementation):
 
         # support sshtunnel
         if 'sshtunnel' in self.connection_info:
-            from unicon.sshutils import sshtunnel
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
             try:
                 tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
                 if tunnel_port:

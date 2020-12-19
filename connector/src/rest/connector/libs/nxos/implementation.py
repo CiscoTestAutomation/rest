@@ -51,7 +51,7 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30):
+    def connect(self, timeout=30, protocol='https'):
         '''connect to the device via REST
 
         Arguments
@@ -103,14 +103,17 @@ class Implementation(Implementation):
             >>> device = testbed.devices['asr22']
             >>> device.connect(alias='rest', via='rest')
         '''
-        protocol = 'https'
-
         if self.connected:
             return
 
         # support sshtunnel
         if 'sshtunnel' in self.connection_info:
-            from unicon.sshutils import sshtunnel
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
             try:
                 tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
                 if tunnel_port:
