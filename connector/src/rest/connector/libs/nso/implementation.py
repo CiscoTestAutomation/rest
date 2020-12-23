@@ -111,7 +111,7 @@ class Implementation(RestImplementation):
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
 
-        self.url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
                                                           ip=ip,
                                                           port=port)
 
