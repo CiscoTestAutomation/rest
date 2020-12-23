@@ -150,15 +150,41 @@ class Implementation(Implementation):
 
         return decorated
 
-    def connect(self, auth_provider='tmos', verify=False, *args, **kwargs):
+    def connect(self, auth_provider='tmos', verify=False, protocol='https', *args, **kwargs):
 
         if self.connected:
             return
 
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
+        else:
+            ip = self.connection_info['ip'].exploded
+            port = self.connection_info.get('port', '443')
+
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+                                                          ip=ip,
+                                                          port=port)
+
         self.username, self.password = get_username_password(self)
-        self.ip = self.connection_info["ip"].exploded
-        self.port = self.connection_info.get("port", "443")
-        self.base_url = "https://{ip}:{port}".format(ip=self.ip, port=self.port)
+
         self.header = "Content-Type: application/json"
         self.verify = verify
 
