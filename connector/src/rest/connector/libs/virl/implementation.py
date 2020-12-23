@@ -45,13 +45,14 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30):
+    def connect(self, timeout=30, protocol='http'):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+            protocol (str): http or https
 
         Raises
         ------
@@ -77,6 +78,7 @@ class Implementation(Implementation):
                         rest:
                             class: rest.connector.Rest
                             ip : "192.168.1.1"
+                            protocol : http
                             credentials:
                                 default:
                                     username: admin
@@ -94,9 +96,33 @@ class Implementation(Implementation):
         if self.connected:
             return
 
-        ip = self.connection_info['ip'].exploded
-        port = self.connection_info.get('port', 19399)
-        self.url = 'http://{ip}:{port}'.format(ip=ip, port=port)
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
+        else:
+            ip = self.connection_info['ip'].exploded
+            port = self.connection_info.get('port', '443')
+
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+                                                          ip=ip,
+                                                          port=port)
 
         self.username, self.password = get_username_password(self)
         self.headers = {"Content-Type": "text/xml;charset=UTF-8"}
@@ -107,10 +133,17 @@ class Implementation(Implementation):
         self.session = requests.Session()
 
         # Connect to the device via requests
-        response = self.session.get(self.url+'/roster/rest/test',
-                                    auth=(self.username, self.password),
-                                    timeout=timeout,
-                                    headers=self.headers)
+        if protocol == 'https':
+            response = self.session.get(self.url + '/roster/rest/test',
+                                        auth=(self.username, self.password),
+                                        timeout=timeout,
+                                        headers=self.headers,
+                                        verify=False)
+        else:
+            response = self.session.get(self.url + '/roster/rest/test',
+                                        auth=(self.username, self.password),
+                                        timeout=timeout,
+                                        headers=self.headers)
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -149,12 +182,12 @@ class Implementation(Implementation):
             # Check if connected
             try:
                 self.disconnect()
-                
+
                 if 'timeout' in kwargs:
                     self.connect(timeout=kwargs['timeout'])
                 else:
                     self.connect()
-                    
+
             finally:
                 ret = func(self, *args, **kwargs)
             return ret
