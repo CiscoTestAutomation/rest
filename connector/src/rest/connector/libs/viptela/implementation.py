@@ -37,6 +37,7 @@ class Implementation(Implementation):
                         ip : "2.3.4.5"
                         port: 8443
                         verify: False
+                        protocol: https
                         credentials:
                             rest:
                                 username: admin
@@ -54,13 +55,14 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30):
+    def connect(self, timeout=30, protocol='https'):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+            protocol (str): http or https. Default to https
 
         Raises
         ------
@@ -80,13 +82,38 @@ class Implementation(Implementation):
         if self.connected:
             return
 
-        ip = self.connection_info['ip'].exploded
-        port = self.connection_info.get('port', 8443)
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
+        else:
+            ip = self.connection_info['ip'].exploded
+            port = self.connection_info.get('port', '8443')
+
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+                                                          ip=ip,
+                                                          port=port)
+
         self.verify = self.connection_info.get('verify', False)
 
         username, password = get_username_password(self)
 
-        self.base_url = 'https://{ip}:{port}'.format(ip=ip, port=port)
 
         login_action = '/j_security_check'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
