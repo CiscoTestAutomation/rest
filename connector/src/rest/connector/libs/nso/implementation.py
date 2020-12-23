@@ -52,6 +52,7 @@ class Implementation(RestImplementation):
     @BaseConnection.locked
     def connect(self,
                 timeout=30,
+                protocol='http',
                 default_content_type='json',
                 verbose=False):
         '''connect to the device via REST
@@ -60,6 +61,7 @@ class Implementation(RestImplementation):
         ---------
 
             timeout (int): Timeout value
+            protocol (str): http or https. Default to http
             default_content_type: Default for content type, json or xml
 
         Raises
@@ -85,9 +87,34 @@ class Implementation(RestImplementation):
         log.debug("Timeout: %s" % timeout)
         self.content_type = default_content_type
 
-        ip = self.connection_info.ip.exploded
-        port = self.connection_info.get('port', '8080')
-        self.base_url = 'http://{ip}:{port}'.format(ip=ip, port=port)
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
+        else:
+            ip = self.connection_info['ip'].exploded
+            port = self.connection_info.get('port', '8080')
+
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+                                                          ip=ip,
+                                                          port=port)
+
         self.login_url = '{f}/api'.format(f=self.base_url)
 
         log.info("Connecting to '{d}' with alias "
