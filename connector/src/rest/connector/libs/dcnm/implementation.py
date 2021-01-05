@@ -50,13 +50,14 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=10):
+    def connect(self, timeout=10, protocol='https'):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+            protocol (str): http or https. Default to https
 
         Raises
         ------
@@ -83,6 +84,7 @@ class Implementation(Implementation):
                         vty:
                             protocol : ssh
                             ip : "2.3.4.5"
+                            protocol: https
                         rest:
                             class: rest.connector.Rest
                             ip : "2.3.4.5"
@@ -100,21 +102,38 @@ class Implementation(Implementation):
             >>> device.connect(alias='rest', via='rest')
         '''
 
-        log.info("Connected successfully to '{d}'".format(d=self.device.name))
-
-        # Building out Auth request.
-        # prefer host instead of ip address directly
-        try:
-            host = self.connection_info['host']
-        except KeyError:
-            host = self.connection_info['ip'].exploded
-
-        if 'port' in self.connection_info:
-            port = self.connection_info['port']
-            self.url = 'https://{ip}:{port}'.format(ip=host, port=port)
+        # support sshtunnel
+        if 'sshtunnel' in self.connection_info:
+            try:
+                from unicon.sshutils import sshtunnel
+            except ImportError:
+                raise ImportError(
+                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                )
+            try:
+                tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
+                if tunnel_port:
+                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    port = tunnel_port
+            except AttributeError as e:
+                raise AttributeError(
+                    "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
+                    % (self.via, e))
         else:
-            port = 443
-            self.url = 'https://{ip}:{port}'.format(ip=host, port=port)
+            # prefer host instead of ip address directly
+            try:
+                host = self.connection_info['host']
+            except KeyError:
+                host = self.connection_info['ip'].exploded
+            port = self.connection_info.get('port', '443')
+
+        if 'protocol' in self.connection_info:
+            protocol = self.connection_info['protocol']
+
+        self.url = '{protocol}://{host}:{port}'.format(protocol=protocol,
+                                                          host=host,
+                                                          port=port)
+
         self.verify = self.connection_info.get('verify', True)
 
         username, password = get_username_password(self)
@@ -142,9 +161,8 @@ class Implementation(Implementation):
 
         self.token = response.json()['Dcnm-Token']  # Retrieve the Token from the returned JSONhahhah
 
-        log.info("Connected successfully to '{d}'".format(d=self.device.name))
-
         self._is_connected = True
+        log.info("Connected successfully to '{d}'".format(d=self.device.name))
         return self.token
 
 
