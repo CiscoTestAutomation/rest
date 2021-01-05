@@ -114,7 +114,7 @@ class Implementation(Implementation):
                     % (self.via, e))
         else:
             ip = self.connection_info['ip'].exploded
-            port = self.connection_info.get('port', '443')
+            port = self.connection_info.get('port', '19399')
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
