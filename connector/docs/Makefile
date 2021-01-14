@@ -18,6 +18,10 @@ WATCHERS      = jeaubin
 HEADER        = [Rest Watchdog]
 HOSTNAME      = `hostname`
 
+# Dependencies for building documentation
+DEPENDENCIES = Sphinx sphinxcontrib-napoleon sphinxcontrib-mockautodoc sphinx-rtd-theme
+
+
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
 $(error The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx installed, then set the SPHINXBUILD environment variable to point to the full path of the '$(SPHINXBUILD)' executable. Alternatively you can add the directory with the executable to your PATH. If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
@@ -32,7 +36,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 .PHONY: distribute help clean docs html dirhtml singlehtml\
 	    pickle json htmlhelp qthelp devhelp epub latex latexpdf text man\
-	    changes linkcheck doctest gettext
+	    changes linkcheck doctest gettext install_build_deps
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -43,6 +47,7 @@ help:
 	@echo "     --- default Sphinx targets ---"
 	@echo ""
 	@echo "  html       to make standalone HTML files"
+	@echo "install_build_deps:     Install build dependencies for docs (will be run in make docs)"
 	@echo "  serve      to start a web server to serve generated html files"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
@@ -66,6 +71,12 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
+install_build_deps:
+	@echo "Installing build dependecies into your environment"
+	@pip install $(DEPENDENCIES)
+	@echo ""
+	@echo "Done"
+
 clean:
 	rm -rf $(BUILDDIR)
 
@@ -74,7 +85,7 @@ serve:
 	@cd $(BUILDDIR)/html && python -m http.server || echo Error: run \'make \
 	html\' before using \'make serve\'
 
-docs: html latexpdf
+docs: html
 	@echo ""
 	@echo "Done."
 	@echo ""
