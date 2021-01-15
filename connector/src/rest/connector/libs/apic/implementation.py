@@ -43,14 +43,6 @@ class Implementation(Imp):
         >>> device.rest.connected
         True
     '''
-    def __init__(self, *args, **kwargs):
-        import warnings
-        warnings.warn(
-            "This rest.connector library is deprecated and will be removed "
-            "on v20.3. Please set your testbed to 'os: apic' in order to "
-            "use the new library.")
-
-        super().__init__(*args, **kwargs)
 
     @BaseConnection.locked
     def connect(self, timeout=30):

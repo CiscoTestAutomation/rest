@@ -7,6 +7,7 @@
 
 Features:
 ^^^^^^^^^
+* Moved APIC implementation from NXOS/ACI to APIC
 
 * IOSXE
     * Added sshtunnel support
