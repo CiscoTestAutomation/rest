@@ -11,14 +11,10 @@ class Implementation(BaseConnection):
 
         devices:
             PE1:
-                tacacs:
-                    login_prompt: "login:"
-                    password_prompt: "Password:"
-                    username: "admin"
-                passwords:
-                    tacacs: cisco123
-                    enable: cisco123
-                    line: cisco123
+                credentials:
+                    rest:
+                        username: admin
+                        password: cisco123
                 connections:
                     a:
                         protocol: telnet
@@ -30,8 +26,10 @@ class Implementation(BaseConnection):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
-                        username: admin
-                        password: cisco123
+                        credentials:
+                            rest:
+                                username: admin
+                                password: cisco123
 
     Example
     -------

@@ -14,7 +14,7 @@ from rest.connector import Rest
 
 HERE = os.path.dirname(__file__)
 
-@requests_mock.Mocker(kw='mock') 
+@requests_mock.Mocker(kw='mock')
 class test_nso_test_connector(unittest.TestCase):
 
     def setUp(self):
