@@ -87,12 +87,11 @@ setup(
     version = find_version('src', pkg_path, '__init__.py'),
 
     # descriptions
-    description = 'Rest package',
+    description = 'pyATS REST connection package',
     long_description = read('DESCRIPTION.rst'),
 
     # the package's documentation page.
-    url = 'http://wwwin-pyats.cisco.com/cisco-shared/html/{}/docs/index.html'.\
-        format(pkg_path),
+    url = 'https://developer.cisco.com/docs/rest-connector/',
 
     # author details
     author = 'Cisco Systems Inc.',

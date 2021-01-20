@@ -1,1 +1,0 @@
-Rest connector package
