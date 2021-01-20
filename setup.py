@@ -91,7 +91,7 @@ setup(
     long_description = read('DESCRIPTION.rst'),
 
     # the package's documentation page.
-    url = 'https://github.com/CiscoTestAutomation/rest',
+    url = 'https://developer.cisco.com/docs/rest-connector/',
 
     # author details
     author = 'Cisco Systems Inc.',
