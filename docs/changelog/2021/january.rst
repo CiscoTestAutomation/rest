@@ -4,6 +4,13 @@
 | ``rest.connector ``           | 21.1                          |
 +-------------------------------+-------------------------------+
 
+Upgrade Instructions
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    pip install --upgrade rest.connector
+
 
 Features:
 ^^^^^^^^^
