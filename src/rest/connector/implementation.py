@@ -26,6 +26,8 @@ class Implementation(BaseConnection):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
+                        port: "443"
+                        protocol: https
                         credentials:
                             rest:
                                 username: admin

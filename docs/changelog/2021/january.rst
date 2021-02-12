@@ -24,5 +24,22 @@ Features:
 
 * IOSXE
     * Added sshtunnel support
+    * Added protocol key. Default to https
 * NXOS
     * Added sshtunnel support
+    * Added protocol key. Default to https
+* VIRL
+    * Added sshtunnel support
+    * Added protocol key. Default to https
+* DCNM
+    * Added sshtunnel support
+    * Added protocol key. Default to https
+* NSO
+    * Added sshtunnel support
+    * Added protocol key. Default to https
+* Viptela
+    * Added sshtunnel support
+    * Added protocol key. Default to https
+* BIG-IP
+    * Added sshtunnel support
+    * Added protocol key. Default to https

@@ -14,6 +14,8 @@ API to connect to the device.
     :widths: 30, 50, 20
 
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
+    ``port``, "Port number for protocol.", "443"
+    ``protocol``, "Protocol to use.", "https"
 
 .. code-block:: python
 
