@@ -14,8 +14,8 @@ API to connect to the device.
     :widths: 30, 50, 20
 
     ``timeout``, "Maximum time it can take to disconnect to the device.", "30 seconds"
-    ``port``, "Port number for protocol.", "443"
-    ``protocol``, "Protocol to use.", "https"
+    ``port``, "Port number for protocol.", "443 (IOSXE, NXOS, DCNM, BIG-IP), 8443 (Viptela), 8080 (NSO), 19399 (VIRL)"
+    ``protocol``, "Protocol to use.", "https (IOSXE, NXOS, DCNM, Viptela, BIG-IP), http (NSO, VIRL)"
 
 .. code-block:: python
 
