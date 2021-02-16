@@ -29,7 +29,8 @@ class Implementation(RestImplementation):
                     rest:
                         class: rest.connector.Rest
                         ip: 127.0.0.1
-                        port: 8080
+                        port: "8080"
+                        protocol: http
                         credentials:
                             rest:
                                 username: admin
@@ -52,6 +53,7 @@ class Implementation(RestImplementation):
     @BaseConnection.locked
     def connect(self,
                 timeout=30,
+                port='8080',
                 protocol='http',
                 default_content_type='json',
                 verbose=False):
@@ -61,6 +63,7 @@ class Implementation(RestImplementation):
         ---------
 
             timeout (int): Timeout value
+            port (str): Port number. Default to 8080
             protocol (str): http or https. Default to http
             default_content_type: Default for content type, json or xml
 
@@ -106,7 +109,7 @@ class Implementation(RestImplementation):
                     % (self.via, e))
         else:
             ip = self.connection_info['ip'].exploded
-            port = self.connection_info.get('port', '8080')
+            port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

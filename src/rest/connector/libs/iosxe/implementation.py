@@ -29,7 +29,8 @@ class Implementation(RestImplementation):
                     rest:
                         class: rest.connector.Rest
                         ip: 127.0.0.1
-                        port: 8080
+                        port: "443"
+                        protocol: https
                         credentials:
                             rest:
                                 username: admin
@@ -58,6 +59,7 @@ class Implementation(RestImplementation):
                 timeout=30,
                 default_content_type='json',
                 verbose=False,
+                port="443",
                 protocol='https'):
         '''connect to the device via REST
 
@@ -113,7 +115,7 @@ class Implementation(RestImplementation):
                     % (self.via, e))
         else:
             ip = self.connection_info.ip.exploded
-            port = self.connection_info.get('port', '443')
+            port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

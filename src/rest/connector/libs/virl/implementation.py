@@ -27,6 +27,8 @@ class Implementation(Implementation):
                     rest:
                         class: rest.connector.Rest
                         ip : "192.168.1.1"
+                        port: "19399"
+                        protocol: http
                         credentials:
                             default:
                                 username: admin
@@ -44,13 +46,14 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30, protocol='http'):
+    def connect(self, timeout=30, port="19399", protocol='http'):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+            port (str): Port number. Default to 19399
             protocol (str): http or https
 
         Raises
@@ -77,6 +80,7 @@ class Implementation(Implementation):
                         rest:
                             class: rest.connector.Rest
                             ip : "192.168.1.1"
+                            port: "80"
                             protocol : http
                             credentials:
                                 default:

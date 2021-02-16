@@ -50,6 +50,8 @@ class Implementation(Implementation):
                         # specify the rest connector class
                         class: rest.connector.Rest
                         ip: 1.2.3.4
+                        port: "443"
+                        protocol: https
                         credentials:
                             rest:
                                 username: user
@@ -150,7 +152,7 @@ class Implementation(Implementation):
 
         return decorated
 
-    def connect(self, auth_provider='tmos', verify=False, protocol='https', *args, **kwargs):
+    def connect(self, auth_provider='tmos', verify=False, port='443', protocol='https', *args, **kwargs):
 
         if self.connected:
             return
@@ -174,7 +176,7 @@ class Implementation(Implementation):
                     % (self.via, e))
         else:
             ip = self.connection_info['ip'].exploded
-            port = self.connection_info.get('port', '443')
+            port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

@@ -33,6 +33,8 @@ class Implementation(Implementation):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
+                        port: 443
+                        protocol: https
                         credentials:
                             rest:
                                 username: admin
@@ -50,7 +52,7 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=10, protocol='https'):
+    def connect(self, timeout=10, port=443, protocol='https'):
         '''connect to the device via REST
 
         Arguments
@@ -88,6 +90,8 @@ class Implementation(Implementation):
                         rest:
                             class: rest.connector.Rest
                             ip : "2.3.4.5"
+                            port: "443"
+                            protocol: https
                             credentials:
                                 rest:
                                     username: admin
@@ -125,7 +129,7 @@ class Implementation(Implementation):
                 host = self.connection_info['host']
             except KeyError:
                 host = self.connection_info['ip'].exploded
-            port = self.connection_info.get('port', '443')
+            port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

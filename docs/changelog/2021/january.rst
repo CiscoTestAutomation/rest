@@ -24,5 +24,22 @@ Features:
 
 * IOSXE
     * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to https
 * NXOS
     * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to https
+* VIRL
+    * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to http
+* DCNM
+    * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to https
+* NSO
+    * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to http
+* Viptela
+    * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to https
+* BIG-IP
+    * Added sshtunnel support
+    * Added protocol key in testbed yaml. Default to https

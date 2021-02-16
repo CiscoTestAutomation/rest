@@ -35,7 +35,7 @@ class Implementation(Implementation):
                     rest:
                         class: rest.connector.Rest
                         ip : "2.3.4.5"
-                        port: 8443
+                        port: "8443"
                         verify: False
                         protocol: https
                         credentials:
@@ -55,13 +55,14 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30, protocol='https'):
+    def connect(self, timeout=30, port="8443", protocol='https'):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+            port (str): Port number. Default to 8443
             protocol (str): http or https. Default to https
 
         Raises
@@ -101,7 +102,7 @@ class Implementation(Implementation):
                     % (self.via, e))
         else:
             ip = self.connection_info['ip'].exploded
-            port = self.connection_info.get('port', '8443')
+            port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
