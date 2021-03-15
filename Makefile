@@ -74,7 +74,8 @@ package:
     
     # NOTE : Only specify --universal if the package works for both py2 and py3
     # https://packaging.python.org/en/latest/distributing.html#universal-wheels
-	@./setup.py bdist_wheel --dist-dir=$(DISTDIR) 
+	@./setup.py bdist_wheel --dist-dir=$(DISTDIR)
+	@./setup.py sdist --dist-dir=$(DISTDIR)
 
 	@echo ""
 	@echo "Completed building: $@"
