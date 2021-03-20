@@ -23,13 +23,14 @@ class Implementation(Imp):
 
         devices:
             webex:
+                os: webex
                 connections:
                     rest:
                         class: rest.connector.Rest
                         ip : "10.1.1.1"
                         credentials:
                             rest:
-                                token: webexaccesstoken
+                                token: <webexaccesstoken>
 
     Code Example
     ------------
@@ -70,13 +71,14 @@ class Implementation(Imp):
 
             devices:
                 webex:
+                    os: webex
                     connections:
                         rest:
                             class: rest.connector.Rest
                             ip : "10.1.1.1"
                             credentials:
                                 rest:
-                                    token: webexaccesstoken
+                                    token: <webexaccesstoken>
 
         Code Example
         ------------
