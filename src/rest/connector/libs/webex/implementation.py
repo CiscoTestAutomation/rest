@@ -303,7 +303,7 @@ class Implementation(Imp):
         if headers and 'Authorization' not in headers:
             headers.update({'Authorization': 'Bearer {}'.format(self.token)})
 
-        if type(payload) == str:
+        if isinstance(payload, str):
             payload = json.loads(payload)
 
         return self._request('POST',
