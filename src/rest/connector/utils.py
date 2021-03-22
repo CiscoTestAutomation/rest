@@ -30,3 +30,14 @@ def get_username_password(connection):
             else 'admin')
 
     return (username, password)
+
+def get_token(connection):
+    token = None
+    if connection.connection_info.get('credentials'):
+        try:
+            token = str(
+                connection.connection_info['credentials']['rest']['token'])
+        except Exception:
+            pass
+
+    return token
