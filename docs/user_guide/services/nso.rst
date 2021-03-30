@@ -33,8 +33,10 @@ and allows to specify the username and password in the testbed YAML file.
                     class: rest.connector.Rest
                     ip: 1.2.3.4
                     port: 8080
-                    username: admin
-                    password: admin
+                    credentials:
+                        rest:
+                            username: admin
+                            password: admin
 
 
 If no port is specified, he default of `8080` is used.
