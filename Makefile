@@ -9,7 +9,7 @@
 # Version:
 #   v1.0.0
 #
-# Date: 
+# Date:
 #   May 2017
 #
 # About This File:
@@ -25,6 +25,7 @@ PKG_NAME      = rest.connector
 BUILDDIR      = $(shell pwd)/__build__
 PROD_USER     = pyadm@pyats-ci
 PROD_PKGS     = /auto/pyats/packages
+STAGING_PKGS  = /auto/pyats/staging/packages
 PYTHON        = python
 TESTCMD       = python -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
@@ -35,14 +36,15 @@ DISTDIR       = $(BUILDDIR)/dist
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
 	@echo ""
-	@echo "package         : Build the package"
-	@echo "test            : Test the package"
-	@echo "distribute      : Distribute the package to PyPi server"
-	@echo "clean           : Remove build artifacts"
-	@echo "develop         : Build and install development package"
-	@echo "undevelop       : Uninstall development package"
-	@echo "docs            : Build Sphinx documentation for this package"
-	@echo "distribute_docs : Publish the Sphinx documentation to the official cisco-shared web server for all to see"
+	@echo "package             : Build the package"
+	@echo "test                : Test the package"
+	@echo "distribute          : Distribute the package to PyPi server"
+	@echo "distribute_staging  : Distribute the package to staging area"
+	@echo "clean               : Remove build artifacts"
+	@echo "develop             : Build and install development package"
+	@echo "undevelop           : Uninstall development package"
+	@echo "docs                : Build Sphinx documentation for this package"
+	@echo "distribute_docs     : Publish the Sphinx documentation to the official cisco-shared web server for all to see"
 
 docs:
 	@echo ""
@@ -63,7 +65,7 @@ pubdocs:
 test:
 	@$(TESTCMD)
 
-package: 
+package:
 	@echo ""
 	@echo "--------------------------------------------------------------------"
 	@echo "Building $(PKG_NAME) distributable: $@"
@@ -71,7 +73,7 @@ package:
 
 	@mkdir -p $(DISTDIR)
 	@./setup.py test
-    
+
     # NOTE : Only specify --universal if the package works for both py2 and py3
     # https://packaging.python.org/en/latest/distributing.html#universal-wheels
 	@./setup.py bdist_wheel --dist-dir=$(DISTDIR)
@@ -83,7 +85,7 @@ package:
 	@echo "Done."
 	@echo ""
 
-develop: 
+develop:
 	@echo ""
 	@echo "--------------------------------------------------------------------"
 	@echo "Building and installing $(PKG_NAME) development distributable: $@"
@@ -97,7 +99,7 @@ develop:
 	@echo "Done."
 	@echo ""
 
-undevelop: 
+undevelop:
 	@echo ""
 	@echo "--------------------------------------------------------------------"
 	@echo "Uninstalling $(PKG_NAME) development distributable: $@"
@@ -123,13 +125,24 @@ clean:
 	@echo "Done."
 	@echo ""
 
-distribute: 
+distribute:
 	@echo ""
 	@echo "--------------------------------------------------------------------"
 	@echo "Copying all distributable to $(PROD_PKGS)"
 	@test -d $(DISTDIR) || { echo "Nothing to distribute! Exiting..."; exit 1; }
 	@ssh -q $(PROD_USER) 'test -e $(PROD_PKGS)/$(PKG_NAME) || mkdir $(PROD_PKGS)/$(PKG_NAME)'
 	@scp $(DISTDIR)/* $(PROD_USER):$(PROD_PKGS)/$(PKG_NAME)/
+	@echo ""
+	@echo "Done."
+	@echo ""
+
+distribute_staging:
+	@echo ""
+	@echo "--------------------------------------------------------------------"
+	@echo "Copying all distributable to $(STAGING_PKGS)"
+	@test -d $(DISTDIR) || { echo "Nothing to distribute! Exiting..."; exit 1; }
+	@ssh -q $(PROD_USER) 'test -e $(STAGING_PKGS)/$(PKG_NAME) || mkdir $(STAGING_PKGS)/$(PKG_NAME)'
+	@scp $(DISTDIR)/* $(PROD_USER):$(STAGING_PKGS)/$(PKG_NAME)/
 	@echo ""
 	@echo "Done."
 	@echo ""
