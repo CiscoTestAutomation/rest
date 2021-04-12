@@ -126,8 +126,8 @@ class Implementation(Imp):
         _data = json.dumps(payload)
 
         # Connect to the device via requests
-        response = self.session.post(login_url, data=_data, timeout=timeout, \
-            verify=False, headers=headers)
+        response = self.session.post(login_url, data=_data, timeout=timeout,
+                                     verify=False, headers=headers)
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -135,9 +135,9 @@ class Implementation(Imp):
             # Something bad happened
             raise RequestException("Connection to '{ip}' has returned the "
                                    "following code '{c}', instead of the "
-                                   "expected status code '{ok}'"\
-                                        .format(ip=ip, c=response.status_code,
-                                                ok=requests.codes.ok))
+                                   "expected status code '{ok}'"
+                                   .format(ip=ip, c=response.status_code,
+                                           ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
 
@@ -240,7 +240,7 @@ class Implementation(Imp):
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
 
         response = self.session.get(full_url, timeout=timeout, verify=False)
-        
+
         try:
             output = response.json()
         except Exception:
@@ -291,8 +291,13 @@ class Implementation(Imp):
                                                     p=payload))
 
         # Send to the device
-        response = self.session.post(full_url, payload, timeout=timeout, \
-            verify=False)
+        if isinstance(payload, dict):
+            response = self.session.post(full_url, json=payload, timeout=timeout,
+                                         verify=False)
+        else:
+            response = self.session.post(full_url, data=payload, timeout=timeout,
+                                         verify=False,
+                                         headers={'Content-type': 'application/json'})
         output = response.json()
         log.info("Output received:\n{output}".format(output=output))
 
