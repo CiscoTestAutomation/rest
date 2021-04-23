@@ -26,25 +26,27 @@ BUILDDIR      = $(shell pwd)/__build__
 PROD_USER     = pyadm@pyats-ci
 PROD_PKGS     = /auto/pyats/packages
 STAGING_PKGS  = /auto/pyats/staging/packages
+STAGING_EXT_PKGS  = /auto/pyats/staging/packages_external
 PYTHON        = python
 TESTCMD       = python -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
 
-.PHONY: clean package distribute develop undevelop populate_dist_dir help\
-        docs pubdocs tests
+.PHONY: clean package distribute distribute_staging distribute_staging_external\
+        develop undevelop populate_dist_dir help docs pubdocs tests
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
 	@echo ""
-	@echo "package             : Build the package"
-	@echo "test                : Test the package"
-	@echo "distribute          : Distribute the package to PyPi server"
-	@echo "distribute_staging  : Distribute the package to staging area"
-	@echo "clean               : Remove build artifacts"
-	@echo "develop             : Build and install development package"
-	@echo "undevelop           : Uninstall development package"
-	@echo "docs                : Build Sphinx documentation for this package"
-	@echo "distribute_docs     : Publish the Sphinx documentation to the official cisco-shared web server for all to see"
+	@echo "package                     : Build the package"
+	@echo "test                        : Test the package"
+	@echo "distribute                  : Distribute the package to PyPi server"
+	@echo "distribute_staging          : Distribute the package to staging area"
+	@echo "distribute_staging_external : Distribute the package to external staging area"
+	@echo "clean                       : Remove build artifacts"
+	@echo "develop                     : Build and install development package"
+	@echo "undevelop                   : Uninstall development package"
+	@echo "docs                        : Build Sphinx documentation for this package"
+	@echo "distribute_docs             : Publish the Sphinx documentation to the official cisco-shared web server for all to see"
 
 docs:
 	@echo ""
@@ -143,6 +145,17 @@ distribute_staging:
 	@test -d $(DISTDIR) || { echo "Nothing to distribute! Exiting..."; exit 1; }
 	@ssh -q $(PROD_USER) 'test -e $(STAGING_PKGS)/$(PKG_NAME) || mkdir $(STAGING_PKGS)/$(PKG_NAME)'
 	@scp $(DISTDIR)/* $(PROD_USER):$(STAGING_PKGS)/$(PKG_NAME)/
+	@echo ""
+	@echo "Done."
+	@echo ""
+
+distribute_staging_external:
+	@echo ""
+	@echo "--------------------------------------------------------------------"
+	@echo "Copying all distributable to $(STAGING_EXT_PKGS)"
+	@test -d $(DISTDIR) || { echo "Nothing to distribute! Exiting..."; exit 1; }
+	@ssh -q $(PROD_USER) 'test -e $(STAGING_EXT_PKGS)/$(PKG_NAME) || mkdir $(STAGING_EXT_PKGS)/$(PKG_NAME)'
+	@scp $(DISTDIR)/* $(PROD_USER):$(STAGING_EXT_PKGS)/$(PKG_NAME)/
 	@echo ""
 	@echo "Done."
 	@echo ""
