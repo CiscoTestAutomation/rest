@@ -135,6 +135,11 @@ class Implementation(Implementation):
                                  timeout=timeout)
 
         if resp.status_code == 200:
+            # html login page gets returned if credentials are invalid
+            if resp.content and b'Invalid User or Password' in resp.content:
+                raise RequestException(
+                    "Failed to login '{d}'".format(d=self.device.name))
+
             log.info("Login successfully to '{d}'".format(d=self.device.name))
         else:
             raise RequestException(
