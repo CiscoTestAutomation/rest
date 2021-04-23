@@ -90,4 +90,14 @@ devices:
         credentials:
           rest:
             token: webexaccesstoken
+  elasticsearch:
+    os: elasticsearch
+    connections:
+      defaults:
+        via: rest
+      rest:
+        class: rest.connector.Rest
+        ip: 1.2.3.4
+        port: 9200
+        protocol: http
 
