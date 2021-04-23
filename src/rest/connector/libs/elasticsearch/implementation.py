@@ -144,8 +144,8 @@ class Implementation(Imp):
     def isconnected(func):
         '''Decorator to make sure session to device is active
 
-           There is limitation on the amount of time the session cab be active
-           on the APIC. However, there are no way to verify if
+           There is limitation on the amount of time the session can be active
+           against Elasticsearch. However, there are no way to verify if
            session is still active unless sending a command. So, its just
            faster to reconnect every time.
          '''
