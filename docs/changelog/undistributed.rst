@@ -20,6 +20,3 @@ Upgrade Instructions
 
 Features:
 ^^^^^^^^^
-
-* Viptela connector
-    * Fixed authentication check for vManage
