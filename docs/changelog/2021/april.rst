@@ -23,3 +23,7 @@ Features:
 
 * WebEx connector
     * Added elasticsearch connector implementation
+
+* Viptela connector
+    * Fixed authentication check for vManage
+
