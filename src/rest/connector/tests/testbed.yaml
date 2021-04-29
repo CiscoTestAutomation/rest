@@ -19,6 +19,7 @@ devices:
       connections:
         rest:
           class: rest.connector.Rest
+          protocol: http
           ip: 1.2.3.4
           port: 8080
           username: cisco
@@ -32,6 +33,7 @@ devices:
         connections:
           rest:
             class: rest.connector.Rest
+            protocol: https
             ip: 1.2.3.4
             port: 443
             username: cisco
@@ -45,6 +47,7 @@ devices:
       connections:
         rest:
           class: rest.connector.Rest
+          protocol: http
           ip: 1.2.3.4
           username: cisco
           password: cisco
@@ -58,6 +61,7 @@ devices:
     connections:
       rest:
         class: rest.connector.Rest
+        protocol: https
         ip: 1.2.3.4
         credentials:
           rest:
@@ -72,6 +76,7 @@ devices:
       connections:
         rest:
           class: rest.connector.Rest
+          protocol: http
           ip: 1.2.3.4
           credentials:
             rest:
@@ -86,6 +91,7 @@ devices:
     connections:
       rest:
         class: rest.connector.Rest
+        protocol: http
         ip: 1.2.3.4
         credentials:
           rest:
