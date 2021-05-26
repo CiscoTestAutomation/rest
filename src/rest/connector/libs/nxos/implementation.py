@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import requests
 from requests.auth import HTTPBasicAuth
@@ -218,13 +219,17 @@ class Implementation(Implementation):
         return decorated
 
     @BaseConnection.locked
-    def _request(self, method, dn, **kwargs):
+    def _request(self, method, dn, retries=3, retry_wait=3, **kwargs):
         """ Wrapper to send REST command to device
 
         Args:
             method (str): session request method
 
             dn (str): rest endpoint
+
+            retries (int): Max retries on request exception (default: 3)
+
+            retry_wait (int): Seconds to wait before retry (default: 3)
 
         Returns:
             response.json() or response.text
@@ -258,7 +263,16 @@ class Implementation(Implementation):
                          p=p))
 
         # Send to the device
-        response = self.session.request(method=method, url=full_url, **kwargs)
+        for _ in range(retries):
+            try:
+                response = self.session.request(method=method, url=full_url, **kwargs)
+                break
+            except Exception:
+                log.warning('Request {} to {} failed. Waiting {} seconds before retrying\n'.format(
+                            method, full_url, retry_wait), exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise ConnectionError('Request {} to {} failed'.format(method, full_url))
 
         # An expected return code was provided. Ensure the response has this code.
         if expected_return_code:

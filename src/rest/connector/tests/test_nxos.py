@@ -1,10 +1,10 @@
 #!/bin/env python
 """ Unit tests for the rest.connector cisco-shared package. """
 import os
+import logging
 import unittest
-import requests
 from requests.models import Response
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, MagicMock
 from requests.exceptions import RequestException
 
 from pyats.topology import loader
@@ -340,3 +340,25 @@ class test_rest_connector(unittest.TestCase):
 
         self.assertEqual(connection.connected, False)
 
+    def test_request_exception_retry(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.side_effect = [resp, resp]
+            req().request.side_effect = [TimeoutError('Timeout'), resp]
+
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+
+            with self.assertLogs(logger='rest.connector.libs.nxos.implementation', level=logging.INFO) as log_cm:
+                connection.post(dn='temp', payload={'payload': 'something'}, retry_wait=0)
+                self.assertIn('TimeoutError',
+                              '\n'.join(log_cm.output))
+
+            self.assertEqual(connection.connected, True)
+            connection.disconnect()
+
+        self.assertEqual(connection.connected, False)
