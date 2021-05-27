@@ -53,13 +53,21 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30, port="443", protocol='https'):
+    def connect(self, timeout=30, port=443, protocol='https', retries=3, retry_wait=3):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+
+            port (int): TCP port to use (default: 443)
+
+            protocol (str): protocol to use (default: https)
+
+            retries (int): Max retries on request exception (default: 3)
+
+            retry_wait (int): Seconds to wait before retry (default: 3)
 
         Raises
         ------
@@ -137,7 +145,6 @@ class Implementation(Implementation):
                                                      ip=ip,
                                                      port=port)
 
-
         login_url = '{f}/api/aaaLogin.json'.format(f=self.url)
 
         username, password = get_username_password(self)
@@ -157,11 +164,21 @@ class Implementation(Implementation):
         self.session = requests.Session()
         _data = json.dumps(payload)
 
-        # Connect to the device via requests
-        if protocol == 'https':
-            response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+        for _ in range(retries):
+            try:
+                # Connect to the device via requests
+                if protocol == 'https':
+                    response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+                else:
+                    response = self.session.post(login_url, data=_data, timeout=timeout)
+                break
+            except Exception:
+                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
+                             self.device.name, retry_wait), exc_info=True)
+                time.sleep(retry_wait)
         else:
-            response = self.session.post(login_url, data=_data, timeout=timeout)
+            raise ConnectionError('Connection to {} failed'.format(self.device.name))
+
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -169,9 +186,9 @@ class Implementation(Implementation):
             # Something bad happened
             raise RequestException("Connection to '{ip}' has returned the "
                                    "following code '{c}', instead of the "
-                                   "expected status code '{ok}'"\
-                                        .format(ip=ip, c=response.status_code,
-                                                ok=requests.codes.ok))
+                                   "expected status code '{ok}'"
+                                   .format(ip=ip, c=response.status_code,
+                                           ok=requests.codes.ok))
 
         # Attach auth to session for future calls
         self.session.auth = HTTPBasicAuth(username, password)
