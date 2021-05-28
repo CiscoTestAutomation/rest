@@ -53,7 +53,7 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30, port=443, protocol='https', retries=3, retry_wait=3):
+    def connect(self, timeout=30, port=443, protocol='https', retries=3, retry_wait=10):
         '''connect to the device via REST
 
         Arguments
@@ -67,7 +67,7 @@ class Implementation(Implementation):
 
             retries (int): Max retries on request exception (default: 3)
 
-            retry_wait (int): Seconds to wait before retry (default: 3)
+            retry_wait (int): Seconds to wait before retry (default: 10)
 
         Raises
         ------
@@ -236,7 +236,7 @@ class Implementation(Implementation):
         return decorated
 
     @BaseConnection.locked
-    def _request(self, method, dn, retries=3, retry_wait=3, **kwargs):
+    def _request(self, method, dn, retries=3, retry_wait=10, **kwargs):
         """ Wrapper to send REST command to device
 
         Args:
@@ -246,7 +246,7 @@ class Implementation(Implementation):
 
             retries (int): Max retries on request exception (default: 3)
 
-            retry_wait (int): Seconds to wait before retry (default: 3)
+            retry_wait (int): Seconds to wait before retry (default: 10)
 
         Returns:
             response.json() or response.text
