@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import requests
 from requests.auth import HTTPBasicAuth
@@ -52,13 +53,21 @@ class Implementation(Implementation):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30, port="443", protocol='https'):
+    def connect(self, timeout=30, port=443, protocol='https', retries=3, retry_wait=10):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+
+            port (int): TCP port to use (default: 443)
+
+            protocol (str): protocol to use (default: https)
+
+            retries (int): Max retries on request exception (default: 3)
+
+            retry_wait (int): Seconds to wait before retry (default: 10)
 
         Raises
         ------
@@ -136,7 +145,6 @@ class Implementation(Implementation):
                                                      ip=ip,
                                                      port=port)
 
-
         login_url = '{f}/api/aaaLogin.json'.format(f=self.url)
 
         username, password = get_username_password(self)
@@ -156,11 +164,21 @@ class Implementation(Implementation):
         self.session = requests.Session()
         _data = json.dumps(payload)
 
-        # Connect to the device via requests
-        if protocol == 'https':
-            response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+        for _ in range(retries):
+            try:
+                # Connect to the device via requests
+                if protocol == 'https':
+                    response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+                else:
+                    response = self.session.post(login_url, data=_data, timeout=timeout)
+                break
+            except Exception:
+                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
+                             self.device.name, retry_wait), exc_info=True)
+                time.sleep(retry_wait)
         else:
-            response = self.session.post(login_url, data=_data, timeout=timeout)
+            raise ConnectionError('Connection to {} failed'.format(self.device.name))
+
         log.info(response)
 
         # Make sure it returned requests.codes.ok
@@ -168,9 +186,9 @@ class Implementation(Implementation):
             # Something bad happened
             raise RequestException("Connection to '{ip}' has returned the "
                                    "following code '{c}', instead of the "
-                                   "expected status code '{ok}'"\
-                                        .format(ip=ip, c=response.status_code,
-                                                ok=requests.codes.ok))
+                                   "expected status code '{ok}'"
+                                   .format(ip=ip, c=response.status_code,
+                                           ok=requests.codes.ok))
 
         # Attach auth to session for future calls
         self.session.auth = HTTPBasicAuth(username, password)
@@ -218,13 +236,17 @@ class Implementation(Implementation):
         return decorated
 
     @BaseConnection.locked
-    def _request(self, method, dn, **kwargs):
+    def _request(self, method, dn, retries=3, retry_wait=10, **kwargs):
         """ Wrapper to send REST command to device
 
         Args:
             method (str): session request method
 
             dn (str): rest endpoint
+
+            retries (int): Max retries on request exception (default: 3)
+
+            retry_wait (int): Seconds to wait before retry (default: 10)
 
         Returns:
             response.json() or response.text
@@ -258,7 +280,16 @@ class Implementation(Implementation):
                          p=p))
 
         # Send to the device
-        response = self.session.request(method=method, url=full_url, **kwargs)
+        for _ in range(retries):
+            try:
+                response = self.session.request(method=method, url=full_url, **kwargs)
+                break
+            except Exception:
+                log.warning('Request {} to {} failed. Waiting {} seconds before retrying\n'.format(
+                            method, full_url, retry_wait), exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise ConnectionError('Request {} to {} failed'.format(method, full_url))
 
         # An expected return code was provided. Ensure the response has this code.
         if expected_return_code:
