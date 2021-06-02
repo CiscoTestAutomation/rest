@@ -93,8 +93,8 @@ develop:
 	@echo "Building and installing $(PKG_NAME) development distributable: $@"
 	@echo ""
 
-	@pip install f5-icontrol-rest requests_mock requests dicttoxml
 	@pip uninstall -y rest.connector || true
+	@pip install f5-icontrol-rest requests_mock requests dicttoxml
 	@./setup.py develop --no-deps -q
 
 	@echo ""

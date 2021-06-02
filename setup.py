@@ -158,7 +158,6 @@ setup(
     install_requires =  [
         'requests >= 1.15.1',
         'dicttoxml',
-        'requests_mock',
         'f5-icontrol-rest',
         'genie'
     ],
