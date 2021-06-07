@@ -44,6 +44,9 @@ API to send GET command to the device.
     * - query_target_filter (string)
       - filter expression
       - None
+    * - target_subtree_class (string)
+      - specify class
+      - None
     * - expected_status_code (int)
       - Expected result
       - None
