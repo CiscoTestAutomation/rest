@@ -1,3 +1,4 @@
+import time
 import json
 import logging
 import requests
@@ -45,13 +46,17 @@ class Implementation(Imp):
     '''
 
     @BaseConnection.locked
-    def connect(self, timeout=30):
+    def connect(self, timeout=30, retries=3, retry_wait=10):
         '''connect to the device via REST
 
         Arguments
         ---------
 
             timeout (int): Timeout value
+
+            retries (int): Max retries on request exception (default: 3)
+
+            retry_wait (int): Seconds to wait before retry (default: 10)
 
         Raises
         ------
@@ -125,19 +130,30 @@ class Implementation(Imp):
         self.session = requests.Session()
         _data = json.dumps(payload)
 
-        # Connect to the device via requests
-        response = self.session.post(login_url, data=_data, timeout=timeout,
-                                     verify=False, headers=headers)
-        log.info(response)
+        for _ in range(retries):
+            try:
+                # Connect to the device via requests
+                response = self.session.post(login_url, data=_data, timeout=timeout,
+                                             verify=False, headers=headers)
+                log.info(response)
 
-        # Make sure it returned requests.codes.ok
-        if response.status_code != requests.codes.ok:
-            # Something bad happened
-            raise RequestException("Connection to '{ip}' has returned the "
-                                   "following code '{c}', instead of the "
-                                   "expected status code '{ok}'"
-                                   .format(ip=ip, c=response.status_code,
-                                           ok=requests.codes.ok))
+                # Make sure it returned requests.codes.ok
+                if response.status_code != requests.codes.ok:
+                    log.error(response.text)
+                    # Something bad happened
+                    raise RequestException("Connection to '{ip}' has returned the "
+                                           "following code '{c}', instead of the "
+                                           "expected status code '{ok}'"
+                                           .format(ip=ip, c=response.status_code,
+                                                   ok=requests.codes.ok))
+                break
+            except Exception:
+                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
+                             self.device.name, retry_wait), exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise ConnectionError('Connection to {} failed'.format(self.device.name))
+
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
 
