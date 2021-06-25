@@ -16,6 +16,9 @@ from pyats.connections import BaseConnection
 from genie.abstract import Lookup
 import rest.connector.libs
 
+# Ease of use (rest.connector.Acisdk)
+from rest.connector.acisdk_implementation import AciCobra
+
 
 class Rest(BaseConnection):
     '''Rest
@@ -57,3 +60,8 @@ class Rest(BaseConnection):
 
         # Send the rest to normal __getattribute__
         return super().__getattribute__(name)
+
+
+class Acisdk(AciCobra):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
