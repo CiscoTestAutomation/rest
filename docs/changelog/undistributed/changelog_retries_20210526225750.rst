@@ -1,3 +1,0 @@
-
-* NXOS
-  * Added retry logic
