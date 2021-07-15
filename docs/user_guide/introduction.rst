@@ -26,6 +26,7 @@ At the moment `rest.connector` supports the following platforms:
     ``apic``, Takashi Higashimura, pyats-support-ext@cisco.com
     ``virl``, Takashi Higashimura, pyats-support-ext@cisco.com
     ``webex``, Takashi Higashimura, pyats-support-ext@cisco.com
+    ``nd``, Romel Tolos, rtolos@cisco.com
 
 
 Example use

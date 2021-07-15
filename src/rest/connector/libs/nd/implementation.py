@@ -91,7 +91,7 @@ class Implementation(Imp):
         if self.connected:
             return
 
-        if 'host' in self.connection_info:  # the dictionary of connection info based on path (via)
+        if 'host' in self.connection_info:
             ip = self.connection_info['host']
         else:
             ip = self.connection_info['ip'].exploded
@@ -100,14 +100,14 @@ class Implementation(Imp):
             self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)
         else:
             self.url = 'https://{ip}/'.format(ip=ip)
-        login_url = '{f}login'.format(f=self.url)  # CHANGE: login url
+        login_url = '{f}login'.format(f=self.url)
 
-        username, password = get_username_password(self)  # gets credentials from rest
+        username, password = get_username_password(self)
 
         payload = {
             "userName": username,
             "userPasswd": password,
-            "domain": "DefaultAuth"  # CHANGE: domain
+            "domain": "DefaultAuth"
         }
 
         headers = {
@@ -162,9 +162,9 @@ class Implementation(Imp):
     def isconnected(func):
         """Decorator to make sure session to device is active
 
-           There is limitation on the amount of time the session cab be active
-           on the APIC. However, there are no way to verify if
-           session is still active unless sending a command. So, its just
+           There is limitation on the amount of time the session can be active
+           on the ND. However, there is no way to verify if
+           session is still active unless sending a command. So, it's just
            faster to reconnect every time.
          """
 
@@ -185,19 +185,24 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, dn, expected_status_code=requests.codes.ok, timeout=30):
-
-        """GET REST Command to retrieve information from the device"""
+    def get(self, api_url, expected_status_code=requests.codes.ok, timeout=30):
+        """GET REST Command to retrieve information from the device
+        Arguments
+        ---------
+            api_url (string): subdirectory part of the API URL
+            expected_status_code (int): Expected result
+            timeout (int): Maximum time
+        """
 
         if not self.connected:
             raise Exception("'{d}' is not connected for "
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}".format(f=self.url, dn=dn)
+        full_url = "{f}{api_url}".format(f=self.url, api_url=api_url)
 
         log.info("Sending GET command to '{d}':" \
-                 "\nDN: {furl}".format(d=self.device.name, furl=full_url))
+                 "\nURL: {furl}".format(d=self.device.name, furl=full_url))
 
         response = self.session.get(full_url, timeout=timeout, verify=False)
 
@@ -223,13 +228,12 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
-    def post(self, dn, payload, expected_status_code=requests.codes.ok,
+    def post(self, api_url, payload, expected_status_code=requests.codes.ok,
              timeout=30):
         """POST REST Command to configure information from the device
         Arguments
         ---------
-            dn (string): Unique distinguished name that describes the object
-                         and its place in the tree.
+            api_url (string): subdirectory part of the API URL
             payload (dict): Dictionary containing the information to send via
                             the post
             expected_status_code (int): Expected result
@@ -240,11 +244,11 @@ class Implementation(Imp):
             raise Exception("'{d}' is not connected for "
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
-        # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        # Deal with the url
+        full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
 
         log.info("Sending POST command to '{d}':" \
-                 "\nDN: {furl}\nPayload:{p}".format(d=self.device.name,
+                 "\nURL: {furl}\nPayload:{p}".format(d=self.device.name,
                                                     furl=full_url,
                                                     p=payload))
         # Send to the device
@@ -272,13 +276,12 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
-    def delete(self, dn, expected_status_code=requests.codes.ok, timeout=30):
+    def delete(self, api_url, expected_status_code=requests.codes.ok, timeout=30):
         """DELETE REST Command to delete information from the device
         Arguments
         ---------
 
-            dn (string): Unique distinguished name that describes the object
-                         and its place in the tree.
+            api_url (string): subdirectory part of the API URL
             expected_status_code (int): Expected result
             timeout (int): Maximum time
         """
@@ -287,16 +290,14 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        # Deal with the url
+        full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
 
         log.info("Sending DELETE command to '{d}':" \
-                 "\nDN: {furl}".format(d=self.device.name, furl=full_url))
+                 "\nURL: {furl}".format(d=self.device.name, furl=full_url))
 
         # Send to the device
         response = self.session.delete(full_url, timeout=timeout, verify=False)
-        output = response.json()
-        log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
@@ -307,4 +308,10 @@ class Implementation(Imp):
                                    .format(d=self.device.name,
                                            c=response.status_code,
                                            e=expected_status_code))
-        return output
+        try:
+            # response might be empty
+            output = response.json()
+            log.info("Output received:\n{output}".format(output=output))
+            return output
+        except ValueError:
+            log.info("'Delete' operation returned correct status code but no output")
