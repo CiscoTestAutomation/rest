@@ -58,11 +58,11 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.Session') as req:
             resp = Response()
-            resp.status_code = 404
+            resp.status_code = [404, 404, 404]
             req().post.return_value = resp
 
-            with self.assertRaises(RequestException):
-                connection.connect()
+            with self.assertRaises(ConnectionError):
+                connection.connect(retry_wait=1)
 
         self.assertEqual(connection.connected, False)
 
@@ -128,9 +128,6 @@ class test_rest_connector(unittest.TestCase):
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
-
-
-
 
             connection.post(dn='temp', payload={'payload':'something'},
                             expected_status_code=300)
