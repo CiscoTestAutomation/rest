@@ -10,5 +10,6 @@ library.
    introduction
    installation
    services/index
+   robot
 
 .. sectionauthor:: ATS Team
