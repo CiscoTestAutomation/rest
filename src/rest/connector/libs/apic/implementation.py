@@ -269,8 +269,8 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
-    def post(self, dn, payload, expected_status_code=requests.codes.ok,
-             timeout=30):
+    def post(self, dn, payload, xml_payload=False,
+             expected_status_code=requests.codes.ok, timeout=30):
         '''POST REST Command to configure information from the device
 
         Arguments
@@ -278,8 +278,8 @@ class Implementation(Imp):
 
             dn (string): Unique distinguished name that describes the object
                          and its place in the tree.
-            payload (dict): Dictionary containing the information to send via
-                            the post
+            payload (dict): Information to send via the post command
+            xml_payload (bool): Set to True if payload is in XML format
             expected_status_code (int): Expected result
             timeout (int): Maximum time
         '''
@@ -297,14 +297,21 @@ class Implementation(Imp):
                                                     p=payload))
 
         # Send to the device
-        if isinstance(payload, dict):
-            response = self.session.post(full_url, json=payload, timeout=timeout,
-                                         verify=False)
-        else:
+        if xml_payload:
             response = self.session.post(full_url, data=payload, timeout=timeout,
                                          verify=False,
-                                         headers={'Content-type': 'application/json'})
-        output = response.json()
+                                         headers={'Content-type': 'application/xml'})
+            output = response.content
+        else:
+            if isinstance(payload, dict):
+                response = self.session.post(full_url, json=payload, timeout=timeout,
+                                             verify=False)
+            else:
+                response = self.session.post(full_url, data=payload, timeout=timeout,
+                                             verify=False,
+                                             headers={'Content-type': 'application/json'})
+            output = response.json()
+
         log.info("Output received:\n{output}".format(output=output))
 
         # Make sure it returned requests.codes.ok
