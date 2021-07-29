@@ -76,7 +76,7 @@ API to send POST command to the device.
     * - dn
       - Unique distinguished name describes the object and its place in the tree
       - Mandatory
-    * - payload (dict)
+    * - payload (dict|string)
       - Information to send via the post command
       - Mandatory
     * - xml_payload (bool)

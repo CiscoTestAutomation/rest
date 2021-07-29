@@ -278,7 +278,7 @@ class Implementation(Imp):
 
             dn (string): Unique distinguished name that describes the object
                          and its place in the tree.
-            payload (dict): Information to send via the post command
+            payload (dict|string): Information to send via the post command
             xml_payload (bool): Set to True if payload is in XML format
             expected_status_code (int): Expected result
             timeout (int): Maximum time
