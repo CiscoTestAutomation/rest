@@ -52,12 +52,11 @@ devices:
           username: cisco
           password: cisco
   nd:
-    os: linux
+    os: nd
     type: linux
-    platform: nd
     custom:
       abstraction:
-        order: [platform]
+        order: [os]
     connections:
       rest:
         class: rest.connector.Rest

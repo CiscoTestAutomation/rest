@@ -16,15 +16,21 @@ API to send GET command to the device.
     * - Argument
       - Description
       - Default
-    * - api_url
+    * - api_url (string)
       - API url (subdirectory part of the url) string
       - Mandatory
     * - expected_status_code (int)
       - Expected result
-      - None
-    * - timeout
+      - 200
+    * - timeout (int)
       - Maximum time it can take to disconnect to the device
       - 30 seconds
+    * - retries (int)
+      - Number of retries in case of transmission error
+      - 3 times
+    * - retry_wait (int)
+      - Seconds to wait between retries
+      - 10 seconds
 
 .. code-block:: python
 
@@ -44,7 +50,7 @@ API to send POST command to the device.
     * - Argument
       - Description
       - Default
-    * - api_url
+    * - api_url (string)
       - API url (subdirectory part of the url) string
       - Mandatory
     * - payload (dict)
@@ -56,6 +62,12 @@ API to send POST command to the device.
     * - timeout (int)
       - Maximum time it can take to disconnect to the device
       - 30 seconds
+    * - retries (int)
+      - Number of retries in case of transmission error
+      - 3 times
+    * - retry_wait (int)
+      - Seconds to wait between retries
+      - 10 seconds
 
 .. code-block:: python
 
@@ -82,7 +94,7 @@ API to send DELETE command to the device.
     * - Argument
       - Description
       - Default
-    * - api_url
+    * - api_url (string)
       - API url (subdirectory part of the url) string
       - Mandatory
     * - expected_status_code (int)
@@ -91,6 +103,12 @@ API to send DELETE command to the device.
     * - timeout (int)
       - Maximum time it can take to disconnect to the device
       - 30 seconds
+    * - retries (int)
+      - Number of retries in case of transmission error
+      - 3 times
+    * - retry_wait (int)
+      - Seconds to wait between retries
+      - 10 seconds
 
 .. code-block:: python
 
