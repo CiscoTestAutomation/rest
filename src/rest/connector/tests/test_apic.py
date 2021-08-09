@@ -86,6 +86,7 @@ class test_rest_connector(unittest.TestCase):
             req().post.return_value = resp
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
+
             connection.post(dn='temp', payload={'payload':'something'})
             connection.disconnect()
         self.assertEqual(connection.connected, False)
@@ -105,7 +106,6 @@ class test_rest_connector(unittest.TestCase):
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
-
 
             with self.assertRaises(RequestException):
                 connection.post(dn='temp', payload={'payload':'something'})
@@ -129,9 +129,6 @@ class test_rest_connector(unittest.TestCase):
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
-
-
             connection.post(dn='temp', payload={'payload':'something'},
                             expected_status_code=300)
             self.assertEqual(connection.connected, True)
@@ -154,11 +151,44 @@ class test_rest_connector(unittest.TestCase):
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
             with self.assertRaises(RequestException):
                 connection.post(dn='temp', payload={'payload':'something'},
                                 expected_status_code=400)
             self.assertEqual(connection.connected, True)
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_post_xml_dict_payload_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+
+            with self.assertRaises(ValueError):
+                connection.post(dn='temp', xml_payload=True,
+                                payload={'payload': 'something'})
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_post_xml_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            connection.connect()
+            resp._content = '<?xml version="1.0" encoding="UTF-8"?>' \
+                            '<imdata totalCount="0"></imdata>'
+
+            connection.post(dn='temp', xml_payload=True,
+                            payload='<fvTenant name="ExampleCorp"/>')
             connection.disconnect()
         self.assertEqual(connection.connected, False)
 

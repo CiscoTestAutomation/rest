@@ -298,6 +298,11 @@ class Implementation(Imp):
 
         # Send to the device
         if xml_payload:
+            if isinstance(payload, dict):
+                raise ValueError("Error on {d} during POST command: "
+                                 "Payload needs to be string in xml format if "
+                                 "used in conjunction with xml_payload argument"
+                                 .format(d=self.device.name))
             response = self.session.post(full_url, data=payload, timeout=timeout,
                                          verify=False,
                                          headers={'Content-type': 'application/xml'})
