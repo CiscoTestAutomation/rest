@@ -7,4 +7,4 @@ Services supported by rest.connector on APIC.
    :maxdepth: 2
 
    rest
-   acicobra
+   aci_sdk

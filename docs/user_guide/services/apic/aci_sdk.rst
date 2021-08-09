@@ -1,7 +1,7 @@
-Cobra SDK
+APIC SDK
 =========
 
-The following services are supported by the Cobra SDK connector for APIC.
+The following services are supported by the SDK (Cobra) connector for APIC.
 
 
 query
@@ -20,7 +20,7 @@ Mimics same-name function from MoDirectory class (cobra.mit.access)
       - A query object
       - Mandatory
 
-For more information please visit the `Cobra APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=query#cobra.mit.access.MoDirectory.query>`_
+For more information please visit the `Cisco APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=query#cobra.mit.access.MoDirectory.query>`_
 
 commit
 ------
@@ -38,7 +38,7 @@ Mimics same-name function from MoDirectory class (cobra.mit.access)
       - The configuration request to commit
       - Mandatory
 
-For more information please visit the `Cobra APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=commit#cobra.mit.access.MoDirectory.commit>`_
+For more information please visit the `Cisco APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=commit#cobra.mit.access.MoDirectory.commit>`_
 
 lookupByDn
 ----------
@@ -59,7 +59,7 @@ Mimics same-name function from MoDirectory class (cobra.mit.access)
       - Dictionary containing additional filters
       - Optional
 
-For more information please visit the `Cobra APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=lookupByDn#cobra.mit.access.MoDirectory.lookupByDn>`_
+For more information please visit the `Cisco APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=lookupByDn#cobra.mit.access.MoDirectory.lookupByDn>`_
 
 lookupByClass
 -------------
@@ -83,7 +83,7 @@ Mimics same-name function from MoDirectory class (cobra.mit.access)
       - Dictionary containing additional filters
       - Optional
 
-For more information please visit the `Cobra APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=lookupByClass#cobra.mit.access.MoDirectory.lookupByClass>`_
+For more information please visit the `Cisco APIC Python API <https://cobra.readthedocs.io/en/stable/api-ref/access.html?highlight=lookupByClass#cobra.mit.access.MoDirectory.lookupByClass>`_
 
 exists
 ------
@@ -177,7 +177,7 @@ Add MO to ConfigRequest and push it to device
     tenant = device.cobra.config_and_commit(mo=tenant)
 
 
-Additional info on the Cobra SDK can be found on the `Cobra APIC Python API <https://cobra.readthedocs.io/en/stable/index.html>`_
+Additional info on the Cobra SDK can be found on the `Cisco APIC Python API <https://cobra.readthedocs.io/en/stable/index.html>`_
 
 
 .. sectionauthor:: Romel Tolos <rtolos@cisco.com>
