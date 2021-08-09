@@ -72,7 +72,7 @@ def get_installed_lib_versions(packages=('acicobra', 'acimodel')):
     :param packages: (tuple) a list of packages to be checked
     :return: dictionary with packages as keys and versions as values
     """
-    if not isinstance(packages, list):
+    if not isinstance(packages, tuple) and not isinstance(packages, list):
         packages = [packages]
     versions = {}
     for package in packages:

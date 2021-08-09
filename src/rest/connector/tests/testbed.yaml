@@ -51,6 +51,11 @@ devices:
           ip: 1.2.3.4
           username: cisco
           password: cisco
+        cobra:
+          class: rest.connector.Acisdk
+          ip: 1.2.3.4
+          username: cisco
+          password: cisco
   bigip01.lab.local:
     alias: 'bigip01'
     type: 'bigip'

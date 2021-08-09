@@ -17,7 +17,7 @@ from genie.abstract import Lookup
 import rest.connector.libs
 
 # Ease of use (rest.connector.Acisdk)
-from rest.connector.acisdk_implementation import AciCobra
+from rest.connector.libs.apic.acisdk_implementation import AciCobra
 
 
 class Rest(BaseConnection):

@@ -1,9 +1,12 @@
+import requests
+import urllib3
+
 from functools import wraps
 from importlib import import_module
 from logging import getLogger
 from pprint import pformat
 from re import search
-import urllib3
+from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
 from rest.connector.utils import get_username_password, verify_apic_version
@@ -109,11 +112,11 @@ class AciCobra(BaseConnection):
 
         username, password = get_username_password(self)
 
-        LoginSession = getattr(import_module('cobra.mit.session'), 'LoginSession')
-        session = LoginSession(self.url, username, password, timeout=timeout)
+        login_session = getattr(import_module('cobra.mit.session'), 'LoginSession')
+        session = login_session(self.url, username, password, timeout=timeout)
 
-        MoDirectory = getattr(import_module('cobra.mit.access'), 'MoDirectory')
-        self.mo_dir = MoDirectory(session)
+        mo_directory = getattr(import_module('cobra.mit.access'), 'MoDirectory')
+        self.mo_dir = mo_directory(session)
 
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
@@ -180,9 +183,14 @@ class AciCobra(BaseConnection):
     @log_action
     def query(self, queryObject):
         """
+        Mimics same-name function from MoDirectory class (cobra.mit.access):
         Queries the MIT for a specified object. The queryObject provides a
         variety of search options.
         """
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
         return self.mo_dir.query(queryObject)
 
     @BaseConnection.locked
@@ -190,8 +198,13 @@ class AciCobra(BaseConnection):
     @log_action
     def commit(self, configObject, sync_wait_timeout=None):
         """
+        Mimics same-name function from MoDirectory class (cobra.mit.access):
         Short-form commit operation for a configRequest
         """
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
         return self.mo_dir.commit(configObject, sync_wait_timeout=sync_wait_timeout)
 
     @BaseConnection.locked
@@ -199,6 +212,7 @@ class AciCobra(BaseConnection):
     @log_action
     def lookupByDn(self, dnStrOrDn, **queryParams):
         """
+        Mimics same-name function from MoDirectory class (cobra.mit.access):
         A short-form managed object (MO) query using the distinguished name(Dn)
         of the MO.
 
@@ -207,6 +221,10 @@ class AciCobra(BaseConnection):
           queryParams: a dictionary including the properties to the
             added to the query.
         """
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
         return self.mo_dir.lookupByDn(dnStrOrDn, **queryParams)
 
     @BaseConnection.locked
@@ -214,6 +232,7 @@ class AciCobra(BaseConnection):
     @log_action
     def lookupByClass(self, classNames, parentDn=None, **queryParams):
         """
+        Mimics same-name function from MoDirectory class (cobra.mit.access):
         A short-form managed object (MO) query by class.
 
         Args:
@@ -222,13 +241,19 @@ class AciCobra(BaseConnection):
           queryParams: a dictionary including the properties to the
             added to the query.
         """
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
         return self.mo_dir.lookupByClass(classNames, parentDn=parentDn, **queryParams)
 
     @BaseConnection.locked
     @is_connected
     @log_action
     def exists(self, dnStrOrDn):
-        """Checks if managed object (MO) with given distinguished name (dn) is present or not
+        """
+        Mimics same-name function from MoDirectory class (cobra.mit.access):
+        Checks if managed object (MO) with given distinguished name (dn) is present or not
 
         Args:
           dnStrOrDn (str or cobra.mit.naming.Dn): A distinguished name as a
@@ -237,14 +262,16 @@ class AciCobra(BaseConnection):
         Returns:
           bool: True, if MO is present, else False.
         """
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
         return self.mo_dir.exists(dnStrOrDn)
 
-    @BaseConnection.locked
-    @is_connected
     @log_action
-    def getModel(self, model):
+    def get_model(self, model):
         """
-        Automatically imports the required library and returns the model
+        Automatically import the required library and return the model class
         :param model: must contain module and class of desired model (eg. fv.Tenant)
         :return: requested Cobra model
         """
@@ -263,23 +290,41 @@ class AciCobra(BaseConnection):
         else:
             raise NameError("'model' must contain <module>.<class of object>")
 
-    def create(self, model, parentMoOrDn, **extra_parms):
-        return self.getModel(model)(parentMoOrDn, **extra_parms)
+    def create(self, model, parent_mo_or_dn, **extra_parms):
+        """
+        Automatically import the required library and instantiate the model object
+        :param model: must contain module and class of desired model (eg. fv.Tenant)
+        :param parent_mo_or_dn: equivalent of parentMoOrDn for cobra models
+        :return: requested Cobra model object, initialized with given parameters
+        """
+        return self.get_model(model)(parentMoOrDn=parent_mo_or_dn, **extra_parms)
 
     @BaseConnection.locked
     @is_connected
     @log_action
-    def configAndCommit(self, mo, sync_wait_timeout=None):
+    def config_and_commit(self, mo, sync_wait_timeout=None,
+                          expected_status_code=requests.codes.ok):
         """
         Add MO to ConfigRequest and push it to device
         :param mo:
+        :param sync_wait_timeout:
+        :param expected_status_code:
         :return:
         """
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
         config = getattr(import_module(f'cobra.mit.request'), 'ConfigRequest')()
         config.addMo(mo)
         resp = self.mo_dir.commit(configObject=config, sync_wait_timeout=sync_wait_timeout)
-        if resp.status_code == 200:
-            return 'Ok'
-        else:
-            return (f'Commit failed with code {resp.status_code}\n'
-                    f'and message {resp.text}')
+        if resp.status_code != expected_status_code:
+            # Something bad happened
+            raise RequestException("'{c}' result code has been returned "
+                                   "instead of the expected status code "
+                                   "'{e}' for '{d}', got:\n {msg}"\
+                                   .format(d=self.device.name,
+                                           c=resp.status_code,
+                                           e=expected_status_code,
+                                           msg=resp.text))
+        return True
