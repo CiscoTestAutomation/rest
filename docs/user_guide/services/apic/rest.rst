@@ -76,9 +76,12 @@ API to send POST command to the device.
     * - dn
       - Unique distinguished name describes the object and its place in the tree
       - Mandatory
-    * - payload (dict)
-      - Dictionary containing the information to send via the post
+    * - payload (dict|string)
+      - Information to send via the post command
       - Mandatory
+    * - xml_payload (bool)
+      - Set to True if payload is in XML format
+      - False
     * - expected_status_code (int)
       - Expected result
       - 200
