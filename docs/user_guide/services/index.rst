@@ -4,14 +4,14 @@ Services
 This part of the document covers all the services supported by rest.connector.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    generic
    nxos
    nso
    dnac
    iosxe
-   apic
+   apic/index
    virl
    bigip
    viptela

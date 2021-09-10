@@ -1,4 +1,4 @@
-APIC
+REST
 ====
 
 The following services are supported by the REST connector for APIC.
