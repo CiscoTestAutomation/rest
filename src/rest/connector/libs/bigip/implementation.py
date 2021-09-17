@@ -192,7 +192,7 @@ class Implementation(Implementation):
 
         # URL to authenticate and receive the token
         url = "https://{0}:{1}/mgmt/shared/authn/login".format(
-            self.ip, self.port
+            ip, port
         )
         payload = {
             'username': self.username,
@@ -233,7 +233,7 @@ class Implementation(Implementation):
 
         # Self-link of the token
         timeout_url = "https://{0}:{1}/mgmt/shared/authz/tokens/{2}".format(
-            self.ip, self.port, self.token
+            ip, port, self.token
         )
         timeout_payload = {"timeout": "3600"}
 
