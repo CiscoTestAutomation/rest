@@ -20,3 +20,10 @@ Upgrade Instructions
 
 Features:
 ^^^^^^^^^
+
+* APIC
+  * Added XML payload option to push method
+* APIC
+  * Added ACI SDK connector (based on APIC Cobra SDK libraries)
+* Nexus Dashboard (ND)
+  * Added Nexus Dashboard (ND) rest connector

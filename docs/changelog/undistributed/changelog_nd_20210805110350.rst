@@ -1,3 +1,0 @@
-
-* Nexus Dashboard (ND)
-  * Added Nexus Dashboard (ND) rest connector
