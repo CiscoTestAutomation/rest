@@ -46,11 +46,6 @@ class test_rest_connector(unittest.TestCase):
             connection.disconnect()
         self.assertEqual(connection.connected, False)
 
-    def test_post_not_connected(self):
-        connection = Rest(device=self.device, alias='rest', via='rest')
-        with self.assertRaises(Exception):
-            connection.post(api_url='temp', payload={'payload':'something'})
-
     def test_connection_wrong_code(self):
         connection = Rest(device=self.device, alias='rest', via='rest')
         self.assertEqual(connection.connected, False)
@@ -105,7 +100,6 @@ class test_rest_connector(unittest.TestCase):
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
             with self.assertRaises(RequestException):
                 connection.post(api_url='temp', payload={'payload':'something'})
             self.assertEqual(connection.connected, True)
@@ -150,10 +144,96 @@ class test_rest_connector(unittest.TestCase):
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
 
-
             with self.assertRaises(RequestException):
                 connection.post(api_url='temp', payload={'payload':'something'},
                                 expected_status_code=400)
+            self.assertEqual(connection.connected, True)
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_not_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        with self.assertRaises(Exception):
+            connection.put(api_url='temp', payload={'payload':'something'})
+
+    def test_put_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.return_value = resp
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+            connection.put(api_url='temp', payload={'payload':'something'})
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_connected_wrong_status(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            resp2 = Response()
+            resp2.status_code = 300
+            req().put.return_value = resp2
+            req().post.side_effect = [resp, resp, resp2]
+
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+            resp2.json = MagicMock(return_value={'imdata': []})
+
+            with self.assertRaises(RequestException):
+                connection.put(api_url='temp', payload={'payload':'something'})
+            self.assertEqual(connection.connected, True)
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_connected_change_expected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            resp2 = Response()
+            resp2.status_code = 300
+            req().put.return_value = resp2
+            req().post.side_effect = [resp, resp, resp2]
+
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+            resp2.json = MagicMock(return_value={'imdata': []})
+
+            connection.put(api_url='temp', payload={'payload':'something'},
+                           expected_status_code=300)
+            self.assertEqual(connection.connected, True)
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_connected_wrong_status_change_expected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            resp2 = Response()
+            resp2.status_code = 300
+            req().put.return_value = resp2
+            req().post.side_effect = [resp, resp, resp2]
+
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+            resp2.json = MagicMock(return_value={'imdata': []})
+
+            with self.assertRaises(RequestException):
+                connection.put(api_url='temp', payload={'payload':'something'},
+                               expected_status_code=400)
             self.assertEqual(connection.connected, True)
             connection.disconnect()
         self.assertEqual(connection.connected, False)
@@ -321,8 +401,6 @@ class test_rest_connector(unittest.TestCase):
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
             resp2.json = MagicMock(return_value={'imdata': []})
-
-
 
             with self.assertRaises(RequestException):
                 connection.delete(api_url='temp', expected_status_code=400)

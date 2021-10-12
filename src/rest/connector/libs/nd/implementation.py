@@ -308,6 +308,69 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
+    def put(self, api_url, payload=None, expected_status_code=requests.codes.ok,
+            timeout=30, retries=3, retry_wait=10):
+        """PUT REST Command to configure information from the device
+        Arguments
+        ---------
+            api_url (string): subdirectory part of the API URL
+            payload (dict): Dictionary containing the information to send via
+                            the put action
+            expected_status_code (int): Expected result
+            timeout (int): Maximum time
+        """
+
+        if not self.connected:
+            raise Exception("'{d}' is not connected for "
+                            "alias '{a}'".format(d=self.device.name,
+                                                 a=self.alias))
+        # Eliminate the starting "/" if present, as it may cause problems
+        api_url.lstrip('/')
+        # Deal with the url
+        full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
+
+        log.info("Sending PUT command to '{d}':" \
+                 "\nURL: {furl}\nPayload:{p}".format(d=self.device.name,
+                                                     furl=full_url,
+                                                     p=payload))
+        for _ in range(retries):
+            try:
+                # Send to the device
+                if isinstance(payload, dict):
+                    response = self.session.put(full_url, json=payload, timeout=timeout,
+                                                verify=False)
+                else:
+                    response = self.session.put(full_url, data=payload, timeout=timeout,
+                                                verify=False,
+                                                headers={'Content-type': 'application/json'})
+                break
+            except Exception:
+                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
+                    self.device.name, retry_wait), exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise RequestException('Sending "{furl}" to "{d}" has failed '
+                                   'after {tries} tries'.format(furl=full_url,
+                                                                d=self.device.name,
+                                                                tries=retries))
+
+        output = response.json()
+        log.info("Output received:\n{output}".format(output=output))
+
+        # Make sure it returned requests.codes.ok
+        if response.status_code != expected_status_code:
+            # Something bad happened
+            raise RequestException("'{c}' result code has been returned "
+                                   "instead of the expected status code "
+                                   "'{e}' for '{d}', got:\n {msg}" \
+                                   .format(d=self.device.name,
+                                           c=response.status_code,
+                                           e=expected_status_code,
+                                           msg=response.text))
+        return output
+
+    @BaseConnection.locked
+    @isconnected
     def delete(self, api_url, expected_status_code=requests.codes.ok,
                timeout=30, retries=3, retry_wait=10):
         """DELETE REST Command to delete information from the device

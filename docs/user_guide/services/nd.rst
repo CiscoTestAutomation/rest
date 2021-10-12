@@ -82,6 +82,37 @@ API to send POST command to the device.
     url = 'api/config/localusers/test'
     device.rest.post(url, payload)
 
+put
+----
+
+API to send PUT command to the device.
+
+.. list-table:: PUT arguments
+    :widths: 30 50 20
+    :header-rows: 1
+
+    * - Argument
+      - Description
+      - Default
+    * - api_url (string)
+      - API url (subdirectory part of the url) string
+      - Mandatory
+    * - payload (dict)
+      - Dictionary containing the information to send via the post
+      - None
+    * - expected_status_code (int)
+      - Expected result
+      - 200
+    * - timeout (int)
+      - Maximum time it can take to disconnect to the device
+      - 30 seconds
+    * - retries (int)
+      - Number of retries in case of transmission error
+      - 3 times
+    * - retry_wait (int)
+      - Seconds to wait between retries
+      - 10 seconds
+
 delete
 ------
 
