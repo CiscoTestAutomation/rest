@@ -9,7 +9,7 @@ devices:
     connections:
       rest:
         class: rest.connector.Rest
-        ip: 1.2.3.4
+        ip: 198.51.100.1
   ncs:
       os: nso
       type: nso
@@ -20,7 +20,7 @@ devices:
         rest:
           class: rest.connector.Rest
           protocol: http
-          ip: 1.2.3.4
+          ip: 198.51.100.2
           port: 8080
           username: cisco
           password: cisco
@@ -34,7 +34,7 @@ devices:
           rest:
             class: rest.connector.Rest
             protocol: https
-            ip: 1.2.3.4
+            ip: 198.51.100.3
             port: 443
             username: cisco
             password: cisco
@@ -48,12 +48,12 @@ devices:
         rest:
           class: rest.connector.Rest
           protocol: http
-          ip: 1.2.3.4
+          ip: 198.51.100.4
           username: cisco
           password: cisco
         cobra:
           class: rest.connector.Acisdk
-          ip: 1.2.3.4
+          ip: 198.51.100.5
           username: cisco
           password: cisco
   nd:
@@ -66,7 +66,7 @@ devices:
       rest:
         class: rest.connector.Rest
         protocol: http
-        ip: 1.2.3.4
+        ip: 198.51.100.6
         username: cisco
         password: cisco
   bigip01.lab.local:
@@ -80,7 +80,7 @@ devices:
       rest:
         class: rest.connector.Rest
         protocol: https
-        ip: 1.2.3.4
+        ip: 198.51.100.7
         credentials:
           rest:
             username: admin
@@ -95,7 +95,7 @@ devices:
         rest:
           class: rest.connector.Rest
           protocol: http
-          ip: 1.2.3.4
+          ip: 198.51.100.8
           credentials:
             rest:
               username: admin
@@ -110,18 +110,19 @@ devices:
       rest:
         class: rest.connector.Rest
         protocol: http
-        ip: 1.2.3.4
+        ip: 198.51.100.9
         credentials:
           rest:
             token: webexaccesstoken
   elasticsearch:
     os: elasticsearch
+    type: elasticsearch
     connections:
       defaults:
         via: rest
       rest:
         class: rest.connector.Rest
-        ip: 1.2.3.4
+        ip: 198.51.100.10
         port: 9200
         protocol: http
 

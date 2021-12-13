@@ -562,7 +562,7 @@ All rights reserved.
                 </body>
             </html>
 """
-        kwargs['mock'].get('https://1.2.3.4:443/', text=response_text)
+        kwargs['mock'].get('https://198.51.100.3:443/', text=response_text)
         output = connection.connect(verbose=True).text
         self.assertEqual(output, response_text)
         return connection
@@ -602,7 +602,7 @@ All rights reserved.
 }
 """
 
-        kwargs['mock'].get('https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', text=response_text)
+        kwargs['mock'].get('https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', text=response_text)
         output = connection.get('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', verbose=True).text
         self.assertEqual(output, response_text)
         connection.disconnect()
@@ -643,7 +643,7 @@ All rights reserved.
     }
 }
 """
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].post(url, status_code=204)
         output = connection.post('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, content_type='json', verbose=True).text
         self.assertEqual(output, '')
@@ -686,7 +686,7 @@ All rights reserved.
 }
         response_text = ""
 
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].post(url, text=response_text)
         try:
             output = connection.post('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, verbose=True).text
@@ -728,7 +728,7 @@ All rights reserved.
         }
     }
 }
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].post(url, status_code=204)
         try:
             output = connection.post('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, content_type='json', verbose=True).text
@@ -770,7 +770,7 @@ All rights reserved.
         }
     }
 }
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].post(url, status_code=204)
         try:
             output = connection.post('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, content_type='xml', verbose=True).text
@@ -812,7 +812,7 @@ All rights reserved.
     }
 }
 """
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
         kwargs['mock'].patch(url, status_code=204)
         output = connection.patch('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile', payload, content_type='json', verbose=True).text
         self.assertEqual(output, '')
@@ -853,7 +853,7 @@ All rights reserved.
 }
         response_text = ""
 
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
         kwargs['mock'].patch(url, text=response_text)
         try:
             output = connection.patch('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile', payload, verbose=True).text
@@ -895,7 +895,7 @@ All rights reserved.
         }
     }
 }
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
         kwargs['mock'].patch(url, status_code=204)
         try:
             output = connection.patch('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile', payload, content_type='json', verbose=True).text
@@ -935,7 +935,7 @@ All rights reserved.
         }
     }
 }
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile'
         kwargs['mock'].patch(url, status_code=204)
         try:
             output = connection.patch('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=default-ap-profile', payload, content_type='xml', verbose=True).text
@@ -979,7 +979,7 @@ All rights reserved.
     }
 }
 """
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].put(url, status_code=204)
         output = connection.put('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, content_type='json', verbose=True).text
         self.assertEqual(output, '')
@@ -1022,7 +1022,7 @@ All rights reserved.
 }
         response_text = ""
 
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].put(url, text=response_text)
         try:
             output = connection.put('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, verbose=True).text
@@ -1064,7 +1064,7 @@ All rights reserved.
         }
     }
 }
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].put(url, status_code=204)
         try:
             output = connection.put('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, content_type='json', verbose=True).text
@@ -1106,7 +1106,7 @@ All rights reserved.
         }
     }
 }
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles'
         kwargs['mock'].put(url, status_code=204)
         try:
             output = connection.put('/restconf/data/site-cfg-data/ap-cfg-profiles', payload, content_type='xml', verbose=True).text
@@ -1120,7 +1120,7 @@ All rights reserved.
     def test_delete(self, **kwargs):
         connection = self.test_connect()
 
-        url = 'https://1.2.3.4:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=test-profile'
+        url = 'https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=test-profile'
         kwargs['mock'].delete(url, status_code=204)
         output = connection.delete('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile=test-profile', verbose=True).text
         self.assertEqual(output, '')

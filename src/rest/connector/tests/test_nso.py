@@ -35,7 +35,7 @@ class test_nso_test_connector(unittest.TestCase):
 </api>
 """
 
-        kwargs['mock'].get('http://1.2.3.4:8080/api', text=response_text)
+        kwargs['mock'].get('http://198.51.100.2:8080/api', text=response_text)
         output = connection.connect(verbose=True).text
         self.assertEqual(output, response_text)
         return connection
@@ -89,7 +89,7 @@ class test_nso_test_connector(unittest.TestCase):
 }
 """
 
-        kwargs['mock'].get('http://1.2.3.4:8080/api/running/devices', text=response_text)
+        kwargs['mock'].get('http://198.51.100.2:8080/api/running/devices', text=response_text)
         output = connection.get('/api/running/devices', verbose=True).text
         self.assertEqual(output, response_text)
         connection.disconnect()
@@ -107,7 +107,7 @@ class test_nso_test_connector(unittest.TestCase):
 """
 
         url = '/api/running/devices/device/R1/_operations/check-sync'
-        kwargs['mock'].post('http://1.2.3.4:8080%s' % url, text=response_text)
+        kwargs['mock'].post('http://198.51.100.2:8080%s' % url, text=response_text)
         output = connection.post(url, content_type='xml', verbose=True).text
         self.assertEqual(output, response_text)
         connection.disconnect()
@@ -127,7 +127,7 @@ class test_nso_test_connector(unittest.TestCase):
 """
 
         url = '/api/running/devices/device/R1/_operations/check-sync'
-        kwargs['mock'].post('http://1.2.3.4:8080%s' % url, text=response_text)
+        kwargs['mock'].post('http://198.51.100.2:8080%s' % url, text=response_text)
         try:
             output = connection.post(url, payload, verbose=True).text
         except AssertionError as e:
@@ -148,7 +148,7 @@ class test_nso_test_connector(unittest.TestCase):
 """
 
         url = '/api/running/devices/device/R1/_operations/check-sync'
-        kwargs['mock'].post('http://1.2.3.4:8080%s' % url, text=response_text)
+        kwargs['mock'].post('http://198.51.100.2:8080%s' % url, text=response_text)
         try:
             output = connection.post(url, payload, content_type='json', verbose=True).text
         except AssertionError as e:
@@ -170,7 +170,7 @@ class test_nso_test_connector(unittest.TestCase):
 """
 
         url = '/api/running/devices/device/R1/_operations/check-sync'
-        kwargs['mock'].post('http://1.2.3.4:8080%s' % url, text=response_text)
+        kwargs['mock'].post('http://198.51.100.2:8080%s' % url, text=response_text)
         try:
             output = connection.post(url, payload, content_type='xml', verbose=True).text
         except AssertionError as e:
@@ -199,7 +199,7 @@ class test_nso_test_connector(unittest.TestCase):
 """
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].patch('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].patch('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.patch(url, payload, verbose=True).text
         self.assertEqual(output, '')
         connection.disconnect()
@@ -223,7 +223,7 @@ class test_nso_test_connector(unittest.TestCase):
         }
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].patch('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].patch('http://198.51.100.2:8080%s' % url, status_code=204)
         try:
             output = connection.patch(url, payload, verbose=True).text
         except AssertionError as e:
@@ -249,7 +249,7 @@ class test_nso_test_connector(unittest.TestCase):
         }
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].patch('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].patch('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.patch(url, payload, content_type='json', verbose=True).text
         self.assertEqual(output, '')
         connection.disconnect()
@@ -273,7 +273,7 @@ class test_nso_test_connector(unittest.TestCase):
         }
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].patch('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].patch('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.patch(url, payload, content_type='xml', verbose=True).text
         self.assertEqual(output, '')
         connection.disconnect()
@@ -304,7 +304,7 @@ class test_nso_test_connector(unittest.TestCase):
 """
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].put('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].put('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.put(url, payload, verbose=True).text
         self.assertEqual(output, '')
         connection.disconnect()
@@ -333,7 +333,7 @@ class test_nso_test_connector(unittest.TestCase):
         }
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].put('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].put('http://198.51.100.2:8080%s' % url, status_code=204)
         try:
             output = connection.put(url, payload, verbose=True).text
         except AssertionError as e:
@@ -364,7 +364,7 @@ class test_nso_test_connector(unittest.TestCase):
         }
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].put('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].put('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.put(url, payload, content_type='json', verbose=True).text
         connection.disconnect()
 
@@ -392,7 +392,7 @@ class test_nso_test_connector(unittest.TestCase):
         }
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].put('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].put('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.put(url, payload, content_type='xml', verbose=True).text
         connection.disconnect()
 
@@ -404,7 +404,7 @@ class test_nso_test_connector(unittest.TestCase):
         connection = self.test_connect()
 
         url = '/api/running/devices/device/R1/config/ios:ip/route'
-        kwargs['mock'].delete('http://1.2.3.4:8080%s' % url, status_code=204)
+        kwargs['mock'].delete('http://198.51.100.2:8080%s' % url, status_code=204)
         output = connection.delete(url, verbose=True).text
         self.assertEqual(output, '')
         connection.disconnect()
