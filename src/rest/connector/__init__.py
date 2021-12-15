@@ -2,7 +2,7 @@
 the device via REST api"""
 
 # metadata
-__version__ = '21.10.1'
+__version__ = '21.12'
 __author__ = ['Jean-Benoit Aubin <jeaubin@cisco.com>',
               'Takashi Higashimura (tahigash) <tahigash@cisco.com>']
 
