@@ -197,7 +197,7 @@ class Implementation(Imp):
     def get(self, dn, query_target='self', rsp_subtree='no', \
             query_target_filter='', rsp_prop_include='all', \
             rsp_subtree_include='', rsp_subtree_class='',\
-            target_subtree_class='',\
+            target_subtree_class='', order_by='', \
             expected_status_code=requests.codes.ok, timeout=30):
         '''GET REST Command to retrieve information from the device
 
@@ -227,6 +227,8 @@ class Implementation(Imp):
             rsp_subtree_class (string) : specify classes
             target_subtree_class (string): specify subtree classes
             query_target_filter (string): filter expression
+            order_by (string): sort the query response by one or 
+                               more properties of a class
             expected_status_code (int): Expected result
         '''
 
@@ -257,6 +259,10 @@ class Implementation(Imp):
         if target_subtree_class:
             full_url += "&target-subtree-class={tsc}"\
                 .format(tsc=target_subtree_class)
+
+        if order_by:
+            full_url += "&order-by={ob}"\
+                .format(ob=order_by)
 
         log.info("Sending GET command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))

@@ -47,6 +47,9 @@ API to send GET command to the device.
     * - target_subtree_class (string)
       - specify class
       - None
+    * - order_by (string)
+      - sort the query response by one or more properties of a class
+      - None
     * - expected_status_code (int)
       - Expected result
       - None
