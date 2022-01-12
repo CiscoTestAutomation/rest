@@ -19,6 +19,13 @@ class test_rest_connector(unittest.TestCase):
     def setUp(self):
         self.testbed = loader.load(os.path.join(HERE, 'testbed.yaml'))
         self.device = self.testbed.devices['apic']
+        # Always mock logging
+        mock_logger = patch(
+            "rest.connector.libs.apic.implementation.log"
+        )
+        self.mock_logger: MagicMock = mock_logger.start()
+        self.addCleanup(mock_logger.stop)
+
 
     def test_init(self):
         connection = Rest(device=self.device, alias='rest', via='rest')
@@ -58,8 +65,8 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.Session') as req:
             resp = Response()
-            resp.status_code = [404, 404, 404]
-            req().post.return_value = resp
+            resp.status_code = 404
+            req.return_value.post.return_value = resp
 
             with self.assertRaises(ConnectionError):
                 connection.connect(retry_wait=1)

@@ -7,19 +7,22 @@ import requests
 import requests_mock
 from requests.models import Response
 from unittest import mock
-from unittest.mock import patch, Mock
+from unittest.mock import MagicMock, patch, Mock
 from requests.exceptions import RequestException
 
 from pyats.topology import loader
 
 from rest.connector import Rest
 from icontrol.session import iControlRESTSession
+from icontrol.exceptions import iControlUnexpectedHTTPError
 
 HERE = os.path.dirname(__file__)
 
 
 class FakeResponse(object):
     status_code = 200
+
+    content = b"mocked_response_content"
 
     def json(self):
         return {
@@ -49,6 +52,13 @@ class FakeResponse(object):
         }
 
 
+class FakeResponseRestarting(object):
+    status_code = 500
+    content = b'<some mock preamble>Configuration Utility restarting...<mock>'
+    def json(self):
+        return {}
+
+
 class FakeResponseTimout(object):
     status_code = 200
 
@@ -60,6 +70,7 @@ class FakeResponseTimout(object):
 
 class FakeResponseGet(object):
     status_code = 200
+    ok = True
 
     def json(self):
         return {
@@ -79,7 +90,7 @@ class FakeResponsePost(object):
             "fullPath": "/Common/wa122",
             "generation": 2139,
             "selfLink": "https://localhost/mgmt/tm/ltm/node/~Common~wa122?ver=13.0.1",
-            "address": "119.119.192.194",
+            "address": "198.51.100.7",
             "connectionLimit": 0,
             "dynamicRatio": 1,
             "ephemeral": "false",
@@ -100,6 +111,7 @@ class FakeResponsePost(object):
 
 class FakeResponsePatch(object):
     status_code = 200
+    ok = True
 
     def json(self):
         return {
@@ -109,7 +121,7 @@ class FakeResponsePatch(object):
             "fullPath": "/Common/wa122",
             "generation": 2140,
             "selfLink": "https://localhost/mgmt/tm/ltm/node/~Common~wa122?ver=13.0.1",
-            "address": "119.119.192.194",
+            "address": "198.51.100.7",
             "connectionLimit": 0,
             "dynamicRatio": 1,
             "ephemeral": "false",
@@ -161,6 +173,14 @@ class FakeResponsePut(object):
                 "isSubcollection": True,
             },
         }
+
+
+class FakeResponseDelete(object):
+    status_code = 200
+    ok = True
+
+    def json(self):
+        return {}
 
 
 class test_rest_connector(unittest.TestCase):
@@ -249,7 +269,7 @@ class test_rest_connector(unittest.TestCase):
             self.username, self.password, token_to_use=token
         )
 
-        data = {"name": "wa122", "partition": "Common", "address": "119.119.192.194"}
+        data = {"name": "wa122", "partition": "Common", "address": "198.51.100.7"}
 
         post_icr_session = icr_session.post(full_url, json=data)
 
@@ -260,7 +280,7 @@ class test_rest_connector(unittest.TestCase):
             "fullPath": "/Common/wa122",
             "generation": 2139,
             "selfLink": "https://localhost/mgmt/tm/ltm/node/~Common~wa122?ver=13.0.1",
-            "address": "119.119.192.194",
+            "address": "198.51.100.7",
             "connectionLimit": 0,
             "dynamicRatio": 1,
             "ephemeral": "false",
@@ -305,7 +325,7 @@ class test_rest_connector(unittest.TestCase):
             "fullPath": "/Common/wa122",
             "generation": 2140,
             "selfLink": "https://localhost/mgmt/tm/ltm/node/~Common~wa122?ver=13.0.1",
-            "address": "119.119.192.194",
+            "address": "198.51.100.7",
             "connectionLimit": 0,
             "dynamicRatio": 1,
             "ephemeral": "false",
@@ -389,6 +409,98 @@ class test_rest_connector(unittest.TestCase):
         delete_icr_session = icr_session.delete(full_url)
 
         self.assertEqual(delete_icr_session.status_code, 200)
+
+
+class test_bigip_implementation(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        """ Setup common data to be used across all tests """
+        testbed = loader.load(os.path.join(HERE, "testbed.yaml"))
+        cls.device = testbed.devices["bigip01"]
+
+    def setUp(self) -> None:
+        """ Setup common mocks for all implementation tests """
+        # Always mock the connection
+        mock_ics = patch(
+            "rest.connector.libs.bigip.implementation.iControlRESTSession"
+        )
+        self.mock_ics: MagicMock = mock_ics.start()
+        self.mock_ics.return_value.post.return_value = FakeResponse()
+        self.mock_ics.return_value.patch.return_value = FakeResponsePatch()
+        self.mock_ics.return_value.delete.return_value = FakeResponseDelete()
+        self.addCleanup(mock_ics.stop)
+        # Always mock time.sleep
+        mock_sleep = patch(
+            "rest.connector.libs.bigip.implementation.time.sleep"
+        )
+        self.mock_sleep: MagicMock = mock_sleep.start()
+        self.addCleanup(mock_sleep.stop)
+        # Always mock logging
+        mock_logger = patch(
+            "rest.connector.libs.bigip.implementation.log"
+        )
+        self.mock_logger: MagicMock = mock_logger.start()
+        self.addCleanup(mock_logger.stop)
+        return super().setUp()
+
+    def test_connect(self):
+        # Test connect with 1 retry
+        self.mock_ics.return_value.post.side_effect = [
+            FakeResponseRestarting(), FakeResponse()
+        ]
+        connection = Rest(device=self.device, alias="rest", via="rest")
+        result_is_connected, result_session = connection.connect(retry_wait=15)
+        self.assertTrue(result_is_connected)
+        self.assertTrue(connection.connected)
+        self.mock_sleep.assert_called_once_with(15)
+        self.assertEqual(self.mock_ics.return_value.post.call_count, 2)
+        self.assertIsInstance(result_session, MagicMock)
+
+    def test_connect_fail(self):
+        # Test connect failure with retries
+        self.mock_ics.return_value.post.return_value = FakeResponseRestarting()
+        connection = Rest(device=self.device, alias="rest", via="rest")
+        with self.assertRaises(iControlUnexpectedHTTPError):
+            connection.connect(retries=3, retry_wait=35)
+        self.assertFalse(connection.connected)
+        self.mock_sleep.assert_called_with(35)
+        self.assertEqual(self.mock_sleep.call_count, 3)
+        self.assertEqual(self.mock_ics.return_value.post.call_count, 4)
+
+    def test_connect_fail_no_retry(self):
+        # Test connect failure with no retries
+        self.mock_ics.return_value.post.return_value = FakeResponseRestarting()
+        connection = Rest(device=self.device, alias="rest", via="rest")
+        with self.assertRaises(iControlUnexpectedHTTPError):
+            connection.connect(retries=0)
+        self.assertFalse(connection.connected)
+        self.mock_sleep.assert_not_called()
+        self.mock_ics.return_value.post.assert_called_once()
+
+    def test_disconnect(self):
+        self.mock_ics.return_value.post.return_value = FakeResponse()
+        self.mock_ics.return_value.patch.return_value = FakeResponsePatch()
+        self.mock_ics.return_value.delete.return_value = FakeResponseDelete()
+        connection = Rest(device=self.device, alias="rest", via="rest")
+        connection.connect()
+        connection.disconnect()
+        self.mock_ics.return_value.post.assert_called_once()
+        self.mock_ics.return_value.delete.assert_called_once()
+        self.assertFalse(connection.connected)
+
+    def test_get(self):
+        self.mock_ics.return_value.post.return_value = FakeResponse()
+        self.mock_ics.return_value.patch.return_value = FakeResponsePatch()
+        self.mock_ics.return_value.delete.return_value = FakeResponseDelete()
+        self.mock_ics.return_value.get.return_value = FakeResponseGet()
+        connection = Rest(device=self.device, alias="rest", via="rest")
+        connection.connect()
+        result = connection.get("/mgmt/tm/ltm/global-settings")
+        self.mock_ics.return_value.post.assert_called_once()
+        self.mock_ics.return_value.get.assert_called_once()
+        self.assertEqual(result, self.mock_ics.return_value.get.return_value)
+
 
 if __name__ == "__main__":
     unittest.main()

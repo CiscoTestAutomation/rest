@@ -18,6 +18,12 @@ class test_rest_connector(unittest.TestCase):
     def setUp(self):
         self.testbed = loader.load(os.path.join(HERE, 'testbed.yaml'))
         self.device = self.testbed.devices['nd']
+        # Always mock logging
+        mock_logger = patch(
+            "rest.connector.libs.nd.implementation.log"
+        )
+        self.mock_logger: MagicMock = mock_logger.start()
+        self.addCleanup(mock_logger.stop)
 
     def test_init(self):
         connection = Rest(device=self.device, alias='rest', via='rest')

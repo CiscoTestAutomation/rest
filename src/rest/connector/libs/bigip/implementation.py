@@ -81,79 +81,72 @@ class Implementation(Implementation):
         return self._is_connected
 
     def disconnect(self):
-
         """disconnect the device for this particular alias"""
+        if self.token:
+            try:
+                log.info("Deleting token: '%s'", self.token)
+                delete_url = (
+                    f"{self.base_url}/mgmt/shared/authz/tokens/{self.token}"
+                )
 
-        try:
-            log.info("Deleting token: '{t}'".format(t=self.token))
-            delete_url = "https://{0}:{1}/mgmt/shared/authz/tokens/{2}".format(
-                self.ip, self.port, self.token
-            )
+                delete_icr_session = iControlRESTSession(
+                    self.username,
+                    self.password,
+                    verify=self.verify,
+                    token_to_use=self.token
+                )
+                # Revoking the token received
+                response = delete_icr_session.delete(delete_url)
 
-            delete_icr_session = iControlRESTSession(
-                self.username,
-                self.password,
-                verify=self.verify,
-                token_to_use=self.token
-            )
-            # Extending the timeout for the token received
-            delete_icr_session.delete(delete_url)
-
-            log.info("Token Deleted")
-
-        finally:
-
-            self._is_connected = False
-
-        log.info(
-            "'{t}' token deleted successfully.".format(t=self.token)
-        )
+                if not response.ok or response.status_code != 200:
+                    log.error(
+                        "Failed to delete session token for device %s",
+                        self.device.name
+                    )
+                else:
+                    log.info(
+                        "Session token for device %s successfully deleted",
+                        self.device.name
+                    )
+            finally:
+                self.token = None
+                self._is_connected = False
 
     def isconnected(func):
-
-        '''Decorator to make sure session to device is active
-
-
-
-           There is limitation on the amount of time the session ca be active
-
-           for on the NXOS devices. However, there are no way to verify if
-
-           session is still active unless sending a command. So, its just
-
-           faster to reconnect every time.
-
-         '''
+        '''Decorator to make sure the session to device is active.
+        If the token experied, it will attempt to reconnect
+        '''
 
         def decorated(self, *args, **kwargs):
-
-            # Check if connected
-
             try:
-
-                log.propagate = False
-
-                self.disconnect()
-
-                if 'timeout' in kwargs:
-                    self.connect(timeout=kwargs['timeout'])
+                result = func(self, *args, **kwargs)
+            except iControlUnexpectedHTTPError as ex:
+                # Auth failure - probably token expired
+                if ex.response.status_code == 401:
+                    log.info("Session with device %s expired", self.device.name)
+                    log.info("Reconnecting to device %s", self.device.name)
+                    self._is_connected = False
+                    timeout = kwargs['timeout'] if 'timeout' in kwargs else 30
+                    self._connect(timeout, retries=0, retry_wait=0)
+                    result = func(self, *args, **kwargs)
                 else:
-                    self.connect()
-
-                log.propagate = True
-
-                ret = func(self, *args, **kwargs)
-
-            finally:
-
-                log.propagate = True
-
-            return ret
-
+                    raise
+            return result
         return decorated
 
-    def connect(self, auth_provider='tmos', verify=False, port='443', protocol='https', *args, **kwargs):
-
+    def connect(
+        self,
+        auth_provider='tmos',
+        verify=False,
+        port='443',
+        protocol='https',
+        retries=3,
+        retry_wait=10,
+        timeout=30,
+        ttl=3600,
+        *args,
+        **kwargs
+    ):
         if self.connected:
             return
 
@@ -163,91 +156,51 @@ class Implementation(Implementation):
                 from unicon.sshutils import sshtunnel
             except ImportError:
                 raise ImportError(
-                    '`unicon` is not installed for `sshtunnel`. Please install by `pip install unicon`.'
+                    "`unicon` is not installed for `sshtunnel`. "
+                    "Please install by `pip install unicon`."
                 )
             try:
                 tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
                 if tunnel_port:
-                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
-                    port = tunnel_port
+                    self.ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    self.port = tunnel_port
             except AttributeError as e:
                 raise AttributeError(
                     "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
                     % (self.via, e))
         else:
-            ip = self.connection_info['ip'].exploded
-            port = self.connection_info.get('port', port)
+            self.ip = self.connection_info['ip'].exploded
+            self.port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
 
         self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
-                                                          ip=ip,
-                                                          port=port)
+                                                          ip=self.ip,
+                                                          port=self.port)
 
         self.username, self.password = get_username_password(self)
 
         self.header = "Content-Type: application/json"
         self.verify = verify
+        self._auth_provider = auth_provider
+        self._ttl = ttl
 
-        # URL to authenticate and receive the token
-        url = "https://{0}:{1}/mgmt/shared/authn/login".format(
-            ip, port
-        )
-        payload = {
-            'username': self.username,
-            'password': self.password,
-            'loginProviderName': auth_provider
-        }
+        self._connect(timeout, retries, retry_wait)
 
-        iCRS = iControlRESTSession(
-            self.username,
-            self.password,
-            verify=self.verify
-        )
+        return self._is_connected, self.icr_session
 
-        log.info(
-            "Connecting to '{d}' with alias "
-            "'{a}'".format(d=self.device.name, a=self.alias)
-        )
+    def _connect(self, timeout: int, retries: int, retry_wait: int):
+        """ Authenticate and initiate a session with the device
 
-        response = iCRS.post(
-            url,
-            json=payload,
-        )
+        Args:
+            timeout: The timeout to use when establishing the connection
+            retries: How many times to retry to connect to the device if it fails
+            retry_wait: Time in seconds to wait between retries
+        """
+        self._authenticate(timeout, retries, retry_wait)
 
-        log.info(response.json())
-
-        if response.status_code not in [200]:
-            if b'Configuration Utility restarting...' in response.content:
-                time.sleep(30)
-                # self.retries += 1
-                return self.connect()
-            else:
-                # self.retries = 0
-                return None, response.content
-
-        self.token = response.json()['token']['token']
-
-        log.info("The following toke is used to connect'{t}'".format(t=self.token))
-
-        # Self-link of the token
-        timeout_url = "https://{0}:{1}/mgmt/shared/authz/tokens/{2}".format(
-            ip, port, self.token
-        )
-        timeout_payload = {"timeout": "3600"}
-
-        token_icr_session = iControlRESTSession(
-            self.username,
-            self.password,
-            verify=self.verify,
-            token_to_use=self.token
-        )
-
-        # Extending the timeout for the token received
-        token_icr_session.patch(timeout_url, json=timeout_payload)
-
-        log.info("'{t}' - Token timeout extended to '{time}'".format(t=self.token, time=timeout_payload))
+        self._extend_session_ttl(self._ttl)
 
         params = dict(
             username=self.username,
@@ -261,9 +214,90 @@ class Implementation(Implementation):
 
         self._is_connected = True
 
-        log.info("Connected successfully to '{d}' using token: '{t}'".format(d=self.device.name, t=self.token))
+        log.info(
+            "Connected successfully to '%s'", self.device.name
+        )
 
-        return self._is_connected, self.icr_session
+    def _authenticate(self, timeout: int, retries: int, retry_wait: int):
+        """ Authenticates with the device and retrieves a session token to be
+            used in actual requests
+
+        Args:
+            timeout: The timeout to use when establishing the connection
+            retries: How many times to retry to connect to the device if it fails
+            retry_wait: Time in seconds to wait between retries
+        """
+        # URL to authenticate and receive the token
+        url = f"{self.base_url}/mgmt/shared/authn/login"
+
+        payload = {
+            'username': self.username,
+            'password': self.password,
+            'loginProviderName': self._auth_provider
+        }
+
+        iCRS = iControlRESTSession(
+            self.username,
+            self.password,
+            timeout=timeout,
+            verify=self.verify
+        )
+
+        log.info(
+            "Connecting to '%s'", self.device.name
+        )
+
+        response = iCRS.post(
+            url,
+            json=payload,
+        )
+
+        log.debug(response.json())
+
+        if response.status_code != 200:
+            if b'Configuration Utility restarting...' in response.content:
+                if retries > 0:
+                    time.sleep(retry_wait)
+                    return self._authenticate(timeout, retries - 1, retry_wait)
+                else:
+                    raise iControlUnexpectedHTTPError(
+                        f"Failed to connect to {self.device.name}: "
+                        f"{response.content}"
+                    )
+            else:
+                raise iControlUnexpectedHTTPError(
+                    f"Failed to authenticate with {self.device.name}"
+                )
+
+        self.token = response.json()['token']['token']
+
+        log.debug(
+            "The following token is used to connect: '%s'", self.token
+        )
+
+    def _extend_session_ttl(self, ttl: int) -> None:
+        """ Sets the TTL for the active session
+
+        Args:
+            ttl: The TTL to be set for the session
+        """
+        # Self-link of the token
+        timeout_url = f"{self.base_url}/mgmt/shared/authz/tokens/{self.token}"
+        timeout_payload = {"timeout": ttl}
+        token_icr_session = iControlRESTSession(
+            self.username,
+            self.password,
+            verify=self.verify,
+            token_to_use=self.token
+        )
+        # Extending the timeout for the token received
+        response = token_icr_session.patch(timeout_url, json=timeout_payload)
+        if response.status_code != 200 or not response.ok:
+            raise iControlUnexpectedHTTPError(
+                "Failed to refresh session: "
+                f"{response.reason} ({response.status_code})"
+            )
+        log.debug("Token TTL extended to '%d' seconds", ttl)
 
     @isconnected
     def get(self, api_url, timeout=30, verbose=False):
@@ -279,15 +313,13 @@ class Implementation(Implementation):
 
         response = self.icr_session.get(full_url, timeout=timeout)
 
-        output = response
-
         log.debug(
             "Response: {c}, headers: {h}".format(
                 c=response.status_code, h=self.header
             )
         )
         if verbose:
-            log.info("Output received:\n{output}".format(output=output))
+            log.info("Output received:\n{output}".format(output=response))
 
         # Make sure it returned ok
         if not response.ok:
@@ -303,9 +335,11 @@ class Implementation(Implementation):
             "Successfully fetched data from '{d}'".format(d=self.device.name)
         )
 
-        log.info("Successfully fetched data using token: '{t}'".format(t=self.token))
+        log.debug(
+            "Successfully fetched data using token: '{t}'".format(t=self.token)
+        )
 
-        return output
+        return response
 
     @BaseConnection.locked
     @isconnected
@@ -314,8 +348,7 @@ class Implementation(Implementation):
 
         if not self.connected:
             raise Exception(
-                "'{d}' is not connected for "
-                "alias '{a}'".format(d=self.device.name, a=self.alias)
+                f"No active connection for '{self.device.name}'"
             )
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
@@ -365,8 +398,7 @@ class Implementation(Implementation):
 
         if not self.connected:
             raise Exception(
-                "'{d}' is not connected for "
-                "alias '{a}'".format(d=self.device.name, a=self.alias)
+                f"No active connection for '{self.device.name}'"
             )
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
@@ -411,13 +443,11 @@ class Implementation(Implementation):
     @BaseConnection.locked
     @isconnected
     def patch(self, api_url, payload, timeout=30, verbose=False):
-
         """PATCH REST Command to update information on the device"""
 
         if not self.connected:
             raise Exception(
-                "'{d}' is not connected for "
-                "alias '{a}'".format(d=self.device.name, a=self.alias)
+                f"No active connection for '{self.device.name}'"
             )
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
@@ -467,8 +497,7 @@ class Implementation(Implementation):
 
         if not self.connected:
             raise Exception(
-                "'{d}' is not connected for "
-                "alias '{a}'".format(d=self.device.name, a=self.alias)
+                f"No active connection for '{self.device.name}'"
             )
 
         full_url = "{b}{a}".format(b=self.base_url, a=api_url)
