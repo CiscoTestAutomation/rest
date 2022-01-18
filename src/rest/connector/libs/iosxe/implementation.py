@@ -3,7 +3,7 @@ import logging
 import re
 import urllib.request
 import requests
-from dicttoxml import dicttoxml
+from dict2xml import dict2xml
 from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
@@ -257,7 +257,7 @@ class Implementation(RestImplementation):
             if content_type == 'json':
                 request_payload = json.dumps(payload)
             elif content_type == 'xml':
-                request_payload = dicttoxml(payload, attr_type=False)
+                request_payload = dict2xml(payload)
 
         if content_type is None:
             if re.match("<", payload.lstrip()) is not None:
@@ -344,7 +344,7 @@ class Implementation(RestImplementation):
             if content_type == 'json':
                 request_payload = json.dumps(payload)
             elif content_type == 'xml':
-                request_payload = dicttoxml(payload, attr_type=False)
+                request_payload = dict2xml(payload)
 
         full_url = '{b}{a}'.format(b=self.base_url, a=api_url)
 
@@ -435,7 +435,7 @@ class Implementation(RestImplementation):
             if content_type == 'json':
                 request_payload = json.dumps(payload)
             elif content_type == 'xml':
-                request_payload = dicttoxml(payload, attr_type=False)
+                request_payload = dict2xml(payload)
 
         if content_type is None:
             if re.match("<", payload.lstrip()) is not None:
