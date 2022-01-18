@@ -93,7 +93,7 @@ develop:
 	@echo ""
 
 	@pip uninstall -y rest.connector || true
-	@pip install f5-icontrol-rest requests_mock requests dicttoxml
+	@pip install f5-icontrol-rest requests_mock requests dict2xml
 	@./setup.py develop --no-deps -q
 
 	@echo ""

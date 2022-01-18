@@ -18,6 +18,7 @@ from setuptools.command.test import test
 pkg_name = 'rest.connector'
 pkg_path = '/'.join(pkg_name.split('.'))
 
+
 class CleanCommand(Command):
     '''Custom clean command
 
@@ -46,6 +47,7 @@ class CleanCommand(Command):
         os.system('find . -type f -name "*.pyc" | xargs rm -vrf')
         os.system('find . -type d -name "__pycache__" | xargs rm -vrf')
 
+
 class TestCommand(Command):
     user_options = []
     description = 'CISCO SHARED : Run unit tests against this package'
@@ -62,9 +64,10 @@ class TestCommand(Command):
 
         # call unittests
         sys.exit(unittest.main(
-            module = None,
-           argv = ['python -m unittest', 'discover', tests],
-           failfast = True))
+            module=None,
+            argv=['python -m unittest', 'discover', tests],
+            failfast=True))
+
 
 def read(*paths):
     '''read and return txt content of file'''
@@ -83,88 +86,88 @@ def find_version(*paths):
 
 # launch setup
 setup(
-    name = pkg_name,
-    version = find_version('src', pkg_path, '__init__.py'),
+    name=pkg_name,
+    version=find_version('src', pkg_path, '__init__.py'),
 
     # descriptions
-    description = 'pyATS REST connection package',
-    long_description = read('DESCRIPTION.rst'),
+    description='pyATS REST connection package',
+    long_description=read('DESCRIPTION.rst'),
 
     # the package's documentation page.
-    url = 'https://developer.cisco.com/docs/rest-connector/',
+    url='https://developer.cisco.com/docs/rest-connector/',
 
     # author details
-    author = 'Cisco Systems Inc.',
-    author_email = 'jeaubin@cisco.com',
-    maintainer_email =  'pyats-support-ext@cisco.com',
+    author='Cisco Systems Inc.',
+    author_email='jeaubin@cisco.com',
+    maintainer_email='pyats-support-ext@cisco.com',
 
     # project licensing
-    license = 'Apache 2.0',
+    license='Apache 2.0',
 
-    platforms =  ['Linux', 'macOS'],
+    platforms=['Linux', 'macOS'],
 
     # see https://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers = [
-    'Development Status :: 6 - Mature',
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: Console',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Telecommunications Industry',
-    'Intended Audience :: Information Technology',
-    'Intended Audience :: System Administrators',
-    'License :: OSI Approved :: Apache Software License',
-    'Operating System :: MacOS',
-    'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: Implementation :: CPython',
-    'Topic :: Software Development :: Testing',
-    'Topic :: Software Development :: Build Tools',
-    'Topic :: Software Development :: Libraries',
-    'Topic :: Software Development :: Libraries :: Python Modules',
-],
+    classifiers=[
+        'Development Status :: 6 - Mature',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Telecommunications Industry',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 
     # uses namespace package
-    namespace_packages = ['rest'],
+    namespace_packages=['rest'],
 
     # project keywords
-    keywords = 'pyats cisco-shared',
+    keywords='pyats cisco-shared',
 
     # project packages
-    packages = find_packages(where = 'src'),
+    packages=find_packages(where='src'),
 
     # project directory
-    package_dir = {
+    package_dir={
         '': 'src',
     },
 
     # additional package data files that goes into the package itself
-    package_data = {'':['README.md',
-                        'tests/testbed.yaml',
+    package_data={'': ['README.md',
+                       'tests/testbed.yaml',
                        ]
-    },
+                  },
 
     # Standalone scripts
-    scripts = [
+    scripts=[
     ],
 
     # console entry point
-    entry_points = {
+    entry_points={
     },
 
     # package dependencies
-    install_requires =  [
+    install_requires=[
         'requests >= 1.15.1',
-        'dicttoxml',
+        'dict2xml',
         'f5-icontrol-rest',
-        'genie'
+        'genie',
     ],
 
     # any additional groups of dependencies.
     # install using: $ pip install -e .[dev]
-    extras_require = {
+    extras_require={
         'dev': ['coverage',
                 'restview',
                 'Sphinx',
@@ -177,14 +180,14 @@ setup(
     # format:
     #   [('target', ['list', 'of', 'files'])]
     # where target is sys.prefix/<target>
-    data_files = [],
+    data_files=[],
 
     # custom commands for setup.py
-    cmdclass = {
+    cmdclass={
         'clean': CleanCommand,
         'test': TestCommand,
     },
 
     # non zip-safe (never tested it)
-    zip_safe = False,
+    zip_safe=False,
 )
