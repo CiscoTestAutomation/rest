@@ -1,8 +1,10 @@
 January 2022
-============
+==========
 
-January 25
-----------
+January 24 - Rest v22.1 
+------------------------
+
+
 
 +-------------------------------+-------------------------------+
 | Module                        | Versions                      |
@@ -18,7 +20,7 @@ Upgrade Instructions
     pip install --upgrade rest.connector
 
 
-Features:
-^^^^^^^^^
-* APIC
-    * Added order_by argument to GET operation
+
+
+Changelogs
+^^^^^^^^^^
