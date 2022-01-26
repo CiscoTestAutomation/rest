@@ -20,7 +20,7 @@ Upgrade Instructions
     pip install --upgrade rest.connector
 
 
-
-
-Changelogs
-^^^^^^^^^^
+Features:
+^^^^^^^^^
+* APIC
+    * Added order_by argument to GET operation
