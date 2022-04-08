@@ -3,7 +3,6 @@ import logging
 import requests
 import time
 import urllib.parse
-from inspect import signature
 
 from requests.exceptions import RequestException
 
@@ -202,7 +201,7 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
         #Eliminate the starting "/" if present, as it may cause problems
-        api_url.lstrip('/')
+        api_url = api_url.lstrip('/')
         # Deal with the url
         full_url = "{f}{api_url}".format(f=self.url, api_url=api_url)
 
@@ -246,14 +245,14 @@ class Implementation(Imp):
     @BaseConnection.locked
     @isconnected
     def post(self, api_url, payload, expected_status_code=requests.codes.ok,
-             timeout=30, retries=3, retry_wait=10):
+             content_type='json', timeout=30, retries=3, retry_wait=10):
         """POST REST Command to configure information from the device
         Arguments
         ---------
             api_url (string): subdirectory part of the API URL
-            payload (dict): Dictionary containing the information to send via
-                            the post
+            payload (dict|string): Information to send via the post
             expected_status_code (int): Expected result
+            content_type(string): json / xml / form
             timeout (int): Maximum time
         """
 
@@ -262,14 +261,27 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
         # Eliminate the starting "/" if present, as it may cause problems
-        api_url.lstrip('/')
+        api_url = api_url.lstrip('/')
         # Deal with the url
         full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
 
         log.info("Sending POST command to '{d}':" \
                  "\nURL: {furl}\nPayload:{p}".format(d=self.device.name,
-                                                    furl=full_url,
-                                                    p=payload))
+                                                     furl=full_url,
+                                                     p=payload))
+        headers = {'form': 'application/x-www-form-urlencoded',
+                   'json': 'application/json',
+                   'xml': 'application/xml'}
+
+        if content_type == 'form' and isinstance(payload, dict):
+            payload = urllib.parse.urlencode(payload, safe=':!')
+        elif content_type == 'xml':
+            if isinstance(payload, dict):
+                raise ValueError("Error on {d} during POST command: "
+                                 "Payload needs to be string in xml format if used "
+                                 "in conjunction with content_type='xml' argument"
+                                 .format(d=self.device.name))
+
         for _ in range(retries):
             try:
                 # Send to the device
@@ -279,7 +291,8 @@ class Implementation(Imp):
                 else:
                     response = self.session.post(full_url, data=payload, timeout=timeout,
                                                  verify=False,
-                                                 headers={'Content-type': 'application/json'})
+                                                 headers={'Content-type': headers.get(content_type,
+                                                                                      headers['json'])})
                 break
             except Exception:
                 log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
@@ -291,8 +304,13 @@ class Implementation(Imp):
                                                                 d=self.device.name,
                                                                 tries=retries))
 
-        output = response.json()
-        log.info("Output received:\n{output}".format(output=output))
+        try:
+            # response might not pe in JSON format
+            output = response.json()
+            log.info("Output received:\n{output}".format(output=output))
+        except Exception:
+            output = response.content if content_type == 'xml' else response.text
+            log.info(f"'Post' operation did not return a json response: {output}")
 
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
@@ -309,14 +327,14 @@ class Implementation(Imp):
     @BaseConnection.locked
     @isconnected
     def put(self, api_url, payload=None, expected_status_code=requests.codes.ok,
-            timeout=30, retries=3, retry_wait=10):
+            content_type='json', timeout=30, retries=3, retry_wait=10):
         """PUT REST Command to configure information from the device
         Arguments
         ---------
             api_url (string): subdirectory part of the API URL
-            payload (dict): Dictionary containing the information to send via
-                            the put action
+            payload (dict|string): Information to send via the put action
             expected_status_code (int): Expected result
+            content_type(string): json / xml / form
             timeout (int): Maximum time
         """
 
@@ -325,7 +343,7 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
         # Eliminate the starting "/" if present, as it may cause problems
-        api_url.lstrip('/')
+        api_url = api_url.lstrip('/')
         # Deal with the url
         full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
 
@@ -333,6 +351,19 @@ class Implementation(Imp):
                  "\nURL: {furl}\nPayload:{p}".format(d=self.device.name,
                                                      furl=full_url,
                                                      p=payload))
+        headers = {'form': 'application/x-www-form-urlencoded',
+                   'json': 'application/json',
+                   'xml': 'application/xml'}
+
+        if content_type == 'form' and isinstance(payload, dict):
+            payload = urllib.parse.urlencode(payload, safe=':!')
+        elif content_type == 'xml':
+            if isinstance(payload, dict):
+                raise ValueError("Error on {d} during PUT command: "
+                                 "Payload must to be string in xml format if used "
+                                 "in conjunction with content_type='xml' argument"
+                                 .format(d=self.device.name))
+
         for _ in range(retries):
             try:
                 # Send to the device
@@ -342,7 +373,8 @@ class Implementation(Imp):
                 else:
                     response = self.session.put(full_url, data=payload, timeout=timeout,
                                                 verify=False,
-                                                headers={'Content-type': 'application/json'})
+                                                headers={'Content-type': headers.get(content_type,
+                                                                                     headers['json'])})
                 break
             except Exception:
                 log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
@@ -354,8 +386,13 @@ class Implementation(Imp):
                                                                 d=self.device.name,
                                                                 tries=retries))
 
-        output = response.json()
-        log.info("Output received:\n{output}".format(output=output))
+        try:
+            # response might not pe in JSON format
+            output = response.json()
+            log.info("Output received:\n{output}".format(output=output))
+        except Exception:
+            output = response.content if content_type == 'xml' else response.text
+            log.info(f"'Put' operation did not return a json response: {output}")
 
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
@@ -386,7 +423,7 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
         # Eliminate the starting "/" if present, as it may cause problems
-        api_url.lstrip('/')
+        api_url = api_url.lstrip('/')
         # Deal with the url
         full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
 
@@ -408,6 +445,14 @@ class Implementation(Imp):
                                                                 d=self.device.name,
                                                                 tries=retries))
 
+        try:
+            # response might not pe in JSON format
+            output = response.json()
+            log.info("Output received:\n{output}".format(output=output))
+        except ValueError:
+            output = response.text
+            log.info(f"'Delete' operation did not return a json response: {output}")
+
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
@@ -417,10 +462,5 @@ class Implementation(Imp):
                                    .format(d=self.device.name,
                                            c=response.status_code,
                                            e=expected_status_code))
-        try:
-            # response might be empty
-            output = response.json()
-            log.info("Output received:\n{output}".format(output=output))
-            return output
-        except ValueError:
-            log.info("'Delete' operation returned correct status code but no output")
+
+        return output
