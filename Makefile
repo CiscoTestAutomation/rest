@@ -77,8 +77,8 @@ package:
 
     # NOTE : Only specify --universal if the package works for both py2 and py3
     # https://packaging.python.org/en/latest/distributing.html#universal-wheels
-	@./setup.py bdist_wheel --dist-dir=$(DISTDIR)
-	@./setup.py sdist --dist-dir=$(DISTDIR)
+	@$(PYTHON) setup.py bdist_wheel --dist-dir=$(DISTDIR)
+	@$(PYTHON) setup.py sdist --dist-dir=$(DISTDIR)
 
 	@echo ""
 	@echo "Completed building: $@"
@@ -94,7 +94,7 @@ develop:
 
 	@pip uninstall -y rest.connector || true
 	@pip install f5-icontrol-rest requests_mock requests dict2xml
-	@./setup.py develop --no-deps -q
+	@$(PYTHON) setup.py develop --no-deps -q
 
 	@echo ""
 	@echo "Completed building and installing: $@"
