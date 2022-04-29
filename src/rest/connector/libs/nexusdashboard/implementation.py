@@ -178,7 +178,6 @@ class Implementation(Implementation):
                 self.disconnect()
                 self.connect()
                 log.propagate = True
-                print(kwargs)
                 ret = func(self, *args, **kwargs)
             finally:
                 log.propagate = True
@@ -245,7 +244,6 @@ class Implementation(Implementation):
 
         # In case the response cannot be decoded into json
         # warn and return the raw text
-
         try:
             output = response.json()
             if isinstance(output, list):
@@ -369,5 +367,5 @@ class Implementation(Implementation):
         Raises:
             RequestException if response is not ok
         """
-        return self._request('DELETE', api_url, data=json.dumps(payload),
+        return self._request('PUT', api_url, data=json.dumps(payload),
                              timeout=timeout)

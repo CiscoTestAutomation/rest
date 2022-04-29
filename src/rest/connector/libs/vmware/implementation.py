@@ -195,7 +195,6 @@ class Implementation(Implementation):
                 self.disconnect()
                 self.connect()
                 log.propagate = True
-                print(kwargs)
                 ret = func(self, *args, **kwargs)
             finally:
                 log.propagate = True
