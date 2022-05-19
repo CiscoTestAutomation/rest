@@ -17,7 +17,7 @@ To build the docs locally on your machine. Please follow the instructions below
     git clone https://github.com/<your_github_username>/rest.git
     ```
 
-  - ```cd rest/connector/docs```
+  - ```cd rest/docs```
   
   - Use ```make install_build_deps```  to install all of the build dependencies
   
@@ -26,7 +26,7 @@ To build the docs locally on your machine. Please follow the instructions below
   - Wait until you see ```Done``` in your terminal
   
   - The documentation is now built and stored under the directory 
-  ```rest/connector/__build__```
+  ```rest/__build__```
 
   - Run ```make serve``` to view the documentation on your browser or navigate to the repository.
     

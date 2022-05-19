@@ -156,7 +156,7 @@ API to send PATCH command to the device.
       }
     """
     url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
-    output = device.rest.patch(url)
+    output = device.rest.patch(url, payload)
 
 put
 ---
@@ -191,7 +191,7 @@ API to send PUT command to the device.
       }
     """
     url = '/api/mo/sys/bgp/inst/dom-default/af-ipv4-mvpn.json'
-    output = device.rest.put(url)
+    output = device.rest.put(url, payload)
 
 .. sectionauthor:: Jean-Benoit Aubin <jeaubin@cisco.com>
 
