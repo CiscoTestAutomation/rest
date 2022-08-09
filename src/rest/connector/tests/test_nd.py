@@ -157,6 +157,72 @@ class test_rest_connector(unittest.TestCase):
             connection.disconnect()
         self.assertEqual(connection.connected, False)
 
+    def test_post_xml_dict_payload_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+
+            with self.assertRaises(ValueError):
+                connection.post(api_url='temp', content_type='xml',
+                                payload={'payload': 'something'})
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_post_xml_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            connection.connect()
+            resp._content = '<?xml version="1.0" encoding="UTF-8"?>' \
+                            '<imdata totalCount="0"></imdata>'
+
+            connection.post(api_url='temp', content_type='xml',
+                            payload='<fvTenant name="ExampleCorp"/>')
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_post_form_dict_payload_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.text = 'Operation is successful'
+            connection.connect()
+
+            connection.post(api_url='temp', content_type='form',
+                            payload={'payload': 'something'})
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_post_form_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.text = 'Operation is successful'
+            connection.connect()
+
+            connection.post(api_url='temp', content_type='form',
+                            payload='Form%20Data')
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
     def test_put_not_connected(self):
         connection = Rest(device=self.device, alias='rest', via='rest')
         with self.assertRaises(Exception):
@@ -241,6 +307,76 @@ class test_rest_connector(unittest.TestCase):
                 connection.put(api_url='temp', payload={'payload':'something'},
                                expected_status_code=400)
             self.assertEqual(connection.connected, True)
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_xml_dict_payload_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.return_value = resp
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+
+            with self.assertRaises(ValueError):
+                connection.put(api_url='temp', content_type='xml',
+                               payload={'payload': 'something'})
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_xml_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.return_value = resp
+            connection.connect()
+            resp._content = '<?xml version="1.0" encoding="UTF-8"?>' \
+                            '<imdata totalCount="0"></imdata>'
+
+            connection.put(api_url='temp', content_type='xml',
+                           payload='<fvTenant name="ExampleCorp"/>')
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_form_dict_payload_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.return_value = resp
+            req().put.text = 'Operation is successful'
+            connection.connect()
+
+            connection.put(api_url='temp', content_type='form',
+                           payload={'payload': 'something'})
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
+
+    def test_put_form_connected(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            req().put.return_value = resp
+            req().put.text = 'Operation is successful'
+            connection.connect()
+
+            connection.put(api_url='temp', content_type='form',
+                           payload='Form%20Data')
             connection.disconnect()
         self.assertEqual(connection.connected, False)
 

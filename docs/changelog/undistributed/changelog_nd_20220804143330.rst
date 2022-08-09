@@ -1,0 +1,4 @@
+* Nexus Dashboard (ND)
+  * Added content_type parameter to post and put api
+  * Prevented an error from being raised if response does not contain a json,
+    thus returning more info to the user

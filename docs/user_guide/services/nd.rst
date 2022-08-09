@@ -59,6 +59,9 @@ API to send POST command to the device.
     * - expected_status_code (int)
       - Expected result
       - 200
+    * - content_type
+      - (json / xml / form) Information about the type of request
+      - json
     * - timeout (int)
       - Maximum time it can take to disconnect to the device
       - 30 seconds
@@ -103,6 +106,9 @@ API to send PUT command to the device.
     * - expected_status_code (int)
       - Expected result
       - 200
+    * - content_type
+      - (json / xml / form) Information about the type of request
+      - json
     * - timeout (int)
       - Maximum time it can take to disconnect to the device
       - 30 seconds
