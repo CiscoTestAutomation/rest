@@ -167,7 +167,7 @@ changelogs:
 	@echo "Generating changelog file"
 	@echo ""
 	@$(PYTHON) -c "from ciscodistutils.make_changelog import main; main('./docs/changelog/undistributed', './docs/changelog/undistributed.rst')"
-	@echo "pyats.contrib changelog created..."
+	@echo "rest.connector changelog created..."
 	@echo ""
 	@echo "Done."
 	@echo ""
