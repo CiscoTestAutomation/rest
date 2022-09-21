@@ -57,7 +57,9 @@ class AciCobra(BaseConnection):
         if 'host' in self.connection_info:
             ip = self.connection_info['host']
         else:
-            ip = self.connection_info['ip'].exploded
+            ip = self.connection_info['ip']
+            if hasattr(ip, 'exploded'):
+                ip = ip.exploded
         if 'port' in self.connection_info:
             port = self.connection_info['port']
             self.url = f'https://{ip}:{port}/'

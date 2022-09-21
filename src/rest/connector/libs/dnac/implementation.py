@@ -78,8 +78,10 @@ class Implementation(Implementation):
         try:
             host = self.connection_info['host']
         except KeyError:
-            host = self.connection_info['ip'].exploded
-        
+            host = self.connection_info['ip']
+            if hasattr(host, 'exploded'):
+                host = host.exploded
+
         port = self.connection_info.get('port', 443)
         self.verify = self.connection_info.get('verify', True)
 

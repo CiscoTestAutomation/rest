@@ -108,7 +108,9 @@ class Implementation(Implementation):
         try:
             host = self.connection_info['host']
         except KeyError:
-            host = self.connection_info['ip'].exploded
+            host = self.connection_info['ip']
+            if hasattr(host, 'exploded'):
+                host = host.exploded
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

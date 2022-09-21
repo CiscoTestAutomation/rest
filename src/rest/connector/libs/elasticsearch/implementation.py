@@ -94,7 +94,9 @@ class Implementation(Imp):
         if 'host' in self.connection_info:
             ip = self.connection_info['host']
         else:
-            ip = self.connection_info['ip'].exploded
+            ip = self.connection_info['ip']
+            if hasattr(ip, 'exploded'):
+                ip = ip.exploded
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
         if 'port' in self.connection_info:
