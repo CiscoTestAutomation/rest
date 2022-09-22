@@ -3,10 +3,10 @@
 import os
 import logging
 import unittest
+
 from requests.models import Response
 from unittest.mock import patch, MagicMock
 from requests.exceptions import RequestException
-
 from pyats.topology import loader
 
 from rest.connector import Rest
@@ -70,10 +70,6 @@ class test_rest_connector(unittest.TestCase):
             connection.disconnect()
         self.assertEqual(connection.connected, False)
 
-    def test_post_not_connected(self):
-        connection = Rest(device=self.device, alias='rest', via='rest')
-        with self.assertRaises(Exception):
-            connection.post(dn='temp', payload={'payload':'something'})
 
     def test_post_connected(self):
         connection = Rest(device=self.device, alias='rest', via='rest')
@@ -361,4 +357,20 @@ class test_rest_connector(unittest.TestCase):
             self.assertEqual(connection.connected, True)
             connection.disconnect()
 
+        self.assertEqual(connection.connected, False)
+
+    def test_headers(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+            connection.post(
+                dn='temp', payload={'payload': 'something'}, headers='str'
+            )
+            connection.disconnect()
         self.assertEqual(connection.connected, False)

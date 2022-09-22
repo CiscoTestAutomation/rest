@@ -279,10 +279,18 @@ class Implementation(Implementation):
                          furl=full_url,
                          p=p))
 
+        if not isinstance(kwargs.get('headers'), dict):
+            kwargs['headers'] = {
+                'Content-Type': 'application/yang.data+json',
+                'Accept': 'application/yang.data+json'
+            }
+
         # Send to the device
         for _ in range(retries):
             try:
-                response = self.session.request(method=method, url=full_url, **kwargs)
+                response = self.session.request(
+                    method=method, url=full_url, **kwargs
+                )
                 break
             except Exception:
                 log.warning('Request {} to {} failed. Waiting {} seconds before retrying\n'.format(
