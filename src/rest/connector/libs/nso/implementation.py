@@ -118,7 +118,7 @@ class Implementation(RestImplementation):
                                                           ip=ip,
                                                           port=port)
 
-        self.login_url = '{f}/api'.format(f=self.base_url)
+        self.login_urls = ['{f}/api'.format(f=self.base_url),'{f}/restconf'.format(f=self.base_url)]
 
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
@@ -129,7 +129,11 @@ class Implementation(RestImplementation):
         self.session.auth = (username, password)
 
         # Connect to the device via requests
-        response = self.session.get(self.login_url, timeout=timeout)
+        for login_url in self.login_urls:
+            response = self.session.get(login_url, timeout=timeout)
+            if response.status_code == requests.codes.ok:
+                self.login_url = login_url
+                break
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
             r=response.reason, h=response.headers))
