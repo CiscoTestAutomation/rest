@@ -331,15 +331,7 @@ class Implementation(Implementation):
                          c=response.status_code,
                          r=response.text))
 
-        # In case the response cannot be decoded into json
-        # warn and return the raw text
-        try:
-            output = response.json()
-        except Exception:
-            log.warning('Could not decode json. Returning text!')
-            output = response.text
-
-        return output
+        return response
 
     @BaseConnection.locked
     @isconnected

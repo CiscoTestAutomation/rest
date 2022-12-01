@@ -374,3 +374,18 @@ class test_rest_connector(unittest.TestCase):
             )
             connection.disconnect()
         self.assertEqual(connection.connected, False)
+
+    def test_response(self):
+        connection = Rest(device=self.device, alias='rest', via='rest')
+        self.assertEqual(connection.connected, False)
+
+        with patch('requests.Session') as req:
+            resp = Response()
+            resp.status_code = 200
+            req().post.return_value = resp
+            connection.connect()
+            resp.json = MagicMock(return_value={'imdata': []})
+            self.assertEqual(connection.connected, True)
+
+            connection.disconnect()
+        self.assertEqual(connection.connected, False)
