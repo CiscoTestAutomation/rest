@@ -249,7 +249,7 @@ class Implementation(Implementation):
             retry_wait (int): Seconds to wait before retry (default: 10)
 
         Returns:
-            response.json() or response.text
+            response
 
         Raises:
             RequestException if response is not ok
