@@ -218,8 +218,9 @@ class Implementation(Implementation):
            faster to reconnect every time.
          '''
         def decorated(self, *args, **kwargs):
-            # Check if connected
             try:
+                ret = func(self, *args, **kwargs)
+            except:
                 log.propagate = False
                 self.disconnect()
 

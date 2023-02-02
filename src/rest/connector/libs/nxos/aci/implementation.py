@@ -171,15 +171,16 @@ class Implementation(Imp):
            faster to reconnect every time.
          '''
         def decorated(self, *args, **kwargs):
-            # Check if connected
             try:
+                ret = func(self, *args, **kwargs)
+            except:
                 self.disconnect()
 
                 if 'timeout' in kwargs:
                     self.connect(timeout=kwargs['timeout'])
                 else:
                     self.connect()
-            finally:
+
                 ret = func(self, *args, **kwargs)
             return ret
         return decorated
@@ -260,13 +261,14 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("Sending '{furl} to '{d} has returned the "
+            raise RequestException("GET {furl} to {d} has returned the "
                                    "following code '{c}', instead of the "
                                    "expected status code '{e}'"
-                                   "'{e}'".format(furl=full_url,
+                                   ", got:\n {msg}".format(furl=full_url,
                                                   d=self.device.name,
                                                   c=response.status_code,
-                                                  e=expected_status_code))
+                                                  e=expected_status_code,
+                                                  msg=response.text))
         return output
 
     @BaseConnection.locked
@@ -307,13 +309,14 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("'{c}' result code has been returned "
-                                   "instead of the expected status code "
-                                   "'{e}' for '{d}', got:\n {msg}"\
-                                   .format(d=self.device.name,
-                                           c=response.status_code,
-                                           e=expected_status_code,
-                                           msg=response.text))
+            raise RequestException("POST {furl} to {d} has returned the "
+                                   "following code '{c}', instead of the "
+                                   "expected status code '{e}'"
+                                   ", got:\n {msg}".format(furl=full_url,
+                                                  d=self.device.name,
+                                                  c=response.status_code,
+                                                  e=expected_status_code,
+                                                  msg=response.text))
         return output
 
     @BaseConnection.locked
@@ -348,10 +351,12 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("'{c}' result code has been returned "
-                                   "instead of the expected status code "
-                                   "'{e}' for '{d}'"\
-                                   .format(d=self.device.name,
-                                           c=response.status_code,
-                                           e=expected_status_code))
+            raise RequestException("DELETE {furl} to {d} has returned the "
+                                   "following code '{c}', instead of the "
+                                   "expected status code '{e}'"
+                                   ", got:\n {msg}".format(furl=full_url,
+                                                  d=self.device.name,
+                                                  c=response.status_code,
+                                                  e=expected_status_code,
+                                                  msg=response.text))
         return output
