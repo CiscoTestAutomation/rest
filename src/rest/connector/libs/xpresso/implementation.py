@@ -26,7 +26,7 @@ class Implementation(Imp):
                 connections:
                     rest:
                         class: rest.connector.Rest
-                        ip : "10.1.1.1"
+                        host : "xpresso.cisco.com"
                         credentials:
                             rest:
                                 token: <xpressoaccesstoken>
@@ -67,25 +67,24 @@ class Implementation(Imp):
 
         YAML Example
         ------------
-requests
-            devices:
-                xpresso:
-                    os: xpresso
-                    connections:
-                        rest:
-                            class: rest.connector.Rest
-                            host : "xpresso.cisco.com"
-                            protocol: http
-                            credentials:
-                                rest:
-                                    token: <xpressoaccesstoken>
+        devices:
+            xpresso:
+                os: xpresso
+                connections:
+                    rest:
+                        class: rest.connector.Rest
+                        host : "xpresso.cisco.com"
+                        protocol: http
+                        credentials:
+                            rest:
+                                token: <xpressoaccesstoken>
 
         Code Example
         ------------
 
             >>> from pyats.topology import loader
             >>> testbed = loader.load('testbed.yaml')
-           >>> device = testbed.devices['xpresso']
+            >>> device = testbed.devices['xpresso']
             >>> device.connect(alias='rest', via='rest')
         '''
 
