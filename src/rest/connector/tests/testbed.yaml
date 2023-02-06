@@ -114,6 +114,20 @@ devices:
         credentials:
           rest:
             token: webexaccesstoken
+  xpresso:
+    os: xpresso
+    type: xpresso
+    custom:
+      abstraction:
+        order: [os]
+    connections:
+      rest:
+        class: rest.connector.Rest
+        protocol: http
+        host: xpresso-staging.cisco.com
+        credentials:
+          rest:
+            token: xpressoaccesstoken
   elasticsearch:
     os: elasticsearch
     type: elasticsearch
