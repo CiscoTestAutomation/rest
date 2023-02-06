@@ -21,8 +21,8 @@ class Implementation(Imp):
     ------------
 
         devices:
-            generic:
-                os: generic
+            xpresso:
+                os: xpresso
                 connections:
                     rest:
                         class: rest.connector.Rest
@@ -74,7 +74,7 @@ requests
                     connections:
                         rest:
                             class: rest.connector.Rest
-                            host : "generic-dev-1"
+                            host : "xpresso.cisco.com"
                             protocol: http
                             credentials:
                                 rest:
@@ -85,7 +85,7 @@ requests
 
             >>> from pyats.topology import loader
             >>> testbed = loader.load('testbed.yaml')
-           >>> device = testbed.devices['generic']
+           >>> device = testbed.devices['xpresso']
             >>> device.connect(alias='rest', via='rest')
         '''
 
