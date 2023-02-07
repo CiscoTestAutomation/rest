@@ -89,7 +89,7 @@ class Implementation(Imp):
         '''
 
         if self.connected:
-            return
+            return True
 
         if 'host' in self.connection_info:
             host = self.connection_info['host']
