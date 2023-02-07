@@ -91,71 +91,42 @@ class Implementation(Imp):
         if self.connected:
             return
 
-
         if 'host' in self.connection_info:
-            ip = self.connection_info['host']
+            host = self.connection_info['host']
         else:
-            ip = self.connection_info['ip'].exploded
+            raise Exception("must include a host name")
+
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
         else:
             protocol = 'https'
+            
         if 'port' in self.connection_info:
             port = self.connection_info['port']
-            self.url = f'{protocol}://{ip}:{port}/'
+            self.url = f'{protocol}://{host}:{port}/'
         else:
-            self.url = f'{protocol}://{ip}/'
-        self.token = get_token(self)
+            self.url = f'{protocol}://{host}/'
 
-        self.headers = {
-            'Authorization': '{}'.format(self.token),
-        }
+        # get authentication data
+        token = get_token(self)
+        if token is None:
+            raise Exception("must include an access token for rest")
 
-        log.info("Connecting to '{d}' with alias "
-                 "'{a}'".format(d=self.device.name, a=self.alias))
-
+        # start sesssion
+        log.info(f"Connecting to {self.device.name} with alias {self.alias}")
         self.session = requests.Session()
         self.session.trust_env = False
-        self.session.headers.update(self.headers)
-
+        self.session.headers.update({"Authorization": token})
         self._is_connected = True
-        log.info("Connected successfully to '{d}'".format(d=self.device.name))
+        log.info(f"Connected successfully to {self.device.name}")
 
     @BaseConnection.locked
     def disconnect(self):
         '''disconnect the device for this particular alias'''
-
-        log.info("Disconnecting from '{d}' with "
-                 "alias '{a}'".format(d=self.device.name, a=self.alias))
-        try:
-            self.session.close()
-        finally:
-            self._is_connected = False
-        log.info("Disconnected successfully from "
-                 "'{d}'".format(d=self.device.name))
-
-    def isconnected(func):
-        '''Decorator to make sure session to device is active
-
-           There is limitation on the amount of time the session cab be active
-           on the APIC. However, there are no way to verify if
-           session is still active unless sending a command. So, its just
-           faster to reconnect every time.
-         '''
-        def decorated(self, *args, **kwargs):
-            # Check if connected
-            try:
-                self.disconnect()
-
-                if 'timeout' in kwargs:
-                    self.connect(timeout=kwargs['timeout'])
-                else:
-                    self.connect()
-            finally:
-                ret = func(self, *args, **kwargs)
-            return ret
-
-        return decorated
+        log.info(f"Disconnecting from {self.device.name} with alias {self.alias}")
+        self.session.close()
+        self._is_connected = False
+        log.info(f"Disconnected successfully from {self.device.name}")
 
     @BaseConnection.locked
     def _request(self, method, dn, **kwargs):
@@ -163,6 +134,7 @@ class Implementation(Imp):
 
         Args:
             method (str): session request method
+
 
             dn (str): rest endpoint
 
@@ -174,80 +146,66 @@ class Implementation(Imp):
 
         """
         if not self.connected:
-            raise Exception("'{d}' is not connected for alias '{a}'".format(
-                d=self.device.name, a=self.alias))
-        
+            raise Exception(f"{self.device.name} is not connected for alias {self.alias}")
 
-        log.info(f"sending request of type {method}")
-        # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        # format url, payload, headers
+        full_url = f"{self.url}{dn}"
+        payload = None
+        headers = None
 
-        if 'data' in kwargs:
-            p = kwargs['data']
-        elif 'json' in kwargs:
-            p = kwargs['json']
-        else:
-            p = ''
+        if 'json' in kwargs:
+            payload = kwargs['json']
+            if type(payload) == str:
+                payload = json.loads(payload)
+                
+        if 'headers' in kwargs:
+            headers = kwargs['headers']
 
-        expected_return_code = kwargs.pop('expected_return_code', None)
-        log.info("Sending {method} command to '{d}':"
-                 "\nDN: {furl}\nPayload:{p}".format(method=method,
-                                                    d=self.device.name,
-                                                    furl=full_url,
-                                                    p=p))
+        log.info(f"Sending {method} to {self.device.name}\n"
+                 f"DN: {full_url}\n"
+                 f"Header: {headers}\n"
+                 f"Payload: {payload}")
 
-        log.info(full_url)
         # Send to the device
-        try:
-            response = self.session.request(method=method, url=full_url, **kwargs)
-            log.info("Done!")
-        except Exception as e:
-            log.info("EXCEPTION!")
-            log.info(e)
+        response = self.session.request(method=method, 
+                                        url=full_url, 
+                                        json=payload,
+                                        headers=headers)
 
         # An expected return code was provided. Ensure the response has this code.
+        expected_return_code = kwargs.pop('expected_return_code', None)
         if expected_return_code:
             if response.status_code != expected_return_code:
                 raise RequestException(
-                    "'{c}' result code has been returned for '{d}'.\n"
-                    "Expected '{expected_c}' result code.\n"
-                    "Response from server: {r}".format(
-                        c=response.status_code,
-                        d=self.device.name,
-                        expected_c=expected_return_code,
-                        r=response.text))
+                    f"Returned status code: {response.status_code}\n"
+                    f"Expected: {expected_return_code}\n"
+                    f"Response: {response.text}"
+                )
         else:
             # No expected return code provided. Make sure it was successful.
             try:
                 response.raise_for_status()
             except Exception:
-                raise RequestException("'{c}' result code has been returned "
-                                       "for '{d}'.\nResponse from server: "
-                                       "{r}".format(d=self.device.name,
-                                                    c=response.status_code,
-                                                    r=response.text))
-
-        log.info("Response from '{dev}':\n"
-                 "Result Code: {c}\n"
-                 "Response: {r}".format(dev=self.device.name,
-                                        c=response.status_code,
-                                        r=response.text))
+                raise RequestException(
+                    f"Returned status code: {response.status_code}\n"
+                    f"Response: {response.text}"
+                )
+        
+        # print returned data from server
+        log.info(f"Response from {self.device.name}\n"
+                 f"Result code: {response.status_code}\n"
+                 f"Response: {response.text}")
 
         # In case the response cannot be decoded into json
         # warn and return the raw text
-        if response.text:
-            try:
-                output = response.json()
-            except Exception:
-                log.warning('Could not decode json. Returning text!')
-                output = response.text
-        else:
+        try:
+            output = response.json()
+        except Exception:
+            log.warning('Could not decode json. Returning text!')
             output = response.text
-
         return output
 
     @BaseConnection.locked
-    @isconnected
     def get(self, dn, headers=None, timeout=30, **kwargs):
         """ GET REST Command to retrieve information from the device
 
@@ -265,11 +223,6 @@ class Implementation(Imp):
         Raises:
             RequestException if response is not ok
         """
-        if not headers:
-            headers = self.headers
-        if headers and 'Authorization' not in headers:
-            headers.update({'Authorization': 'Bearer {}'.format(self.token)})
-
         return self._request('GET',
                              dn,
                              headers=headers,
@@ -277,7 +230,6 @@ class Implementation(Imp):
                              **kwargs)
 
     @BaseConnection.locked
-    @isconnected
     def post(self, dn, payload, headers=None, timeout=30, **kwargs):
         """POST REST Command to configure new information on the device
 
@@ -298,23 +250,14 @@ class Implementation(Imp):
         Raises:
             RequestException if response is not ok
         """
-        if not headers:
-            headers = self.headers
-        if headers and 'Authorization' not in headers:
-            headers.update({'Authorization': 'Bearer {}'.format(self.token)})
-
-        if isinstance(payload, str):
-            payload = json.loads(payload)
-
         return self._request('POST',
                              dn,
-                             data=payload,
+                             json=payload,
                              headers=headers,
                              timeout=timeout,
                              **kwargs)
 
     @BaseConnection.locked
-    @isconnected
     def delete(self, dn, headers=None, timeout=30, **kwargs):
         """DELETE REST Command to delete information from the device
 
@@ -332,11 +275,6 @@ class Implementation(Imp):
         Raises:
             RequestException if response is not ok
         """
-        if not headers:
-            headers = self.headers
-        if headers and 'Authorization' not in headers:
-            headers.update({'Authorization': 'Bearer {}'.format(self.token)})
-
         return self._request('DELETE',
                              dn,
                              headers=headers,
@@ -344,7 +282,6 @@ class Implementation(Imp):
                              **kwargs)
 
     @BaseConnection.locked
-    @isconnected
     def put(self, dn, payload, headers=None, timeout=30, **kwargs):
         """PUT REST Command to update existing information on the device
 
@@ -365,17 +302,9 @@ class Implementation(Imp):
         Raises:
             RequestException if response is not ok
         """
-        if not headers:
-            headers = self.headers
-        if headers and 'Authorization' not in headers:
-            headers.update({'Authorization': 'Bearer {}'.format(self.token)})
-
-        if type(payload) == str:
-            payload = json.loads(payload)
-
         return self._request('PUT',
                              dn,
-                             data=payload,
+                             json=payload,
                              headers=headers,
                              timeout=timeout,
                              **kwargs)
