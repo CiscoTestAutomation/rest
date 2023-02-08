@@ -113,6 +113,20 @@ class Implementation(RestImplementation):
         self.session = requests.Session()
         self.session.trust_env = False
         self.session.headers.update({"Authorization": token})
+
+        # attempt to get <host>
+        try:
+            resp = self.session.get(self.url)
+        except Exception as e:
+            raise Exception(
+                f"could not connect to provided host. Verify host, port and protocol: {e}"
+            )
+
+        if resp.status_code != requests.codes.ok:
+            raise RequestException(
+                f"Connection to {self.url} returned {resp.status_code}"
+                f" instead of 200, verify the host, port and protocol")
+        
         self._is_connected = True
         log.info(f"Connected successfully to {self.device.name}")
 
