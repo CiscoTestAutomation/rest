@@ -4,14 +4,14 @@ import requests
 import os
 from requests.exceptions import RequestException
 from pyats.connections import BaseConnection
-from rest.connector.implementation import Implementation as Imp
+from rest.connector.implementation import Implementation as RestImplementation
 from rest.connector.utils import get_token
 
 # create a logger for this module
 log = logging.getLogger(__name__)
 
 
-class Implementation(Imp):
+class Implementation(RestImplementation):
     '''Rest Implementation for xpresso
 
     Implementation of Rest connection to devices based on pyATS BaseConnection
@@ -91,16 +91,12 @@ class Implementation(Imp):
         if self.connected:
             return True
 
-        if 'host' in self.connection_info:
-            host = self.connection_info['host']
-        else:
+        host = self.connection_info.get('host')
+        if not host:
             raise Exception("must include a host name")
 
-        if 'protocol' in self.connection_info:
-            protocol = self.connection_info['protocol']
-        else:
-            protocol = 'https'
-            
+        protocol = self.connection_info.get('protocol', 'https')
+         
         if 'port' in self.connection_info:
             port = self.connection_info['port']
             self.url = f'{protocol}://{host}:{port}/'
@@ -124,9 +120,11 @@ class Implementation(Imp):
     def disconnect(self):
         '''disconnect the device for this particular alias'''
         log.info(f"Disconnecting from {self.device.name} with alias {self.alias}")
-        self.session.close()
-        self._is_connected = False
-        log.info(f"Disconnected successfully from {self.device.name}")
+        try:
+            self.session.close()
+        finally:
+            self._is_connected = False
+            log.info(f"Disconnected successfully from {self.device.name}")
 
     @BaseConnection.locked
     def _request(self, method, dn, **kwargs):
@@ -134,7 +132,6 @@ class Implementation(Imp):
 
         Args:
             method (str): session request method
-
 
             dn (str): rest endpoint
 
@@ -150,16 +147,10 @@ class Implementation(Imp):
 
         # format url, payload, headers
         full_url = f"{self.url}{dn}"
-        payload = None
-        headers = None
-
-        if 'json' in kwargs:
-            payload = kwargs['json']
-            if type(payload) == str:
-                payload = json.loads(payload)
-                
-        if 'headers' in kwargs:
-            headers = kwargs['headers']
+        headers = kwargs.get('headers')
+        payload = kwargs.get('json')
+        if type(payload) == str:
+            payload = json.loads(payload)
 
         log.info(f"Sending {method} to {self.device.name}\n"
                  f"DN: {full_url}\n"
