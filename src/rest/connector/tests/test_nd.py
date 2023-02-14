@@ -100,7 +100,7 @@ class test_rest_connector(unittest.TestCase):
             resp2 = Response()
             resp2.status_code = 300
             req().get.return_value = resp2
-            req().post.side_effect = [resp2, resp, resp, resp2]
+            req().post.side_effect = [resp, resp2, resp, resp2]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
@@ -122,7 +122,7 @@ class test_rest_connector(unittest.TestCase):
             resp2 = Response()
             resp2.status_code = 300
             req().get.return_value = resp2
-            req().post.side_effect = [resp2, resp, resp, resp2]
+            req().post.side_effect = [resp, resp2]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
@@ -144,7 +144,7 @@ class test_rest_connector(unittest.TestCase):
             resp2 = Response()
             resp2.status_code = 300
             req().get.return_value = resp2
-            req().post.side_effect = [resp2, resp, resp, resp2]
+            req().post.side_effect = [resp, resp2, resp, resp2]
 
             connection.connect()
             resp.json = MagicMock(return_value={'imdata': []})
