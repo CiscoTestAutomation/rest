@@ -169,7 +169,9 @@ class Implementation(Implementation):
                     "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
                     % (self.via, e))
         else:
-            self.ip = self.connection_info['ip'].exploded
+            self.ip = self.connection_info['ip']
+            if hasattr(self.ip, 'exploded'):
+                self.ip = self.ip.exploded
             self.port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
