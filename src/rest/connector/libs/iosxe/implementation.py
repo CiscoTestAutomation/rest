@@ -10,6 +10,8 @@ from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
 from rest.connector.utils import get_username_password
 
+from ipaddress import ip_address, IPv6Address
+
 # create a logger for this module
 log = logging.getLogger(__name__)
 
@@ -117,7 +119,12 @@ class Implementation(RestImplementation):
             ip = self.connection_info['ip']
             if hasattr(ip, 'exploded'):
                 ip = ip.exploded
+            else:
+                ip = ip_address(ip)
             port = self.connection_info.get('port', port)
+
+        if isinstance(ip, IPv6Address):
+            ip = f"[{ip}]"
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
