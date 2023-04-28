@@ -3,14 +3,13 @@ import logging
 import re
 import urllib.request
 import requests
+from ipaddress import ip_address, IPv4Address, IPv6Address
 from dict2xml import dict2xml
 from requests.exceptions import RequestException
 
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation as RestImplementation
 from rest.connector.utils import get_username_password
-
-from ipaddress import ip_address, IPv6Address
 
 # create a logger for this module
 log = logging.getLogger(__name__)
@@ -117,14 +116,16 @@ class Implementation(RestImplementation):
                     % (self.via, e))
         else:
             ip = self.connection_info['ip']
-            if hasattr(ip, 'exploded'):
-                ip = ip.exploded
-            else:
+            if not isinstance(ip, (IPv4Address, IPv6Address)):
                 ip = ip_address(ip)
-            port = self.connection_info.get('port', port)
 
-        if isinstance(ip, IPv6Address):
-            ip = f"[{ip}]"
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(ip, IPv6Address):
+                ip = f"[{ip.exploded}]"
+            else:
+                ip = ip.exploded
+
+            port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

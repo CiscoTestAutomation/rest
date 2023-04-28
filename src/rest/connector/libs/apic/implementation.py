@@ -3,6 +3,7 @@ import json
 import logging
 import requests
 
+from ipaddress import ip_address, IPv4Address, IPv6Address
 from requests.exceptions import RequestException
 
 
@@ -103,8 +104,15 @@ class Implementation(Imp):
             ip = self.connection_info['host']
         else:
             ip = self.connection_info['ip']
-            if hasattr(ip, 'exploded'):
+            if not isinstance(ip, (IPv4Address, IPv6Address)):
+                ip = ip_address(ip)
+
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(ip, IPv6Address):
+                ip = f"[{ip.exploded}]"
+            else:
                 ip = ip.exploded
+
         if 'port' in self.connection_info:
             port = self.connection_info['port']
             self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)

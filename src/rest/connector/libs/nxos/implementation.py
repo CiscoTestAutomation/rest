@@ -2,6 +2,8 @@ import json
 import time
 import logging
 import requests
+
+from ipaddress import ip_address, IPv4Address, IPv6Address
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
 
@@ -137,8 +139,15 @@ class Implementation(Implementation):
                     % (self.via, e))
         else:
             ip = self.connection_info['ip']
-            if hasattr(ip, 'exploded'):
+            if not isinstance(ip, (IPv4Address, IPv6Address)):
+                ip = ip_address(ip)
+
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(ip, IPv6Address):
+                ip = f"[{ip.exploded}]"
+            else:
                 ip = ip.exploded
+
             port = self.connection_info.get('port', port)
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']

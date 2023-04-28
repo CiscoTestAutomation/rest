@@ -3,6 +3,8 @@ __author__ = "Daisy Thangapandi <dthangap@cisco.com>"
 import json
 import logging
 import requests
+
+from ipaddress import ip_address, IPv4Address, IPv6Address
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
 
@@ -109,7 +111,13 @@ class Implementation(Implementation):
             host = self.connection_info['host']
         except KeyError:
             host = self.connection_info['ip']
-            if hasattr(host, 'exploded'):
+            if not isinstance(host, (IPv4Address, IPv6Address)):
+                host = ip_address(host)
+
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(host, IPv6Address):
+                host = f"[{host.exploded}]"
+            else:
                 host = host.exploded
 
         if 'protocol' in self.connection_info:

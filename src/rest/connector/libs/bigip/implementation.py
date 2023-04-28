@@ -2,6 +2,8 @@
 import logging
 import time
 
+from ipaddress import ip_address, IPv4Address, IPv6Address
+
 # Genie, pyATS, ROBOT imports
 # from pyats.connections import BaseConnection
 from rest.connector.utils import get_username_password
@@ -170,8 +172,15 @@ class Implementation(Implementation):
                     % (self.via, e))
         else:
             self.ip = self.connection_info['ip']
-            if hasattr(self.ip, 'exploded'):
+            if not isinstance(self.ip, (IPv4Address, IPv6Address)):
+                self.ip = ip_address(self.ip)
+
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(self.ip, IPv6Address):
+                self.ip = f"[{self.ip.exploded}]"
+            else:
                 self.ip = self.ip.exploded
+
             self.port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
