@@ -1,6 +1,7 @@
 import requests
 import urllib3
 
+from ipaddress import ip_address, IPv4Address, IPv6Address
 from functools import wraps
 from importlib import import_module
 from logging import getLogger
@@ -57,7 +58,16 @@ class AciCobra(BaseConnection):
         if 'host' in self.connection_info:
             ip = self.connection_info['host']
         else:
-            ip = self.connection_info['ip'].exploded
+            ip = self.connection_info['ip']
+            if not isinstance(ip, (IPv4Address, IPv6Address)):
+                ip = ip_address(ip)
+
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(ip, IPv6Address):
+                ip = f"[{ip.exploded}]"
+            else:
+                ip = ip.exploded
+
         if 'port' in self.connection_info:
             port = self.connection_info['port']
             self.url = f'https://{ip}:{port}/'
