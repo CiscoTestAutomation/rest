@@ -131,12 +131,12 @@ class Implementation(RestImplementation):
         # Connect to the device via requests
         for login_url in self.login_urls:
             response = self.session.get(login_url, timeout=timeout)
+            log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
+                r=response.reason, h=response.headers))
             if response.status_code == requests.codes.ok:
                 self.login_url = login_url
                 break
         output = response.text
-        log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
-            r=response.reason, h=response.headers))
         if verbose:
             log.info("Response text:\n%s" % output)
 
