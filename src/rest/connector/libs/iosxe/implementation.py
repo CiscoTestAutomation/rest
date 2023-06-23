@@ -134,7 +134,7 @@ class Implementation(RestImplementation):
         ))
 
         # ---------------------------------------------------------------------
-        # Option 1: Connect to "well-known" RESTCONF resource to "test", the
+        # Connect to "well-known" RESTCONF resource to "test", the
         # RESTCONF connection on 'connect'. Comparable to CLI (SSH) connection,
         # which triggers a "show version" on connect
         # ---------------------------------------------------------------------
@@ -142,8 +142,21 @@ class Implementation(RestImplementation):
                  "'{a}'".format(d=self.device.name, a=self.alias))
         login_url = '{f}/Cisco-IOS-XE-native:native/version'.format(f=self.base_url)
         username, password = get_username_password(self)
+
         self.session = requests.Session()
         self.session.auth = (username, password)
+
+        header = 'application/yang-data+{fmt}'
+
+        if default_content_type.lower() == 'json':
+            accept_header = header.format(fmt='json')
+        elif default_content_type.lower() == 'xml':
+            accept_header = header.format(fmt='xml')
+        else:
+            accept_header = default_content_type
+        
+        self.session.headers.update({'Accept': accept_header})
+
         # Connect to the device via requests
         response = self.session.get(
             login_url, proxies=self.proxies, timeout=timeout, verify=False)
@@ -166,6 +179,8 @@ class Implementation(RestImplementation):
                                            ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
+
+        return response
 
     @BaseConnection.locked
     def disconnect(self):
