@@ -60,7 +60,8 @@ class Implementation(RestImplementation):
                 default_content_type='json',
                 verbose=False,
                 port="443",
-                protocol='https'):
+                protocol='https',
+                rest_base_path='/restconf/data'):
         '''connect to the device via REST
 
         Arguments
@@ -73,6 +74,8 @@ class Implementation(RestImplementation):
                     'ftp': 'http://proxy.esl.cisco.com:80/',
                     'https': 'http://proxy.esl.cisco.com:80/',
                     'no': '.cisco.com'}
+            rest_base_path: Specify the RESTCONF base path (default:
+                "/restconf/data")
 
         Raises
         ------
@@ -120,21 +123,36 @@ class Implementation(RestImplementation):
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
 
-        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
+        self.base_url = '{protocol}://{ip}:{port}{rest_base_path}'.format(
+                                                          protocol=protocol,
                                                           ip=ip,
-                                                          port=port)
-        self.login_url = '{f}/'.format(f=self.base_url)
+                                                          port=port,
+                                                          rest_base_path=rest_base_path
+                                                          )
+        log.info("Set base URL for '{d}' to '{base_url}'".format(
+            d=self.device.name, base_url=self.base_url
+        ))
+
+        # ---------------------------------------------------------------------
+        # Option 1: Connect to "well-known" RESTCONF resource to "test", the
+        # RESTCONF connection on 'connect'. Comparable to CLI (SSH) connection,
+        # which triggers a "show version" on connect
+        # ---------------------------------------------------------------------
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
+        login_url = '{f}/Cisco-IOS-XE-native:native/version'.format(f=self.base_url)
         username, password = get_username_password(self)
         self.session = requests.Session()
         self.session.auth = (username, password)
         # Connect to the device via requests
         response = self.session.get(
-            self.login_url, proxies=self.proxies, timeout=timeout, verify=False)
+            login_url, proxies=self.proxies, timeout=timeout, verify=False)
         output = response.text
-        log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
-                                                           r=response.reason, h=response.headers))
+        log.debug("Response: {c} {r}, headers: {h}, payload {p}".format(
+            c=response.status_code,
+            r=response.reason,
+            h=response.headers,
+            p=response.text))
         if verbose:
             log.info("Response text:\n%s" % output)
 
@@ -148,8 +166,6 @@ class Implementation(RestImplementation):
                                            ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
-
-        return response
 
     @BaseConnection.locked
     def disconnect(self):
