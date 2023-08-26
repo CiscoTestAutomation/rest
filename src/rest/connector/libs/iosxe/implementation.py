@@ -61,7 +61,7 @@ class Implementation(RestImplementation):
                 verbose=False,
                 port="443",
                 protocol='https',
-                rest_base_path=''):
+                default_rest_base_path=''):
         '''connect to the device via REST
 
         Arguments
@@ -127,7 +127,7 @@ class Implementation(RestImplementation):
                                                           protocol=protocol,
                                                           ip=ip,
                                                           port=port,
-                                                          rest_base_path=rest_base_path
+                                                          rest_base_path=default_rest_base_path
                                                           )
         log.info("Set RESTCONF base URL for '{d}' to '{base_url}'".format(
             d=self.device.name, base_url=self.base_url
