@@ -29,11 +29,52 @@ class test_iosxe_test_connector(unittest.TestCase):
             "Cisco-IOS-XE-native:version": "17.3"
         }
         """
-        url = 'https://198.51.100.3:443/restconf/data/Cisco-IOS-XE-native:native/version'
-        kwargs['mock'].get(url, text=response_text)
-        output = connection.connect(verbose=True, default_rest_base_path="/restconf/data").text
+        kwargs['mock'].get('https://198.51.100.3:443/restconf/data/Cisco-IOS-XE-native:native/version', text=response_text)
+        output = connection.connect(verbose=True).text
         self.assertEqual(output, response_text)
         return connection
+
+    def test_get(self, **kwargs):
+        connection = self.test_connect()
+
+        response_text = """{
+    "Cisco-IOS-XE-wireless-site-cfg:ap-cfg-profile": [
+        {
+            "profile-name": "default-ap-profile",
+            "description": "default ap profile",
+            "hyperlocation": {
+                "pak-rssi-threshold-detection": -50
+            },
+            "halo-ble-entries": {
+                "halo-ble-entry": [
+                    {
+                        "beacon-id": 0
+                    },
+                    {
+                        "beacon-id": 1
+                    },
+                    {
+                        "beacon-id": 2
+                    },
+                    {
+                        "beacon-id": 3
+                    },
+                    {
+                        "beacon-id": 4
+                    }
+                ]
+            }
+        }
+    ]
+}
+"""
+
+        kwargs['mock'].get('https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', text=response_text)
+        output = connection.get('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', verbose=True).text
+        self.assertEqual(output, response_text)
+        connection.disconnect()
+
+        self.assertEqual(connection.connected, False)
 
     def test_post(self, **kwargs):
         connection = self.test_connect()

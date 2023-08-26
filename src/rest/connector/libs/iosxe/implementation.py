@@ -15,9 +15,9 @@ log = logging.getLogger(__name__)
 
 
 class Implementation(RestImplementation):
-    '''RESTCONF implementation for IOS-XE
+    '''Rest Implementation for IOS-XE
 
-    Implementation of RESTCONF connection to IOS-XE devices
+    Implementation of Rest connection to IOS-XE devices supporting RESTCONF
 
     YAML Example
     ------------
@@ -60,8 +60,7 @@ class Implementation(RestImplementation):
                 default_content_type='json',
                 verbose=False,
                 port="443",
-                protocol='https',
-                default_rest_base_path=''):
+                protocol='https'):
         '''connect to the device via REST
 
         Arguments
@@ -74,8 +73,6 @@ class Implementation(RestImplementation):
                     'ftp': 'http://proxy.esl.cisco.com:80/',
                     'https': 'http://proxy.esl.cisco.com:80/',
                     'no': '.cisco.com'}
-            default_rest_base_path: Default for RESTCONF base path 
-                    (example: "/restconf/data" for IOS-XE devices)
 
         Raises
         ------
@@ -123,15 +120,9 @@ class Implementation(RestImplementation):
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
 
-        self.base_url = '{protocol}://{ip}:{port}{rest_base_path}'.format(
-                                                          protocol=protocol,
+        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
                                                           ip=ip,
-                                                          port=port,
-                                                          rest_base_path=default_rest_base_path
-                                                          )
-        log.info("Set RESTCONF base URL for '{d}' to '{base_url}'".format(
-            d=self.device.name, base_url=self.base_url
-        ))
+                                                          port=port)
 
         # ---------------------------------------------------------------------
         # Connect to "well-known" RESTCONF resource to "test", the
@@ -140,7 +131,7 @@ class Implementation(RestImplementation):
         # ---------------------------------------------------------------------
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
-        login_url = '{f}/Cisco-IOS-XE-native:native/version'.format(f=self.base_url)
+        login_url = '{f}/restconf/data/Cisco-IOS-XE-native:native/version'.format(f=self.base_url)
         username, password = get_username_password(self)
 
         self.session = requests.Session()
