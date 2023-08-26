@@ -15,9 +15,9 @@ log = logging.getLogger(__name__)
 
 
 class Implementation(RestImplementation):
-    '''Rest Implementation for IOS-XE
+    '''RESTCONF implementation for IOS-XE
 
-    Implementation of Rest connection to elasitc Wireless LAN Controller running IOS-XE
+    Implementation of RESTCONF connection to IOS-XE devices
 
     YAML Example
     ------------
@@ -61,7 +61,7 @@ class Implementation(RestImplementation):
                 verbose=False,
                 port="443",
                 protocol='https',
-                rest_base_path='/restconf/data'):
+                rest_base_path=''):
         '''connect to the device via REST
 
         Arguments
@@ -74,8 +74,8 @@ class Implementation(RestImplementation):
                     'ftp': 'http://proxy.esl.cisco.com:80/',
                     'https': 'http://proxy.esl.cisco.com:80/',
                     'no': '.cisco.com'}
-            rest_base_path: Specify the RESTCONF base path (default:
-                "/restconf/data")
+            default_rest_base_path: Default for RESTCONF base path 
+                    (example: "/restconf/data" for IOS-XE devices)
 
         Raises
         ------
@@ -129,7 +129,7 @@ class Implementation(RestImplementation):
                                                           port=port,
                                                           rest_base_path=rest_base_path
                                                           )
-        log.info("Set base URL for '{d}' to '{base_url}'".format(
+        log.info("Set RESTCONF base URL for '{d}' to '{base_url}'".format(
             d=self.device.name, base_url=self.base_url
         ))
 
