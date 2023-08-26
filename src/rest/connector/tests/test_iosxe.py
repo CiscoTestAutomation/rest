@@ -25,18 +25,14 @@ class test_iosxe_test_connector(unittest.TestCase):
 
     def test_connect(self, **kwargs):
         connection = Rest(device=self.device, alias='rest', via='rest')
-
         response_text = """{
             "Cisco-IOS-XE-native:version": "17.3"
         }
         """
-
-        kwargs['mock'].get('https://198.51.100.3:443/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', text=response_text)
-        output = connection.get('/restconf/data/site-cfg-data/ap-cfg-profiles/ap-cfg-profile', verbose=True).text
+        kwargs['mock'].get('https://198.51.100.3:443/restconf/data/Cisco-IOS-XE-native:native/version', text=response_text)
+        output = connection.connect(verbose=True).text
         self.assertEqual(output, response_text)
-        connection.disconnect()
-
-        self.assertEqual(connection.connected, False)
+        return connection
 
     def test_post(self, **kwargs):
         connection = self.test_connect()
