@@ -29,8 +29,9 @@ class test_iosxe_test_connector(unittest.TestCase):
             "Cisco-IOS-XE-native:version": "17.3"
         }
         """
-        kwargs['mock'].get('https://198.51.100.3:443/restconf/data/Cisco-IOS-XE-native:native/version', text=response_text)
-        output = connection.connect(verbose=True).text
+        url = 'https://198.51.100.3:443/restconf/data/Cisco-IOS-XE-native:native/version'
+        kwargs['mock'].get(url, text=response_text)
+        output = connection.connect(verbose=True, default_rest_base_path="/restconf/data").text
         self.assertEqual(output, response_text)
         return connection
 
