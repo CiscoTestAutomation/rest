@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 class Implementation(RestImplementation):
     '''Rest Implementation for IOS-XE
 
-    Implementation of Rest connection to elasitc Wireless LAN Controller running IOS-XE
+    Implementation of Rest connection to IOS-XE devices supporting RESTCONF
 
     YAML Example
     ------------
@@ -123,18 +123,40 @@ class Implementation(RestImplementation):
         self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
                                                           ip=ip,
                                                           port=port)
-        self.login_url = '{f}/'.format(f=self.base_url)
+
+        # ---------------------------------------------------------------------
+        # Connect to "well-known" RESTCONF resource to "test", the
+        # RESTCONF connection on 'connect'. Comparable to CLI (SSH) connection,
+        # which triggers a "show version" on connect
+        # ---------------------------------------------------------------------
         log.info("Connecting to '{d}' with alias "
                  "'{a}'".format(d=self.device.name, a=self.alias))
+        login_url = '{f}/restconf/data/Cisco-IOS-XE-native:native/version'.format(f=self.base_url)
         username, password = get_username_password(self)
+
         self.session = requests.Session()
         self.session.auth = (username, password)
+
+        header = 'application/yang-data+{fmt}'
+
+        if default_content_type.lower() == 'json':
+            accept_header = header.format(fmt='json')
+        elif default_content_type.lower() == 'xml':
+            accept_header = header.format(fmt='xml')
+        else:
+            accept_header = default_content_type
+        
+        self.session.headers.update({'Accept': accept_header})
+
         # Connect to the device via requests
         response = self.session.get(
-            self.login_url, proxies=self.proxies, timeout=timeout, verify=False)
+            login_url, proxies=self.proxies, timeout=timeout, verify=False)
         output = response.text
-        log.debug("Response: {c} {r}, headers: {h}".format(c=response.status_code,
-                                                           r=response.reason, h=response.headers))
+        log.debug("Response: {c} {r}, headers: {h}, payload {p}".format(
+            c=response.status_code,
+            r=response.reason,
+            h=response.headers,
+            p=response.text))
         if verbose:
             log.info("Response text:\n%s" % output)
 
