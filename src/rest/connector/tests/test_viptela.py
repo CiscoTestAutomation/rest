@@ -79,6 +79,7 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.session') as req:
             resp = Response()
+            resp.raw = MagicMock()
             resp.status_code = 200
             req().post.return_value = resp
             req().get.return_value = resp
@@ -100,6 +101,7 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.session') as req:
             resp = Response()
+            resp.raw = MagicMock()
             resp.status_code = 200
             req().post.return_value = resp
             req().get.return_value = resp
@@ -115,8 +117,10 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.session') as req:
             resp = Response()
+            resp.raw = MagicMock()
             resp.status_code = 200
             resp2 = Response()
+            resp2.raw = MagicMock()
             resp2.status_code = 300
             req().get.side_effect = [resp, resp2]
             req().post.side_effect = [resp, resp, resp2]
@@ -141,6 +145,7 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.session') as req:
             resp = Response()
+            resp.raw = MagicMock()
             resp.status_code = 200
             req().post.return_value = resp
             req().get.return_value = resp
@@ -157,8 +162,10 @@ class test_rest_connector(unittest.TestCase):
 
         with patch('requests.session') as req:
             resp = Response()
+            resp.raw = MagicMock()
             resp.status_code = 200
             resp2 = Response()
+            resp2.raw = MagicMock()
             resp2.status_code = 300
             req().delete.return_value = resp2
             req().post.side_effect = [resp, resp, resp2]
