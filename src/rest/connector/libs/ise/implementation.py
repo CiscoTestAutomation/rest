@@ -115,7 +115,6 @@ class Implementation(RestImplementation):
 
         username, password = get_username_password(self)
 
-        breakpoint()
         self.api = IdentityServicesEngineAPI(
             username=username, password=password,
             base_url=self.base_url, uses_api_gateway=True,
