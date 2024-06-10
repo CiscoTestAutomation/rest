@@ -65,12 +65,6 @@ class Implementation(RestImplementation):
         ---------
 
             timeout (int): Timeout value
-            default_content_type: Default for content type, json or xml
-            proxies: Specify the proxy to use for connection as seen below.
-                    {'http': 'http://proxy.esl.cisco.com:80/',
-                    'ftp': 'http://proxy.esl.cisco.com:80/',
-                    'https': 'http://proxy.esl.cisco.com:80/',
-                    'no': '.cisco.com'}
 
         Raises
         ------
@@ -120,8 +114,25 @@ class Implementation(RestImplementation):
             base_url=self.base_url, uses_api_gateway=True,
             verify=False, debug=debug)
 
-        self._is_connected = True
-        log.info("Connected successfully to '{d}'".format(d=self.device.name))
+        version_request = self.api.version_and_patch.get_ise_version_and_patch()
+        if version_request.status_code == 200:
+            version_info = version_request.response
+            # {'OperationResult': {'resultValue': [
+            # {'value': '3.3.0.430', 'name': 'version'}, {'value': '0', 'name': 'patch information'}]}}
+            version_info_list = version_info.get('OperationResult', {}).get('resultValue', [])
+            version_message_list = []
+            for version_nv in version_info_list:
+                name = version_nv.get('name')
+                value = version_nv.get('value')
+                if name and value:
+                    version_message_list.append(f'{name}: {value}')
+            if version_message_list:
+                version_message = ' '.join(version_message_list)
+                log.info(version_message)
+            self._is_connected = True
+            log.info("Connected successfully to '{d}'".format(d=self.device.name))
+        else:
+            raise ConnectionError('Unable to connect to ISE server')
 
         return self.api
 
