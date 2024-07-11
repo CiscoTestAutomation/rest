@@ -139,4 +139,14 @@ devices:
         ip: 198.51.100.10
         port: 9200
         protocol: http
+  ise:
+    os: ise
+    connections:
+      defaults:
+        via: rest
+      rest:
+        class: rest.connector.Rest
+        ip: 127.0.0.2
+        port: 9000
+        protocol: http
 

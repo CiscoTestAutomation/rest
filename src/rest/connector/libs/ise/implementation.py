@@ -139,7 +139,6 @@ class Implementation(RestImplementation):
     @BaseConnection.locked
     def disconnect(self):
         """
-            Does not make sense to disconnect from a device.
         """
         self._is_connected = False
         return
