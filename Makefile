@@ -4,7 +4,7 @@
 # Author:
 #
 # Support:
-#	pyats-support@cisco.com
+#	pyats-support-ext@cisco.com
 #
 # Version:
 #   v1.0.0
@@ -23,13 +23,11 @@
 # Variables
 PKG_NAME      = rest.connector
 BUILDDIR      = $(shell pwd)/__build__
-PROD_USER     = pyadm@pyats-ci
-PROD_PKGS     = /auto/pyats/packages
-STAGING_PKGS  = /auto/pyats/staging/packages
-STAGING_EXT_PKGS  = /auto/pyats/staging/packages_external
 PYTHON        = python3
 TESTCMD       = $(PYTHON) -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
+
+DEPENDENCIES  = f5-icontrol-rest requests_mock requests dict2xml ciscoisesdk
 
 .PHONY: clean package distribute distribute_staging distribute_staging_external\
         develop undevelop populate_dist_dir help docs pubdocs tests
@@ -93,7 +91,7 @@ develop:
 	@echo ""
 
 	@pip uninstall -y rest.connector || true
-	@pip install f5-icontrol-rest requests_mock requests dict2xml
+	@pip install $(DEPENDENCIES)
 	@$(PYTHON) setup.py develop --no-deps -q
 
 	@echo ""
