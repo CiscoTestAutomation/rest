@@ -130,7 +130,7 @@ setup(
     ],
 
     # uses namespace package
-    namespace_packages=find_namespace_packages(include=['rest'],
+    namespace_packages=find_namespace_packages(include=['rest']),
 
     # project keywords
     keywords='pyats cisco-shared',
