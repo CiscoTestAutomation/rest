@@ -12,7 +12,7 @@ import sys
 import shlex
 import unittest
 import subprocess
-from setuptools import setup, find_packages, Command, find_namespace_packages
+from setuptools import setup, Command, find_namespace_packages
 from setuptools.command.test import test
 
 pkg_name = 'rest.connector'
@@ -129,14 +129,11 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 
-    # uses namespace package
-    namespace_packages=find_namespace_packages(include=['rest']),
-
     # project keywords
     keywords='pyats cisco-shared',
 
     # project packages
-    packages=find_packages(where='src'),
+    packages=find_namespace_packages(where='src'),
 
     # project directory
     package_dir={
