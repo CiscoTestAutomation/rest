@@ -45,13 +45,14 @@ class Implementation(Imp):
     """
 
     @BaseConnection.locked
-    def connect(self, timeout=30, retries=3, retry_wait=10):
+    def connect(self, timeout=30, retries=3, retry_wait=10, verify=False):
         """connect to the device via REST
         Arguments
         ---------
             timeout (int): Timeout value
             retries (int): Max retries on request exception (default: 3)
             retry_wait (int): Seconds to wait before retry (default: 10)
+            verify (bool): defaults to False
 
         Raises
         ------
@@ -98,10 +99,11 @@ class Implementation(Imp):
             ip = self.connection_info['ip'].exploded
         if 'port' in self.connection_info:
             port = self.connection_info['port']
-            self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)
+            self.url = f'https://{ip}:{port}/'
         else:
-            self.url = 'https://{ip}/'.format(ip=ip)
-        login_url = '{f}login'.format(f=self.url)
+            self.url = f'https://{ip}/'
+        self.verify = verify
+        login_url = f'{self.url}login'
 
         username, password = get_username_password(self)
         domain = str(self.connection_info['credentials']['rest'].get('domain','DefaultAuth'))
@@ -132,34 +134,32 @@ class Implementation(Imp):
                 # Make sure it returned requests.codes.ok
                 if response.status_code != requests.codes.ok:
                     # Something bad happened
-                    raise RequestException("Connection to '{ip}' has returned the "
-                                           "following code '{c}', instead of the "
-                                           "expected status code '{ok}'"
-                                           .format(ip=ip, c=response.status_code,
-                                                   ok=requests.codes.ok))
+                    raise RequestException(f"Connection to '{ip}' has returned the "
+                                           f"following code '{response.status_code}', instead of the "
+                                           f"expected status code '{requests.codes.ok}'")
                 break
             except Exception:
-                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
-                    self.device.name, retry_wait), exc_info=True)
+                log.warning(f'Request to {self.device.name} failed. Waiting {retry_wait} seconds before retrying\n',
+                            exc_info=True)
                 time.sleep(retry_wait)
         else:
-            raise ConnectionError('Connection to {} failed'.format(self.device.name))
+            raise ConnectionError(f'Connection to {self.device.name} failed')
 
         self._is_connected = True
-        log.info("Connected successfully to '{d}'".format(d=self.device.name))
+        log.info(f"Connected successfully to '{self.device.name}'")
 
     @BaseConnection.locked
     def disconnect(self):
         """disconnect the device for this particular alias"""
 
-        log.info("Disconnecting from '{d}' with "
-                 "alias '{a}'".format(d=self.device.name, a=self.alias))
+        log.info(f"Disconnecting from '{self.device.name}' with "
+                 f"alias '{self.alias}'")
         try:
             self.session.close()
         finally:
             self._is_connected = False
-        log.info("Disconnected successfully from "
-                 "'{d}'".format(d=self.device.name))
+        log.info(f"Disconnected successfully from "
+                 "'{self.device.name}'")
 
     def isconnected(func):
         """Decorator to make sure session to device is active
@@ -188,7 +188,7 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, api_url, expected_status_code=requests.codes.ok,
+    def get(self, api_url, params=None, expected_status_code=requests.codes.ok,
             timeout=30, retries=3, retry_wait=10):
         """GET REST Command to retrieve information from the device
         Arguments
@@ -201,35 +201,35 @@ class Implementation(Imp):
         """
 
         if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
+            raise Exception(f"'{self.device.name}' is not connected for "
+                            f"alias '{self.alias}'")
         #Eliminate the starting "/" if present, as it may cause problems
         api_url = api_url.lstrip('/')
         # Deal with the url
-        full_url = "{f}{api_url}".format(f=self.url, api_url=api_url)
+        full_url = f"{self.url}{api_url}"
 
-        log.info("Sending GET command to '{d}':" \
-                 "\nURL: {furl}".format(d=self.device.name, furl=full_url))
+        log.info(f"Sending GET command to '{self.device.name}':" \
+                 f"\nURL: {full_url}")
 
         for _ in range(retries):
             try:
-                response = self.session.get(full_url, timeout=timeout, verify=False)
+                if params:
+                    response = self.session.get(full_url, params=params, timeout=timeout, verify=self.verify)
+                else:
+                    response = self.session.get(full_url, timeout=timeout, verify=self.verify)
                 break
             except Exception:
-                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
-                    self.device.name, retry_wait), exc_info=True)
+                log.warning(f'Request to {self.device.name} failed. '
+                            f'Waiting {retry_wait} seconds before retrying\n'
+                            , exc_info=True)
                 time.sleep(retry_wait)
         else:
-            raise RequestException('Sending "{furl}" to "{d}" has failed '
-                                   'after {tries} tries'.format(furl=full_url,
-                                                                d=self.device.name,
-                                                                tries=retries))
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
 
         try:
             output = response.json() # Response need not be always in json
-            log.info("Output received:\n{output}".format(output=
-                                                         json.dumps(output, indent=2, sort_keys=True)))
+            log.info(f"Output received:\n{json.dumps(output, indent=2, sort_keys=True)}")
         except Exception:
             output = response.text
             log.info(f"Output received: {output}")
@@ -237,14 +237,9 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("GET {furl} to {d} has returned the "
-                                   "following code '{c}', instead of the "
-                                   "expected status code '{e}'"
-                                   ", got:\n {msg}".format(furl=full_url,
-                                                  d=self.device.name,
-                                                  c=response.status_code,
-                                                  e=expected_status_code,
-                                                  msg=response.text))
+            raise RequestException(f"GET {full_url} to {self.device.name} has returned the following code "
+                                   f"{response.status_code}, instead of the expected status code "
+                                   f"'{expected_status_code}', got {response.text}")
         return output
 
     @BaseConnection.locked
@@ -262,18 +257,15 @@ class Implementation(Imp):
         """
 
         if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
+            raise Exception(f"'{self.device.name}' is not connected for "
+                            f"alias '{self.alias}'")
         # Eliminate the starting "/" if present, as it may cause problems
         api_url = api_url.lstrip('/')
         # Deal with the url
-        full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
+        full_url = f'{self.url}{api_url}'
 
-        log.info("Sending POST command to '{d}':" \
-                 "\nURL: {furl}\nPayload:{p}".format(d=self.device.name,
-                                                     furl=full_url,
-                                                     p=payload))
+        log.info(f"Sending POST command to '{self.device.name}':" \
+                 f"\nURL: {full_url}\nPayload:{payload}")
         headers = {'form': 'application/x-www-form-urlencoded',
                    'json': 'application/json',
                    'xml': 'application/xml'}
@@ -282,10 +274,9 @@ class Implementation(Imp):
             payload = urllib.parse.urlencode(payload, safe=':!')
         elif content_type == 'xml':
             if isinstance(payload, dict):
-                raise ValueError("Error on {d} during POST command: "
+                raise ValueError(f"Error on {self.device.name} during POST command: "
                                  "Payload needs to be string in xml format if used "
-                                 "in conjunction with content_type='xml' argument"
-                                 .format(d=self.device.name))
+                                 "in conjunction with content_type='xml' argument")
 
         for _ in range(retries):
             try:
@@ -300,19 +291,17 @@ class Implementation(Imp):
                                                                                       headers['json'])})
                 break
             except Exception:
-                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
-                    self.device.name, retry_wait), exc_info=True)
+                log.warning(f'Request to {self.device.name} failed. Waiting {retry_wait} seconds before retrying\n'
+                            , exc_info=True)
                 time.sleep(retry_wait)
         else:
-            raise RequestException('Sending "{furl}" to "{d}" has failed '
-                                   'after {tries} tries'.format(furl=full_url,
-                                                                d=self.device.name,
-                                                                tries=retries))
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
 
         try:
             # response might not pe in JSON format
             output = response.json()
-            log.info("Output received:\n{output}".format(output=output))
+            log.info(f"Output received:\n{output}")
         except Exception:
             output = response.content if content_type == 'xml' else response.text
             log.info(f"'Post' operation did not return a json response: {output}")
@@ -320,15 +309,67 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("POST {furl} to {d} has returned the "
-                                   "following code '{c}', instead of the "
-                                   "expected status code '{e}'"
-                                   ", got:\n {msg}".format(furl=full_url,
-                                                  d=self.device.name,
-                                                  c=response.status_code,
-                                                  e=expected_status_code,
-                                                  msg=response.text))
+            raise RequestException(f"POST {full_url} to {self.device.name} has returned the "
+                                   f"following code '{response.status_code}', instead of the "
+                                   f"expected status code '{expected_status_code}'"
+                                   f", got:\n {response.text}")
         return output
+
+    @BaseConnection.locked
+    @isconnected
+    def post(self, api_url, params=None, data=None, json=None, files=None,
+             timeout=30, retries=3, retry_wait=10) -> requests.Response:
+        """POST REST Command to configure information from the device
+        Arguments
+        ---------
+            api_url (string): subdirectory part of the API URL
+            params (dict): Query string parameters
+            data (dict):
+            json (json) : if request header Content-Type is application/json
+            files (dict):
+            expected_status_code (int): Expected result
+            timeout (int): Maximum time
+        """
+
+        if not self.connected:
+            raise Exception(f"'{self.device.name}' is not connected for "
+                            f"alias '{self.alias}'")
+        # Eliminate the starting "/" if present, as it may cause problems
+        api_url = api_url.lstrip('/')
+        # Deal with the url
+        full_url = f'{self.url}{api_url}'
+
+        for _ in range(retries):
+            try:
+                if params and not json:
+                    response = self.session.post(full_url, params=params, timeout=timeout,
+                                                verify=self.verify)
+                elif params and json:
+                    response = self.session.post(full_url,params=params, json=json,
+                                                 timeout=timeout, verify=self.verify)
+                elif json and not params:
+                    response = self.session.post(full_url,json=json,
+                                                 timeout=timeout, verify=self.verify)
+                elif data:
+                    response = self.session.post(full_url, data=data,
+                                                 timeout=timeout, verify=self.verify)
+                elif files:
+                    response = self.session.post(full_url, files=files,
+                                                 timeout=timeout, verify=self.verify)
+                else:
+                    response = self.session.post(full_url, timeout=timeout, verify=self.verify)
+
+                break
+            except Exception:
+                log.warning(f'Request to {self.device.name} failed. '
+                            f'Waiting {retry_wait} seconds before retrying\n'
+                            , exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
+
+        return response
 
     @BaseConnection.locked
     @isconnected
@@ -345,18 +386,15 @@ class Implementation(Imp):
         """
 
         if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
+            raise Exception(f"'{self.device.name}' is not connected for "
+                           f"alias '{self.alias}'")
         # Eliminate the starting "/" if present, as it may cause problems
         api_url = api_url.lstrip('/')
         # Deal with the url
-        full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
+        full_url = f'{self.url}{api_url}'
 
-        log.info("Sending PUT command to '{d}':" \
-                 "\nURL: {furl}\nPayload:{p}".format(d=self.device.name,
-                                                     furl=full_url,
-                                                     p=payload))
+        log.info(f"Sending PUT command to '{self.device.name}':" \
+                 f"\nURL: {full_url}\nPayload:{payload}")
         headers = {'form': 'application/x-www-form-urlencoded',
                    'json': 'application/json',
                    'xml': 'application/xml'}
@@ -365,10 +403,9 @@ class Implementation(Imp):
             payload = urllib.parse.urlencode(payload, safe=':!')
         elif content_type == 'xml':
             if isinstance(payload, dict):
-                raise ValueError("Error on {d} during PUT command: "
-                                 "Payload must to be string in xml format if used "
-                                 "in conjunction with content_type='xml' argument"
-                                 .format(d=self.device.name))
+                raise ValueError(f"Error on {self.device.name} during PUT command: "
+                                 f"Payload must to be string in xml format if used "
+                                 f"in conjunction with content_type='xml' argument")
 
         for _ in range(retries):
             try:
@@ -383,19 +420,17 @@ class Implementation(Imp):
                                                                                      headers['json'])})
                 break
             except Exception:
-                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
-                    self.device.name, retry_wait), exc_info=True)
+                log.warning(f'Request to {self.device.name} failed. Waiting {retry_wait} seconds before retrying\n'
+                            , exc_info=True)
                 time.sleep(retry_wait)
         else:
-            raise RequestException('Sending "{furl}" to "{d}" has failed '
-                                   'after {tries} tries'.format(furl=full_url,
-                                                                d=self.device.name,
-                                                                tries=retries))
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
 
         try:
             # response might not pe in JSON format
             output = response.json()
-            log.info("Output received:\n{output}".format(output=output))
+            log.info(f"Output received:\n{output}")
         except Exception:
             output = response.content if content_type == 'xml' else response.text
             log.info(f"'Put' operation did not return a json response: {output}")
@@ -403,15 +438,67 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("PUT {furl} to {d} has returned the "
-                                   "following code '{c}', instead of the "
-                                   "expected status code '{e}'"
-                                   ", got:\n {msg}".format(furl=full_url,
-                                                  d=self.device.name,
-                                                  c=response.status_code,
-                                                  e=expected_status_code,
-                                                  msg=response.text))
+            raise RequestException(f"PUT {full_url} to {self.device.name} has returned the "
+                                   f"following code '{response.status_code}', instead of the "
+                                   f"expected status code '{expected_status_code}'"
+                                   f", got:\n {response.text}")
         return output
+
+    @BaseConnection.locked
+    @isconnected
+    def put(self, api_url, params=None, data=None, json=None, files=None,
+             timeout=30, retries=3, retry_wait=10) -> requests.Response:
+        """PUT REST Command to configure information from the device
+        Arguments
+        ---------
+            api_url (string): subdirectory part of the API URL
+            params (dict): Query string parameters
+            data (dict):
+            json (json) : if request header Content-Type is application/json
+            files (dict):
+            expected_status_code (int): Expected result
+            timeout (int): Maximum time
+        """
+
+        if not self.connected:
+            raise Exception(f"'{self.device.name}' is not connected for "
+                            f"alias '{self.alias}'")
+        # Eliminate the starting "/" if present, as it may cause problems
+        api_url = api_url.lstrip('/')
+        # Deal with the url
+        full_url = f'{self.url}{api_url}'
+
+        for _ in range(retries):
+            try:
+                if params and not json:
+                    response = self.session.put(full_url, params=params, timeout=timeout,
+                                                 verify=self.verify)
+                elif params and json:
+                    response = self.session.put(full_url, params=params, json=json,
+                                                 timeout=timeout, verify=self.verify)
+                elif json and not params:
+                    response = self.session.put(full_url, json=json,
+                                                 timeout=timeout, verify=self.verify)
+                elif data:
+                    response = self.session.put(full_url, data=data,
+                                                 timeout=timeout, verify=self.verify)
+                elif files:
+                    response = self.session.put(full_url, files=files,
+                                                 timeout=timeout, verify=self.verify)
+                else:
+                    response = self.session.put(full_url, timeout=timeout, verify=self.verify)
+
+                break
+            except Exception:
+                log.warning(f'Request to {self.device.name} failed. '
+                            f'Waiting {retry_wait} seconds before retrying\n'
+                            , exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
+
+        return response
 
     @BaseConnection.locked
     @isconnected
@@ -426,16 +513,15 @@ class Implementation(Imp):
             timeout (int): Maximum time
         """
         if not self.connected:
-            raise Exception("'{d}' is not connected for "
-                            "alias '{a}'".format(d=self.device.name,
-                                                 a=self.alias))
+            raise Exception(f"'{self.device.name}' is not connected for "
+                            f"alias '{self.alias}'")
         # Eliminate the starting "/" if present, as it may cause problems
         api_url = api_url.lstrip('/')
         # Deal with the url
-        full_url = '{f}{api_url}'.format(f=self.url, api_url=api_url)
+        full_url = f'{self.url}{api_url}'
 
-        log.info("Sending DELETE command to '{d}':" \
-                 "\nURL: {furl}".format(d=self.device.name, furl=full_url))
+        log.info(f"Sending DELETE command to '{self.device.name}':" \
+                 f"\nURL: {full_url}")
 
         for i in range(retries):
             try:
@@ -443,19 +529,16 @@ class Implementation(Imp):
                 response = self.session.delete(full_url, timeout=timeout, verify=False)
                 break
             except Exception:
-                log.warning('Request to {} failed. Waiting {} seconds before retrying\n'.format(
-                    self.device.name, retry_wait), exc_info=True)
+                log.warning(f'Request to {self.device.name} failed. Waiting {retry_wait} seconds before retrying\n', exc_info=True)
                 time.sleep(retry_wait)
         else:
-            raise RequestException('Sending "{furl}" to "{d}" has failed '
-                                   'after {tries} tries'.format(furl=full_url,
-                                                                d=self.device.name,
-                                                                tries=retries))
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
 
         try:
             # response might not pe in JSON format
             output = response.json()
-            log.info("Output received:\n{output}".format(output=output))
+            log.info(f"Output received:\n{output}")
         except ValueError:
             output = response.text
             log.info(f"'Delete' operation did not return a json response: {output}")
@@ -463,12 +546,64 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
             # Something bad happened
-            raise RequestException("DELETE {furl} to {d} has returned the "
-                                   "following code '{c}', instead of the "
-                                   "expected status code '{e}'"
-                                   ", got:\n {msg}".format(furl=full_url,
-                                                  d=self.device.name,
-                                                  c=response.status_code,
-                                                  e=expected_status_code,
-                                                  msg=response.text))
+            raise RequestException(f"DELETE {full_url} to {self.device.name} has returned the "
+                                   f"following code '{response.status_code}', instead of the "
+                                   f"expected status code '{expected_status_code}'"
+                                   f", got:\n {response.text}")
         return output
+
+    @BaseConnection.locked
+    @isconnected
+    def delete(self, api_url, params=None, data=None, json=None, files=None,
+             timeout=30, retries=3, retry_wait=10) -> requests.Response:
+        """POST REST Command to configure information from the device
+        Arguments
+        ---------
+            api_url (string): subdirectory part of the API URL
+            params (dict): Query string parameters
+            data (dict):
+            json (json) : if request header Content-Type is application/json
+            files (dict):
+            timeout (int): Maximum time
+        """
+
+        if not self.connected:
+            raise Exception(f"'{self.device.name}' is not connected for "
+                            f"alias '{self.alias}'")
+        # Eliminate the starting "/" if present, as it may cause problems
+        api_url = api_url.lstrip('/')
+        # Deal with the url
+        full_url = f'{self.url}{api_url}'
+
+        for _ in range(retries):
+            try:
+                if params and not json:
+                    response = self.session.delete(full_url, params=params, timeout=timeout,
+                                                 verify=self.verify)
+                elif params and json:
+                    response = self.session.delete(full_url, params=params, json=json,
+                                                 timeout=timeout, verify=self.verify)
+                elif json and not params:
+                    response = self.session.delete(full_url, json=json,
+                                                 timeout=timeout, verify=self.verify)
+                elif data:
+                    response = self.session.delete(full_url, data=data,
+                                                 timeout=timeout, verify=self.verify)
+                elif files:
+                    response = self.session.delete(full_url, files=files,
+                                                 timeout=timeout, verify=self.verify)
+                else:
+                    response = self.session.delete(full_url, timeout=timeout, verify=self.verify)
+
+                break
+            except Exception:
+                log.warning(f'Request to {self.device.name} failed. '
+                            f'Waiting {retry_wait} seconds before retrying\n'
+                            , exc_info=True)
+                time.sleep(retry_wait)
+        else:
+            raise RequestException(f'Sending "{full_url}" to "{self.device.name}" has failed '
+                                   f'after {retries} tries')
+
+        return response
+
