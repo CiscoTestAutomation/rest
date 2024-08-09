@@ -32,7 +32,7 @@ class Implementation(Imp):
                 credentials:
                     rest:
                         username: admin
-                        password: cisco123
+                        password: [REDACT]
 
     Code Example
     ------------
@@ -77,7 +77,9 @@ class Implementation(Imp):
                     credentials:
                         rest:
                             username: admin
-                            password: cisco123
+                            password: [REDACT]
+                            domain: 'DefaultAuth'   # this is optional if domain is not specified 'DefaultAuth' becomes default value
+
 
         Code Example
         ------------
@@ -102,11 +104,12 @@ class Implementation(Imp):
         login_url = '{f}login'.format(f=self.url)
 
         username, password = get_username_password(self)
+        domain = str(self.connection_info['credentials']['rest'].get('domain','DefaultAuth'))
 
         payload = {
             "userName": username,
             "userPasswd": password,
-            "domain": "DefaultAuth"
+            "domain": domain
         }
 
         headers = {
@@ -224,12 +227,12 @@ class Implementation(Imp):
                                                                 tries=retries))
 
         try:
-            output = response.json()
+            output = response.json() # Response need not be always in json
+            log.info("Output received:\n{output}".format(output=
+                                                         json.dumps(output, indent=2, sort_keys=True)))
         except Exception:
             output = response.text
-
-        log.info("Output received:\n{output}".format(output=
-            json.dumps(output, indent=2, sort_keys=True)))
+            log.info(f"Output received: {output}")
 
         # Make sure it returned requests.codes.ok
         if response.status_code != expected_status_code:
@@ -413,7 +416,7 @@ class Implementation(Imp):
     @BaseConnection.locked
     @isconnected
     def delete(self, api_url, expected_status_code=requests.codes.ok,
-               timeout=30, retries=3, retry_wait=10):
+               content_type='json',timeout=30, retries=3, retry_wait=10):
         """DELETE REST Command to delete information from the device
         Arguments
         ---------
