@@ -503,7 +503,7 @@ class Implementation(Imp):
     @BaseConnection.locked
     @isconnected
     def delete(self, api_url, expected_status_code=requests.codes.ok,
-               content_type='json',timeout=30, retries=3, retry_wait=10):
+               timeout=30, retries=3, retry_wait=10, content_type='json'):
         """DELETE REST Command to delete information from the device
         Arguments
         ---------
