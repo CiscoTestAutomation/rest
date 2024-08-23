@@ -188,8 +188,8 @@ class Implementation(Imp):
 
     @BaseConnection.locked
     @isconnected
-    def get(self, api_url, params=None, expected_status_code=requests.codes.ok,
-            timeout=30, retries=3, retry_wait=10):
+    def get(self, api_url, expected_status_code=requests.codes.ok,
+            timeout=30, retries=3, retry_wait=10, params=None):
         """GET REST Command to retrieve information from the device
         Arguments
         ---------
