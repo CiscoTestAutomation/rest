@@ -52,7 +52,7 @@ class Implementation(Imp):
             timeout (int): Timeout value
             retries (int): Max retries on request exception (default: 3)
             retry_wait (int): Seconds to wait before retry (default: 10)
-            verify (bool): defaults to False
+            verify (bool): ignore SSL certificates (default:False)
 
         Raises
         ------
