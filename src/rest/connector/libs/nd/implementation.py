@@ -324,9 +324,9 @@ class Implementation(Imp):
         ---------
             api_url (string): subdirectory part of the API URL
             params (dict): Query string parameters
-            data (dict):
+            data (dict): if request header Content-Type is multipart/form-data
             json (json) : if request header Content-Type is application/json
-            files (dict):
+            files (dict): if request header Content-Type is application/octet-stream
             expected_status_code (int): Expected result
             timeout (int): Maximum time
         """
@@ -341,24 +341,10 @@ class Implementation(Imp):
 
         for _ in range(retries):
             try:
-                if params and not json:
-                    response = self.session.post(full_url, params=params, timeout=timeout,
-                                                verify=self.verify)
-                elif params and json:
-                    response = self.session.post(full_url,params=params, json=json,
-                                                 timeout=timeout, verify=self.verify)
-                elif json and not params:
-                    response = self.session.post(full_url,json=json,
-                                                 timeout=timeout, verify=self.verify)
-                elif data:
-                    response = self.session.post(full_url, data=data,
-                                                 timeout=timeout, verify=self.verify)
-                elif files:
-                    response = self.session.post(full_url, files=files,
-                                                 timeout=timeout, verify=self.verify)
-                else:
-                    response = self.session.post(full_url, timeout=timeout, verify=self.verify)
-
+                response = self.session.post(full_url, params=params,
+                                             data=data, json=json,
+                                             files=files, timeout=timeout,
+                                             verify=self.verify)
                 break
             except Exception:
                 log.warning(f'Request to {self.device.name} failed. '
@@ -453,9 +439,9 @@ class Implementation(Imp):
         ---------
             api_url (string): subdirectory part of the API URL
             params (dict): Query string parameters
-            data (dict):
+            data (dict): if request header Content-Type is multipart/form-data
             json (json) : if request header Content-Type is application/json
-            files (dict):
+            files (dict): if request header Content-Type is application/octet-stream
             expected_status_code (int): Expected result
             timeout (int): Maximum time
         """
@@ -470,24 +456,10 @@ class Implementation(Imp):
 
         for _ in range(retries):
             try:
-                if params and not json:
-                    response = self.session.put(full_url, params=params, timeout=timeout,
-                                                 verify=self.verify)
-                elif params and json:
-                    response = self.session.put(full_url, params=params, json=json,
-                                                 timeout=timeout, verify=self.verify)
-                elif json and not params:
-                    response = self.session.put(full_url, json=json,
-                                                 timeout=timeout, verify=self.verify)
-                elif data:
-                    response = self.session.put(full_url, data=data,
-                                                 timeout=timeout, verify=self.verify)
-                elif files:
-                    response = self.session.put(full_url, files=files,
-                                                 timeout=timeout, verify=self.verify)
-                else:
-                    response = self.session.put(full_url, timeout=timeout, verify=self.verify)
-
+                response = self.session.post(full_url, params=params,
+                                             data=data, json=json,
+                                             files=files, timeout=timeout,
+                                             verify=self.verify)
                 break
             except Exception:
                 log.warning(f'Request to {self.device.name} failed. '
@@ -561,9 +533,9 @@ class Implementation(Imp):
         ---------
             api_url (string): subdirectory part of the API URL
             params (dict): Query string parameters
-            data (dict):
+            data (dict): if request header Content-Type is multipart/form-data
             json (json) : if request header Content-Type is application/json
-            files (dict):
+            files (dict): if request header Content-Type is application/octet-stream
             timeout (int): Maximum time
         """
 
@@ -577,24 +549,10 @@ class Implementation(Imp):
 
         for _ in range(retries):
             try:
-                if params and not json:
-                    response = self.session.delete(full_url, params=params, timeout=timeout,
-                                                 verify=self.verify)
-                elif params and json:
-                    response = self.session.delete(full_url, params=params, json=json,
-                                                 timeout=timeout, verify=self.verify)
-                elif json and not params:
-                    response = self.session.delete(full_url, json=json,
-                                                 timeout=timeout, verify=self.verify)
-                elif data:
-                    response = self.session.delete(full_url, data=data,
-                                                 timeout=timeout, verify=self.verify)
-                elif files:
-                    response = self.session.delete(full_url, files=files,
-                                                 timeout=timeout, verify=self.verify)
-                else:
-                    response = self.session.delete(full_url, timeout=timeout, verify=self.verify)
-
+                response = self.session.post(full_url, params=params,
+                                             data=data, json=json,
+                                             files=files, timeout=timeout,
+                                             verify=self.verify)
                 break
             except Exception:
                 log.warning(f'Request to {self.device.name} failed. '
