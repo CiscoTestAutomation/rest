@@ -78,7 +78,7 @@ class Implementation(Imp):
                     credentials:
                         rest:
                             username: admin
-                            password: [REDACT]
+                            password: cisco123
                             domain: 'DefaultAuth'   # this is optional if domain is not specified 'DefaultAuth' becomes default value
 
 
