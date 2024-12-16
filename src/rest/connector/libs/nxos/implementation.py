@@ -168,7 +168,8 @@ class Implementation(Implementation):
             try:
                 # Connect to the device via requests
                 if protocol == 'https':
-                    response = self.session.post(login_url, data=_data, timeout=timeout, verify=False)
+                    self.session.verify = False
+                    response = self.session.post(login_url, data=_data, timeout=timeout)
                 else:
                     response = self.session.post(login_url, data=_data, timeout=timeout)
                 break
