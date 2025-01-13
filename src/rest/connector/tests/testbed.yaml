@@ -149,4 +149,16 @@ devices:
         ip: 127.0.0.2
         port: 9000
         protocol: http
-
+  generic:
+        os: generic
+        custom:
+          abstraction:
+            order: [os]
+        connections:
+          defaults:
+            via: rest
+          rest:
+            class: rest.connector.Rest
+            protocol: https
+            host: 127.0.0.2
+            port: 443
