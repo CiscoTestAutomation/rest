@@ -1,7 +1,8 @@
 import json
 import logging
-import requests
+from ipaddress import ip_address, IPv4Address, IPv6Address
 
+import requests
 from pyats.connections import BaseConnection
 from rest.connector.implementation import Implementation
 from rest.connector.utils import get_username_password
@@ -101,7 +102,19 @@ class Implementation(Implementation):
                     "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
                     % (self.via, e))
         else:
-            ip = self.connection_info['ip'].exploded
+            if 'host' in self.connection_info:
+                ip = self.connection_info['host']
+            else:
+                ip = self.connection_info['ip']
+                if not isinstance(ip, (IPv4Address, IPv6Address)):
+                    ip = ip_address(ip)
+
+                # Properly format IPv6 URL if a v6 address is provided
+                if isinstance(ip, IPv6Address):
+                    ip = f"[{ip.exploded}]"
+                else:
+                    ip = ip.exploded
+
             port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:

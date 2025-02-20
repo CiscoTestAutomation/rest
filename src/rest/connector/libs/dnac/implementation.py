@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from ipaddress import ip_address, IPv4Address, IPv6Address
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
 
@@ -78,7 +79,15 @@ class Implementation(Implementation):
         try:
             host = self.connection_info['host']
         except KeyError:
-            host = self.connection_info['ip'].exploded
+            host = self.connection_info['ip']
+            if not isinstance(host, (IPv4Address, IPv6Address)):
+                host = ip_address(host)
+
+            # Properly format IPv6 URL if a v6 address is provided
+            if isinstance(host, IPv6Address):
+                host = f"[{host.exploded}]"
+            else:
+                host = host.exploded
         
         port = self.connection_info.get('port', 443)
         self.verify = self.connection_info.get('verify', True)
