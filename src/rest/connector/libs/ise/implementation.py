@@ -98,27 +98,27 @@ class Implementation(RestImplementation):
                     "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
                     % (self.via, e))
         else:
-            if 'host' in self.connection_info:
-                ip = self.connection_info['host']
-            else:
-                ip = self.connection_info['ip']
-                if not isinstance(ip, (IPv4Address, IPv6Address)):
-                    ip = ip_address(ip)
+            try:
+                host = self.connection_info['host']
+            except KeyError:
+                host = self.connection_info['ip']
+                if not isinstance(host, (IPv4Address, IPv6Address)):
+                    host = ip_address(host)
 
                 # Properly format IPv6 URL if a v6 address is provided
-                if isinstance(ip, IPv6Address):
-                    ip = f"[{ip.exploded}]"
+                if isinstance(host, IPv6Address):
+                    host = f"[{host.exploded}]"
                 else:
-                    ip = ip.exploded
+                    host = host.exploded
 
             port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
 
-        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
-                                                          ip=ip,
-                                                          port=port)
+        self.base_url = '{protocol}://{host}:{port}'.format(protocol=protocol,
+                                                            host=host,
+                                                            port=port)
 
         username, password = get_username_password(self)
 

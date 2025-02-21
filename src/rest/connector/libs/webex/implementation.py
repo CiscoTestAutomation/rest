@@ -94,25 +94,25 @@ class Implementation(Imp):
         if self.connected:
             return
 
-        if 'host' in self.connection_info:
-            ip = self.connection_info['host']
-        else:
-            ip = self.connection_info['ip'].exploded
-            ip = self.connection_info['ip']
-            if not isinstance(ip, (IPv4Address, IPv6Address)):
-                ip = ip_address(ip)
+        try:
+            host = self.connection_info['host']
+        except KeyError:
+            host = self.connection_info['ip']
+            if not isinstance(host, (IPv4Address, IPv6Address)):
+                host = ip_address(host)
 
             # Properly format IPv6 URL if a v6 address is provided
-            if isinstance(ip, IPv6Address):
-                ip = f"[{ip.exploded}]"
+            if isinstance(host, IPv6Address):
+                host = f"[{host.exploded}]"
             else:
-                ip = ip.exploded
+                host = host.exploded
+
 
         if 'port' in self.connection_info:
             port = self.connection_info['port']
-            self.url = 'https://{ip}:{port}/'.format(ip=ip, port=port)
+            self.url = 'https://{host}:{port}/'.format(host=host, port=port)
         else:
-            self.url = 'https://{ip}/'.format(ip=ip)
+            self.url = 'https://{host}/'.format(host=host)
         login_url = '{f}v1/people/me'.format(f=self.url)
 
         self.token = get_token(self)
@@ -134,10 +134,10 @@ class Implementation(Imp):
         # Make sure it returned requests.codes.ok
         if response.status_code != requests.codes.ok:
             # Something bad happened
-            raise RequestException("Connection to '{ip}' has returned the "
+            raise RequestException("Connection to '{host}' has returned the "
                                    "following code '{c}', instead of the "
                                    "expected status code '{ok}'"\
-                                        .format(ip=ip, c=response.status_code,
+                                        .format(host=host, c=response.status_code,
                                                 ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))

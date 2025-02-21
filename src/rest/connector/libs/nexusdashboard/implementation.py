@@ -124,7 +124,7 @@ class Implementation(Implementation):
             protocol = self.connection_info['protocol']
 
         self.url = '{protocol}://{host}'.format(protocol=protocol,
-                                                          host=host)
+                                                host=host)
 
         self.verify = self.connection_info.get('verify', True)
 

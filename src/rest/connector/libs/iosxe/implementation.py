@@ -108,34 +108,34 @@ class Implementation(RestImplementation):
             try:
                 tunnel_port = sshtunnel.auto_tunnel_add(self.device, self.via)
                 if tunnel_port:
-                    ip = self.device.connections[self.via].sshtunnel.tunnel_ip
+                    host = self.device.connections[self.via].sshtunnel.tunnel_ip
                     port = tunnel_port
             except AttributeError as e:
                 raise AttributeError(
                     "Cannot add ssh tunnel. Connection %s may not have ip/host or port.\n%s"
                     % (self.via, e))
         else:
-            if 'host' in self.connection_info:
-                ip = self.connection_info['host']
-            else:
-                ip = self.connection_info['ip']
-                if not isinstance(ip, (IPv4Address, IPv6Address)):
-                    ip = ip_address(ip)
+            try:
+                host = self.connection_info['host']
+            except KeyError:
+                host = self.connection_info['ip']
+                if not isinstance(host, (IPv4Address, IPv6Address)):
+                    host = ip_address(host)
 
                 # Properly format IPv6 URL if a v6 address is provided
-                if isinstance(ip, IPv6Address):
-                    ip = f"[{ip.exploded}]"
+                if isinstance(host, IPv6Address):
+                    host = f"[{host.exploded}]"
                 else:
-                    ip = ip.exploded
+                    host = host.exploded
 
                 port = self.connection_info.get('port', port)
 
         if 'protocol' in self.connection_info:
             protocol = self.connection_info['protocol']
 
-        self.base_url = '{protocol}://{ip}:{port}'.format(protocol=protocol,
-                                                          ip=ip,
-                                                          port=port)
+        self.base_url = '{protocol}://{host}:{port}'.format(protocol=protocol,
+                                                            host=host,
+                                                            port=port)
 
         # ---------------------------------------------------------------------
         # Connect to "well-known" RESTCONF resource to "test", the
@@ -176,10 +176,10 @@ class Implementation(RestImplementation):
         # Make sure it returned requests.codes.ok
         if response.status_code != requests.codes.ok:
             # Something bad happened
-            raise RequestException("Connection to '{ip}:{port}' has returned the "
+            raise RequestException("Connection to '{host}:{port}' has returned the "
                                    "following code '{c}', instead of the "
                                    "expected status code '{ok}'"
-                                   .format(ip=ip, port=port, c=response.status_code,
+                                   .format(host=host, port=port, c=response.status_code,
                                            ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
