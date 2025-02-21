@@ -152,10 +152,10 @@ class Implementation(RestImplementation):
         # Make sure it returned requests.codes.ok
         if response.status_code != requests.codes.ok:
             # Something bad happened
-            raise RequestException("Connection to '{ip}:{port}' has returned the "
+            raise RequestException("Connection to '{host}:{port}' has returned the "
                                    "following code '{c}', instead of the "
                                    "expected status code '{ok}'"\
-                                        .format(ip=ip, port=port, c=response.status_code,
+                                        .format(host=host, port=port, c=response.status_code,
                                                 ok=requests.codes.ok))
         self._is_connected = True
         log.info("Connected successfully to '{d}'".format(d=self.device.name))
