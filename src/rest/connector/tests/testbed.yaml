@@ -38,6 +38,20 @@ devices:
             port: 443
             username: cisco
             password: cisco
+          rest-ipv6:
+            class: rest.connector.Rest
+            protocol: https
+            ip: 2001:db8:c15:c0::64:3
+            port: 443
+            username: cisco
+            password: cisco
+          rest-fqdn:
+            class: rest.connector.Rest
+            protocol: https
+            host: test-ewlc.example.com
+            port: 443
+            username: cisco
+            password: cisco
   apic:
       os: apic
       type: apic
