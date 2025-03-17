@@ -96,6 +96,7 @@ class Implementation(RestImplementation):
         log.debug("Timeout: %s" % timeout)
         self.content_type = default_content_type
 
+        self.verify = self.connection_info.get('verify', True)
         # support sshtunnel
         if 'sshtunnel' in self.connection_info:
             try:
@@ -136,6 +137,7 @@ class Implementation(RestImplementation):
 
         self.session = requests.Session()
         self.session.auth = (username, password)
+        self.session.verify = self.verify
 
         header = 'application/yang-data+{fmt}'
 
@@ -150,7 +152,7 @@ class Implementation(RestImplementation):
 
         # Connect to the device via requests
         response = self.session.get(
-            login_url, proxies=self.proxies, timeout=timeout, verify=False)
+            login_url, proxies=self.proxies, timeout=timeout)
         output = response.text
         log.debug("Response: {c} {r}, headers: {h}, payload {p}".format(
             c=response.status_code,
