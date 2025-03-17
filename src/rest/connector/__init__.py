@@ -54,8 +54,8 @@ class Rest(BaseConnection):
         # Selector of methods/attributes to pick from abstracted
         # Can't use __getattr__ as BaseConnection is abstract and some already
         # exists
-        if name in ['api', 'get', 'post', 'put', 'patch', 'delete',
-                    'connect', 'disconnect', 'connected']:
+        if name in ['api', 'options', 'head', 'get', 'post', 'put', 'patch',
+                    'delete', 'connect', 'disconnect', 'connected']:
             return getattr(self._implementation, name)
 
         # Send the rest to normal __getattribute__

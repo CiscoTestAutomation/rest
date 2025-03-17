@@ -67,6 +67,16 @@ class Implementation(BaseConnection):
 
         raise NotImplementedError
 
+    def options(self, *args, **kwargs):
+        '''OPTIONS REST Command to retrieve supported methods'''
+
+        raise NotImplementedError
+
+    def head(self, *args, **kwargs):
+        '''HEAD REST Command to retrieve header fields'''
+
+        raise NotImplementedError
+
     def get(self, *args, **kwargs):
         '''GET REST Command to retrieve information from the device'''
 

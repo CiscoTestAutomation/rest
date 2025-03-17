@@ -156,7 +156,8 @@ setup(
 
     # package dependencies
     install_requires=[
-        'requests >= 1.15.1',
+        'requests >= 2.10.0',
+        'PySocks >= 1.5.6',
         'dict2xml',
         'f5-icontrol-rest',
         'ciscoisesdk'
