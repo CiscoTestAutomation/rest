@@ -119,7 +119,13 @@ class Implementation(RestImplementation):
             version_info = version_request.response
             # {'OperationResult': {'resultValue': [
             # {'value': '3.3.0.430', 'name': 'version'}, {'value': '0', 'name': 'patch information'}]}}
-            version_info_list = version_info.get('OperationResult', {}).get('resultValue', [])
+            # Check if version_info is a dictionary
+            if isinstance(version_info, dict):
+                # Proceed with accessing the version information
+                version_info_list = version_info.get('OperationResult', {}).get('resultValue', [])
+            else:
+                # Raise an appropriate error if version_info is not a dictionary
+                raise TypeError(f"Expected version_info to be a dictionary, but received {version_info}")
             version_message_list = []
             for version_nv in version_info_list:
                 name = version_nv.get('name')
