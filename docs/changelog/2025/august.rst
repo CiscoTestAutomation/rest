@@ -1,7 +1,7 @@
 August 2025
 ==========
 
-September 30 - Rest v25.8 
+August 23 - Rest v25.8 
 ------------------------
 
 
