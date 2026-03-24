@@ -51,6 +51,8 @@ class test_nso_test_connector(unittest.TestCase):
 </restconf>
 """
 
+        # Mock /api to return 404 so connect() falls through to /restconf
+        kwargs['mock'].get('http://198.51.100.2:8080/api', status_code=404)
         kwargs['mock'].get('http://198.51.100.2:8080/restconf', text=response_text)
         output = connection.connect(verbose=True).text
         self.assertEqual(output, response_text)
