@@ -1,0 +1,61 @@
+[build-system]
+requires = [
+    "meson-python",
+    "meson>=1.10.0",
+    "ninja",
+]
+build-backend = "mesonpy"
+
+[project]
+name = "rest.connector"
+version = "26.3"
+description = "pyATS REST connection package"
+readme = "DESCRIPTION.rst"
+requires-python = ">=3.9"
+authors = [
+    { name = "Cisco Systems Inc.", email = "pyats-support-ext@cisco.com" },
+]
+keywords = [
+    "pyats",
+    "rest",
+    "connector",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Telecommunications Industry",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "requests >= 1.15.1",
+    "dict2xml",
+    "f5-icontrol-rest",
+    "ciscoisesdk",
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",
+    "restview",
+    "Sphinx",
+    "sphinx-rtd-theme",
+    "requests-mock",
+]
+
+[project.urls]
+Homepage = "https://developer.cisco.com/pyats"
+
+[tool.meson-python.wheel]
+include = [
+    "*.py",
+    "*.yaml",
+]

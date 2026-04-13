@@ -27,7 +27,7 @@ PYTHON        = python3
 TESTCMD       = $(PYTHON) -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
 
-DEPENDENCIES  = f5-icontrol-rest requests_mock requests dict2xml ciscoisesdk
+DEPENDENCIES = f5-icontrol-rest requests_mock requests dict2xml ciscoisesdk
 
 .PHONY: clean package distribute distribute_staging distribute_staging_external\
         develop undevelop populate_dist_dir help docs pubdocs tests
@@ -75,8 +75,7 @@ package:
 
     # NOTE : Only specify --universal if the package works for both py2 and py3
     # https://packaging.python.org/en/latest/distributing.html#universal-wheels
-	@$(PYTHON) setup.py bdist_wheel --dist-dir=$(DISTDIR)
-	@$(PYTHON) setup.py sdist --dist-dir=$(DISTDIR)
+	@$(PYTHON) -m build --wheel --outdir=$(DISTDIR)
 
 	@echo ""
 	@echo "Completed building: $@"
@@ -91,8 +90,8 @@ develop:
 	@echo ""
 
 	@pip uninstall -y rest.connector || true
-	@pip install $(DEPENDENCIES)
-	@$(PYTHON) setup.py develop --no-deps -q
+	@pip install $(DEPENDENCIES) build
+	@$(PYTHON) -m pip install -e . --no-deps
 
 	@echo ""
 	@echo "Completed building and installing: $@"
@@ -106,7 +105,7 @@ undevelop:
 	@echo "Uninstalling $(PKG_NAME) development distributable: $@"
 	@echo ""
 
-	@./setup.py develop --no-deps -q --uninstall
+	@$(PYTHON) -m pip uninstall -y $(PKG_NAME)
 
 	@echo ""
 	@echo "Completed uninstalling: $@"
@@ -121,7 +120,9 @@ clean:
 	@rm -rf $(BUILDDIR)
 	@echo ""
 	@echo "Removing build artifacts ..."
-	@./setup.py clean
+	@find . -type f -name "*.pyc" -delete
+	@find . -type d -name "__pycache__" -prune -exec rm -rf {} +
+	@find . -type d -name "build" -prune -exec rm -rf {} +
 	@echo ""
 	@echo "Done."
 	@echo ""
