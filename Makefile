@@ -24,10 +24,12 @@
 PKG_NAME      = rest.connector
 BUILDDIR      = $(shell pwd)/__build__
 PYTHON        = python3
+PIP           = $(PYTHON) -m pip
 TESTCMD       = $(PYTHON) -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
 
 DEPENDENCIES = f5-icontrol-rest requests_mock requests dict2xml ciscoisesdk
+BUILD_DEPENDENCIES = meson-python 'meson>=1.10.0' ninja build
 
 .PHONY: clean package distribute distribute_staging distribute_staging_external\
         develop undevelop populate_dist_dir help docs pubdocs tests
@@ -89,9 +91,9 @@ develop:
 	@echo "Building and installing $(PKG_NAME) development distributable: $@"
 	@echo ""
 
-	@pip uninstall -y rest.connector || true
-	@pip install $(DEPENDENCIES) build
-	@$(PYTHON) -m pip install -e . --no-deps
+	@$(PIP) uninstall -y rest.connector || true
+	@$(PIP) install $(DEPENDENCIES) $(BUILD_DEPENDENCIES)
+	@$(PIP) install --no-build-isolation -e . --no-deps
 
 	@echo ""
 	@echo "Completed building and installing: $@"
