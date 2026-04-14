@@ -29,7 +29,7 @@ TESTCMD       = $(PYTHON) -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
 
 DEPENDENCIES = f5-icontrol-rest requests_mock requests dict2xml ciscoisesdk
-BUILD_DEPENDENCIES = meson-python 'meson>=1.10.0' ninja build
+BUILD_DEPENDENCIES = meson-python 'meson>=1.10.0' ninja build 'patchelf>=0.11.0; sys_platform == "linux"'
 
 .PHONY: clean package distribute distribute_staging distribute_staging_external\
         develop undevelop populate_dist_dir help docs pubdocs tests
