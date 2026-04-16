@@ -27,7 +27,7 @@ PYTHON        = python3
 TESTCMD       = $(PYTHON) -m unittest discover tests
 DISTDIR       = $(BUILDDIR)/dist
 
-DEPENDENCIES  = f5-icontrol-rest requests_mock requests dict2xml ciscoisesdk
+DEPENDENCIES  = f5-icontrol-rest requests_mock requests dict2xml "ciscoisesdk<=2.4.2"
 
 .PHONY: clean package distribute distribute_staging distribute_staging_external\
         develop undevelop populate_dist_dir help docs pubdocs tests
