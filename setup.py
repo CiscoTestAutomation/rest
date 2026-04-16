@@ -159,7 +159,7 @@ setup(
         'requests >= 1.15.1',
         'dict2xml',
         'f5-icontrol-rest',
-        'ciscoisesdk'
+        'ciscoisesdk<=2.4.2'
     ],
 
     # any additional groups of dependencies.
