@@ -19,7 +19,7 @@ HEADER        = [Rest Watchdog]
 HOSTNAME      = `hostname`
 
 # Dependencies for building documentation
-DEPENDENCIES = Sphinx==7.4.7 sphinxcontrib-napoleon sphinxcontrib-mockautodoc sphinx-rtd-theme
+DEPENDENCIES = Sphinx==7.4.7 sphinxcontrib-napoleon sphinxcontrib-mockautodoc sphinx-rtd-theme==3.1.0
 
 
 # User-friendly check for sphinx-build
