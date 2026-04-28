@@ -4,6 +4,7 @@ Changelog
 .. toctree::
    :maxdepth: 2
 
+   2026/april
    2026/march
    2026/february
    2026/january
@@ -52,7 +53,6 @@ Changelog
    2022/february
    2022/january
    2021/december
-   2021/october
    2021/september
    2021/august
    2021/july
@@ -62,6 +62,7 @@ Changelog
    2021/march
    2021/february
    2021/january
+   2020/december
    2020/october
    2020/september
    2020/august

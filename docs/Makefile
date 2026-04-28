@@ -19,7 +19,7 @@ HEADER        = [Rest Watchdog]
 HOSTNAME      = `hostname`
 
 # Dependencies for building documentation
-DEPENDENCIES = Sphinx sphinxcontrib-napoleon sphinxcontrib-mockautodoc sphinx-rtd-theme
+DEPENDENCIES = Sphinx==7.4.7 sphinxcontrib-napoleon sphinxcontrib-mockautodoc sphinx-rtd-theme
 
 
 # User-friendly check for sphinx-build
@@ -28,11 +28,11 @@ $(error The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx in
 endif
 
 # Internal variables.
-PAPEROPT_a4     = -D latex_paper_size=a4
-PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+PAPEROPT_a4     =
+PAPEROPT_letter =
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
-I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+I18NSPHINXOPTS  = $(SPHINXOPTS) .
 
 .PHONY: distribute help clean docs html dirhtml singlehtml\
 	    pickle json htmlhelp qthelp devhelp epub latex latexpdf text man\
