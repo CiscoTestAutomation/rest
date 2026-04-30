@@ -1,18 +1,19 @@
-May 2025
+April 2026
 ==========
 
-- Rest v25.5
-------------------------
+April 28 - Rest v26.4
+---------------------
 
 
 
 .. csv-table:: New Module Versions
     :header: "Modules", "Version"
 
-    ``rest.connector``, v25.5 
+    ``rest.connector``, v26.4
 
 
 
 
 Changelogs
 ^^^^^^^^^^
+

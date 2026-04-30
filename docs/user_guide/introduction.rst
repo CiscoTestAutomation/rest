@@ -33,7 +33,7 @@ Example use
 -----------
 
 
-To specify a ``Rest`` connection for your device, add the ``rest.connector.Rest`` class
+To specify a ``Rest``connection for your device, add the``rest.connector.Rest`` class
 to the connection for your devices in the testbed YAML file:
 
 .. code-block:: yaml
