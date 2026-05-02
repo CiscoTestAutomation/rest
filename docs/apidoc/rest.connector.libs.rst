@@ -19,7 +19,7 @@ dnac
     :show-inheritance:
 
 iosxe
-^^^^
+^^^^^
 .. automodule:: rest.connector.libs.iosxe.implementation
     :members:
     :undoc-members:
