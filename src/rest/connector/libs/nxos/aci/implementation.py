@@ -226,13 +226,20 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
 
-        full_url = "{f}{dn}?query-target={qt}&rsp-subtree={rs}"\
-                        "&rsp-prop-include={rpi}"\
-                          .format(f=self.url,
-                                  dn=dn,
-                                  qt=query_target,
-                                  rs=rsp_subtree,
-                                  rpi=rsp_prop_include)
+        full_url = "{f}{dn}".format(f=self.url, dn=dn.lstrip('/'))
+
+        if query_target:
+            full_url += "?query-target={qt}"\
+                .format(qt=query_target)
+
+        if rsp_subtree:
+            full_url += "&rsp-subtree={rs}"\
+                .format(rs=rsp_subtree)
+
+        if rsp_prop_include:
+            full_url += "&rsp-prop-include={rpi}"\
+                .format(rpi=rsp_prop_include)
+
         if query_target_filter:
             full_url += "&query-target-filter={qtf}"\
                 .format(qtf=query_target_filter)
@@ -293,7 +300,7 @@ class Implementation(Imp):
                             "alias '{a}'".format(d=self.device.name,
                                                  a=self.alias))
         # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        full_url = '{f}{dn}'.format(f=self.url, dn=dn.lstrip('/'))
 
         log.info("Sending POST command to '{d}':"\
                  "\nDN: {furl}\nPayload:{p}".format(d=self.device.name,
@@ -338,7 +345,7 @@ class Implementation(Imp):
                                                  a=self.alias))
 
         # Deal with the dn
-        full_url = '{f}{dn}'.format(f=self.url, dn=dn)
+        full_url = '{f}{dn}'.format(f=self.url, dn=dn.lstrip('/'))
 
         log.info("Sending DELETE command to '{d}':"\
                  "\nDN: {furl}".format(d=self.device.name, furl=full_url))
